@@ -3,7 +3,7 @@ Contributors: pan.vagenas
 Tags: feed, generate xml, price comparison, skroutz, skroutz.gr, xml, xml feed
 Requires at least: 3.5.1
 Tested up to: 4.2.2
-Stable tag: 160904
+Stable tag: 150825
 License: GNU General Public License V3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -39,13 +39,8 @@ Please consult WordPress plugin [installation guide](https://codex.wordpress.org
 
 == Changelog ==
 
-#### 151127
+#### 150825
 
-* Fix: Attributes with Greek slug won't appear in XML
-* Tweak: Support for larger product image sizes
-* Tweak: You can now include category full path (experimental, need feedback)
-* Tweak: Better message handling during XML generation
-* Tweak: Filters in XML generation log panel
 
 #### 150804
 

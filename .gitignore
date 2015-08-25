@@ -1,76 +1,66 @@
-# Created by https://www.gitignore.io
-
-### WordPress ###
+## Node.js
+lib-cov
+*.seed
 *.log
-sitemap.xml
-sitemap.xml.gz
-wp-config.php
-wp-content/advanced-cache.php
-wp-content/backup-db/
-wp-content/backups/
-wp-content/blogs.dir/
-wp-content/cache/
-wp-content/upgrade/
-wp-content/uploads/
-wp-content/wp-cache-config.php
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+pids
+logs/*
+results
+npm-debug.log
+node_modules
 
+## Bower
+# src/components
 
-### PhpStorm ###
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+## Sass
+.sass-cache
 
-/*.iml
+## OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
 
-## Directory-based project format:
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Ignore .scss files in build caused by the way gulp/gulp-ruby-sass handles errors
+build/**/*.scss
+
+# Map files
+*.map
+
+# Local testing folder
+testing
+
+# Vagrant
+.vagrant
+
+# Web/PHPstorm
+.idea
 .idea/
-# if you remove the above rule, at least ignore the follwing:
 
-# User-specific stuff:
-# .idea/workspace.xml
-# .idea/tasks.xml
-# .idea/dictionaries
+# WordPress
+wp-config-local.php
+wp-config-live.php
 
-# Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
+# PHP Testing
+!app/phpspec.yaml
+!app/phpunit.xml
 
-# Gradle:
-# .idea/gradle.xml
-# .idea/libraries
+#Composer
+/vendor
+composer.lock
 
-# Mongo Explorer plugin:
-# .idea/mongoSettings.xml
-
-## File-based project format:
-*.ipr
-*.iws
-
-## Plugin-specific files:
-
-# IntelliJ
-out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-
-
-### Vagrant ###
-.vagrant/
-
-
-### NetBeans ###
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-nbactions.xml
-nb-configuration.xml
+.idea/encodings.xml
+.workspace

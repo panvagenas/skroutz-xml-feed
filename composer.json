@@ -1,0 +1,17 @@
+{
+  "name": "vagenas/wp-plugins-core",
+  "description": "WP Plugins Core for developing plugins",
+  "license": "MIT",
+  "require": {
+    "getherbert/framework": "~0.9"
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "SkroutzXMLFeed\\": "app/"
+    }
+  }
+}
