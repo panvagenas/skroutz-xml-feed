@@ -34,5 +34,8 @@ class Diagnostic extends Singleton{
 	public function get(){
 		return $this->log;
 	}
-
+	public function __destruct(){
+//		$options = new Options();
+//		$options->set('log', $this->log);
+	}
 }

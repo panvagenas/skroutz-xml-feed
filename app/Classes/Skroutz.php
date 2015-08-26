@@ -8,7 +8,6 @@
 
 namespace SkroutzXMLFeed\Classes;
 
-
 class Skroutz {
 	/**
 	 * @var Options
@@ -62,7 +61,7 @@ class Skroutz {
 		if ( $time > $nextCreationTime ) {
 			$this->do_your_woo_stuff();
 		}
-		var_dump($this->©diagnostic->get());die;
+
 		$this->©xml->printXML();
 		exit( 0 );
 	}
@@ -122,7 +121,7 @@ class Skroutz {
 		}
 		wp_cache_flush();
 
-		return 1;//$this->©xml->saveXML() ? $this->©xml->countProductsInFile( $this->©xml->simpleXML ) : 0;
+		return $this->©xml->saveXML() ? $this->©xml->countProductsInFile( $this->©xml->simpleXML ) : 0;
 	}
 
 	/**
