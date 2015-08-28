@@ -9,33 +9,74 @@
 namespace SkroutzXMLFeed\Classes;
 
 
-class Diagnostic extends Singleton{
+class Diagnostic extends Singleton {
 	/**
 	 * @var array
 	 */
-	protected $log = array();
+	protected $log = array(
+		'info'    => array(),
+		'warning' => array(),
+		'error'   => array(),
+	);
+	/**
+	 * @var string
+	 */
+	protected $logArrayName = 'log';
+	/**
+	 * @var bool
+	 */
+	protected $shouldUpdate = false;
 
 	/**
 	 *
 	 */
-	protected function __construct(){
-		$options = new Options();
-		$this->log = $options->get('log');
+	protected function __construct() {
+		$this->logArrayName = Helper::getOptionsName() . '_xml_gen_log';
+		$this->log          = (array) get_option( $this->logArrayName );
 	}
 
-	public function clear(){
-		$this->log = array();
+	/**
+	 * @return $this
+	 */
+	public function clear() {
+		$this->log          = array(
+			'info'    => array(),
+			'warning' => array(),
+			'error'   => array(),
+		);
+
+		$this->shouldUpdate = true;
+
 		return $this;
 	}
-	public function add($msg){
-		$this->log[] = $msg;
+
+	/**
+	 * @param $msg
+	 *
+	 * @return $this
+	 */
+	public function add( $msg, $type = 'info' ) {
+		if ( is_string( $msg ) ) {
+			$this->log[ $type ][] = $msg;
+			$this->shouldUpdate   = true;
+		}
+
 		return $this;
 	}
-	public function get(){
+
+	/**
+	 * @return array
+	 */
+	public function get() {
 		return $this->log;
 	}
-	public function __destruct(){
-//		$options = new Options();
-//		$options->set('log', $this->log);
+
+	/**
+	 *
+	 */
+	public function __destruct() {
+		if ( $this->shouldUpdate ) {
+			update_option( $this->logArrayName, $this->log );
+		}
 	}
 }
