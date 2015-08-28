@@ -6,12 +6,6 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 $router->get([
-	'as'   => 'skroutzIndex',
-	'uri'  => '/skroutz/{action}',
-	'uses' => __NAMESPACE__ . '\Controllers\SkroutzController@index'
-]);
-
-$router->get([
 	'as'   => 'skroutzIndexGen',
 	'uri'  => '/skroutz',
 	'uses' => __NAMESPACE__ . '\Controllers\SkroutzController@generate'

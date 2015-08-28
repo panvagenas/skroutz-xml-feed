@@ -17,46 +17,31 @@ $customOptions = [
 ];
 
 $herbertOptions = [
-
 	'constraint'   => '~0.9.9',
 	'requires'     => [
-		__DIR__ . '/app/customPostTypes.php',
 		__DIR__ . '/includes/redux/admin-init.php',
 		__DIR__ . '/app/redux-options-init.php',
 		__DIR__ . '/includes/SimpleXMLExtended.php',
 	],
-	'tables'       => [
-	],
+	'tables'       => [ ],
 	'activators'   => [
 		__DIR__ . '/app/activate.php'
 	],
 	'deactivators' => [
 		__DIR__ . '/app/deactivate.php'
 	],
-	'shortcodes'   => [
-		__DIR__ . '/app/shortcodes.php'
-	],
-	'widgets'      => [
-		__DIR__ . '/app/widgets.php'
-	],
-	'enqueue'      => [
-		__DIR__ . '/app/enqueue.php'
-	],
+	'shortcodes'   => [ ],
+	'widgets'      => [ ],
+	'enqueue'      => [ ],
 	'routes'       => [
 		'SkroutzXMLFeed' => __DIR__ . '/app/routes.php'
 	],
-	'panels'       => [
-		'SkroutzXMLFeed' => __DIR__ . '/app/panels.php'
-	],
+	'panels'       => [ ],
 	'apis'         => [
 		'SkroutzXMLFeed' => __DIR__ . '/app/api.php'
 	],
-	'views'        => [
-		'SkroutzXMLFeed' => __DIR__ . '/resources/views'
-	],
-	'viewGlobals'  => [
-
-	],
+	'views'        => [ ],
+	'viewGlobals'  => [ ],
 	'assets'       => '/resources/assets/'
 ];
 

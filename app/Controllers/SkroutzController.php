@@ -13,14 +13,6 @@ use SkroutzXMLFeed\Classes\Options;
 use SkroutzXMLFeed\Classes\Skroutz;
 
 class SkroutzController {
-	public function index($action, Http $http){
-		if(method_exists($this, $action)){
-			return $this->$action($http);
-		}
-
-		return false;
-	}
-
 	public function generate(Http $http){
 		$options = new Options();
 
@@ -39,10 +31,6 @@ class SkroutzController {
 		if ($http->get($generateVar) === $generateVarVal) {
 			$skz = new Skroutz();
 			$skz->generate_and_print();
-			add_action('wp_loaded', function(){
-				$skz = new Skroutz();
-				$skz->generate_and_print();
-			});
 			return '';
 		}
 
