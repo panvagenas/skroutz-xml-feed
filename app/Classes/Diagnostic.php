@@ -22,10 +22,6 @@ class Diagnostic extends Singleton {
 	 * @var string
 	 */
 	protected $logArrayName = 'log';
-	/**
-	 * @var bool
-	 */
-	protected $shouldUpdate = false;
 
 	/**
 	 *
@@ -45,8 +41,6 @@ class Diagnostic extends Singleton {
 			'error'   => array(),
 		);
 
-		$this->shouldUpdate = true;
-
 		return $this;
 	}
 
@@ -58,7 +52,7 @@ class Diagnostic extends Singleton {
 	public function add( $msg, $type = 'info' ) {
 		if ( is_string( $msg ) ) {
 			$this->log[ $type ][] = $msg;
-			$this->shouldUpdate   = true;
+			update_option( $this->logArrayName, $this->log );
 		}
 
 		return $this;
@@ -69,14 +63,5 @@ class Diagnostic extends Singleton {
 	 */
 	public function get() {
 		return $this->log;
-	}
-
-	/**
-	 *
-	 */
-	public function __destruct() {
-		if ( $this->shouldUpdate ) {
-			update_option( $this->logArrayName, $this->log );
-		}
 	}
 }
