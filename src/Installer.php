@@ -11,9 +11,6 @@
 
 namespace Skroutz;
 
-
-use PanWPCore\Plugin;
-
 class Installer extends \PanWPCore\Installer{
 	/**
 	 * @return bool

@@ -40,7 +40,7 @@ Author URI: http://gr.linkedin.com/in/panvagenas
 Text Domain: skroutz-xml-feed
 Domain Path: /lang
 
-Plugin Name: Skroutz.gr XML Feed New
+Plugin Name: Skroutz.gr XML Feed
 Plugin URI: https://github.com/panvagenas/skroutz-xml-feed
 
 Description: Generate XML sheet according to skroutz.gr specs
