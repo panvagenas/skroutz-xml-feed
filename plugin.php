@@ -19,7 +19,7 @@
 
 /* -- WordPress® --------------------------------------------------------------------------------------------------------------------------
 
-Version: 150825
+Version: 150903
 Stable tag: 150825
 Tested up to: 4.2.2
 Requires at least: 3.5.1
@@ -38,9 +38,9 @@ Author: Panagiotis Vagenas <pan.vagenas@gmail.com>
 Author URI: http://gr.linkedin.com/in/panvagenas
 
 Text Domain: skroutz-xml-feed
-Domain Path: /translations
+Domain Path: /lang
 
-Plugin Name: Skroutz.gr XML Feed
+Plugin Name: Skroutz.gr XML Feed New
 Plugin URI: https://github.com/panvagenas/skroutz-xml-feed
 
 Description: Generate XML sheet according to skroutz.gr specs
@@ -51,9 +51,12 @@ Kudos: WebSharks™ http://www.websharks-inc.com
 
 -- end section for WordPress®. --------------------------------------------------------------------------------------------------------- */
 
+namespace Skroutz;
+
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/vendor/getherbert/framework/bootstrap/autoload.php';
+
+$plugin = new Plugin(__NAMESPACE__, __FILE__, 'Skroutz.gr XML Feed', '150903', 'skroutz-xml-feed', 'skroutz_xml_feed');
