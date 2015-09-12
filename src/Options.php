@@ -59,11 +59,70 @@ class Options extends \PanWPCore\Options {
 		),
 	);
 
+	protected $defaults = array();
+
 	/**
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since  TODO ${VERSION}
 	 */
 	public function setup() {
+		$generateVarVal = $this->Options->get( 'xml_generate_var_value' );
+		if ( empty( $generateVarVal ) ) {
+			$factory   = new \RandomLib\Factory;
+			$generator = $factory->getGenerator( new \SecurityLib\Strength( \SecurityLib\Strength::MEDIUM ) );
+
+			$generateVarVal = $generator->generateString( 24, \RandomLib\Generator::CHAR_ALNUM );
+
+			$this->set( 'xml_generate_var_value', $generateVarVal );
+		}
+
+		$this->defaults = array(
+			/*********************
+			 * XML File relative
+			 ********************/
+			// File location
+			'xml_location'           => '',
+			// File name
+			'xml_fileName'           => 'skroutz.xml',
+			// Generation interval
+			'xml_interval'           => 24,
+			// XML Generate Request Var
+			'xml_generate_var'       => 'skroutz',
+			// XML Generate Request Var Value
+			'xml_generate_var_value' => $generateVarVal,
+			/*********************
+			 * Products relative
+			 ********************/
+			// excluded categories
+			'categories'             => array(),
+			// Availability when products in stock
+			'avail_inStock'          => 0,
+			// Availability when products out stock
+			'avail_outOfStock'       => count(self::$availOptions),
+			// Availability when products out stock and backorders are allowed
+			'avail_backorders'       => count(self::$availOptions),
+			/*********************
+			 * Custom fields
+			 ********************/
+			'map_id'                 => 0,
+			'map_name'               => 0,
+			'map_name_append_sku'    => false,
+			'map_category'           => 'product_cat',
+			'map_price_with_vat'     => 1,
+			'map_manufacturer'       => 'product_cat',
+			'map_mpn'                => 0,
+			/***********************************************
+			 * Fashion store
+			 ***********************************************/
+			'is_fashion_store'       => false,
+			'map_size'               => array(),
+			'map_color'              => array(),
+			/***********************************************
+			 * ISBN
+			 ***********************************************/
+			'map_isbn'               => 0,
+			'is_book_store'          => false,
+		);
 		add_action( 'woocommerce_after_register_taxonomy', array( $this, 'setupOptionsPage' ) );
 	}
 
@@ -72,7 +131,7 @@ class Options extends \PanWPCore\Options {
 	 * @since  TODO ${VERSION}
 	 */
 	public function setupOptionsPage() {
-		$params = array(
+		$params       = array(
 			'ajax_nonce' => wp_create_nonce( 'skz_gen_now' ),
 		);
 		$scriptHandle = $this->Scripts->getScriptHandle( 'skz_gen_now' );
@@ -85,8 +144,8 @@ class Options extends \PanWPCore\Options {
 			'<div class="bskz"><span class="spinner"></span>
 				<a class="btn btn-primary btn-md pull-right" id="genarate-now" href="#" target="_blank" role="button" style="min-width: 184px;">
 					<i class="glyphicon glyphicon-refresh glyphicon-refresh-animate hidden"></i> '
-					. $this->I18n->__( 'Generate XML Now' )
-				. '</a>
+			. $this->I18n->__( 'Generate XML Now' )
+			. '</a>
 			</div>
 			<div style="clear:both;"></div>' );
 
@@ -121,10 +180,10 @@ class Options extends \PanWPCore\Options {
 						'type'          => 'slider',
 						'title'         => $this->I18n->__( 'XML File Generation Interval' ),
 						'desc'          => $this->I18n->__( 'Choose the interval of XML file generation' ),
-						"default"       => 6,
-						"min"           => 0,
-						"step"          => 1,
-						"max"           => 24,
+						'default'       => $this->getDefaults('xml_interval'),
+						'min'           => 0,
+						'step'          => 1,
+						'max'           => 24,
 						'display_value' => 'Hours'
 					),
 					array(
@@ -134,7 +193,7 @@ class Options extends \PanWPCore\Options {
 						'title'   => $this->I18n->__( 'Product categories to exclude' ),
 						'desc'    => $this->I18n->__( 'All products in selected categories will be excluded from XML' ),
 						'options' => $prodCatsOptions,
-						'default' => array(),
+						'default' => $this->getDefaults('categories'),
 					),
 					array(
 						'id'       => 'avail_inStock',
@@ -142,7 +201,7 @@ class Options extends \PanWPCore\Options {
 						'title'    => $this->I18n->__( 'Product availability when item is in stock' ),
 						'desc'     => $this->I18n->__( 'Choose the availability of product when this is in stock' ),
 						'options'  => $availOptions,
-						'default'  => '0',
+						'default'  => $this->getDefaults('avail_inStock'),
 						'validate' => 'numeric',
 					),
 					array(
@@ -151,7 +210,7 @@ class Options extends \PanWPCore\Options {
 						'title'    => $this->I18n->__( 'Product availability when item is out of stock' ),
 						'desc'     => $this->I18n->__( 'Choose the availability of product when this is out of stock' ),
 						'options'  => $availOptionsDoNotInclude,
-						'default'  => (string) ( count( $availOptionsDoNotInclude ) - 1 ),
+						'default'  => $this->getDefaults('avail_outOfStock'),
 						'validate' => 'numeric',
 
 					),
@@ -161,7 +220,7 @@ class Options extends \PanWPCore\Options {
 						'title'    => $this->I18n->__( 'Product availability when item is out of stock and backorders are allowed' ),
 						'desc'     => $this->I18n->__( 'Choose the availability of product when this is out of stock and backorders are allowed' ),
 						'options'  => $availOptionsDoNotInclude,
-						'default'  => (string) ( count( $availOptionsDoNotInclude ) - 1 ),
+						'default'  => $this->getDefaults('avail_backorders'),
 						'validate' => 'numeric',
 					),
 				)
@@ -178,7 +237,7 @@ class Options extends \PanWPCore\Options {
 						'type'     => 'text',
 						'title'    => $this->I18n->__( 'XML Request Generate Variable' ),
 						'desc'     => $this->I18n->__( 'Request Variable relative to WordPress URL' ),
-						'default'  => 'skroutz',
+						'default'  => $this->getDefaults('xml_generate_var'),
 						'validate' => 'not_empty',
 					),
 					array(
@@ -186,7 +245,7 @@ class Options extends \PanWPCore\Options {
 						'type'     => 'text',
 						'title'    => $this->I18n->__( 'XML Request Generate Variable Value' ),
 						'desc'     => $this->I18n->__( 'Request Variable Value' ),
-						'default'  => $this->get('xml_generate_var_value'),
+						'default'  => $this->getDefaults('xml_generate_var_value'),
 						'validate' => 'not_empty',
 					),
 					array(
@@ -194,7 +253,7 @@ class Options extends \PanWPCore\Options {
 						'type'     => 'text',
 						'title'    => $this->I18n->__( 'Cached XML Filename' ),
 						'desc'     => $this->I18n->__( 'The name of the generated XML file' ),
-						'default'  => 'skroutz.xml',
+						'default'  => $this->getDefaults('xml_fileName'),
 						'validate' => 'not_empty',
 					),
 					array(
@@ -202,7 +261,7 @@ class Options extends \PanWPCore\Options {
 						'type'              => 'text',
 						'title'             => $this->I18n->__( 'XML File Location' ),
 						'desc'              => $this->I18n->__( 'Enter the location you want the file to be saved, relative to WordPress install dir' ),
-						'default'           => '',
+						'default'           => $this->getDefaults('xml_location'),
 						'validate_callback' => array( $this->Paths, 'reduxCallBackValidateLocalPath' ),
 					),
 				)
@@ -224,7 +283,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product ID' ),
 			'desc'              => $this->I18n->__( 'Choose from where the product id should be taken' ),
 			'options'           => $options,
-			'default'           => 1,
+			'default'           => $this->getDefaults('map_id'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -248,7 +307,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product Manufacturer Field' ),
 			'desc'              => $this->I18n->__( 'Choose from where the product manufacturer should be taken' ),
 			'options'           => $options,
-			'default'           => 'product_cat',
+			'default'           => $this->getDefaults('map_manufacturer'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -268,7 +327,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product Manufacturer SKU' ),
 			'desc'              => $this->I18n->__( 'Choose from where the product manufacturer SKU should be taken' ),
 			'options'           => $options,
-			'default'           => 0,
+			'default'           => $this->getDefaults('map_mpn'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -286,7 +345,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product Name' ),
 			'desc'              => $this->I18n->__( 'Which field should be used for generating the product name' ),
 			'options'           => $options,
-			'default'           => 0,
+			'default'           => $this->getDefaults('map_name'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -296,7 +355,7 @@ class Options extends \PanWPCore\Options {
 			'type'    => 'switch',
 			'title'   => $this->I18n->__( 'Append SKU to Product Name' ),
 			'desc'    => $this->I18n->__( 'If you check this the product SKU will be appended to product name. If no SKU is set then product ID will be used' ),
-			'default' => false,
+			'default' => $this->getDefaults('map_name_append_sku'),
 		);
 
 		$options = array(
@@ -311,7 +370,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product Price' ),
 			'desc'              => $this->I18n->__( 'Choose the price you want to use in XML' ),
 			'options'           => $options,
-			'default'           => 1,
+			'default'           => $this->getDefaults('map_price_with_vat'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -331,7 +390,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'Product Categories' ),
 			'desc'              => $this->I18n->__( 'Which taxonomy describes best your products' ),
 			'options'           => $options,
-			'default'           => 'product_cat',
+			'default'           => $this->getDefaults('map_category'),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
 		);
@@ -341,7 +400,7 @@ class Options extends \PanWPCore\Options {
 			'type'    => 'switch',
 			'title'   => $this->I18n->__( 'This Store Contains Fashion Products' ),
 			'desc'    => $this->I18n->__( 'Check this if your store has fashion products' ),
-			'default' => false,
+			'default' => $this->getDefaults('is_fashion_store'),
 		);
 
 		$options = array();
@@ -357,7 +416,7 @@ class Options extends \PanWPCore\Options {
 			'title'    => $this->I18n->__( 'Product Sizes' ),
 			'desc'     => $this->I18n->__( 'Select the attribute that describes product sizes' ),
 			'options'  => $options,
-			'default'  => array(),
+			'default'  => $this->getDefaults('map_size'),
 			'required' => array( 'is_fashion_store', '=', true )
 		);
 
@@ -368,7 +427,7 @@ class Options extends \PanWPCore\Options {
 			'title'    => $this->I18n->__( 'Product Colors' ),
 			'desc'     => $this->I18n->__( 'Select the attribute that describes product colors' ),
 			'options'  => $options,
-			'default'  => array(),
+			'default'  => $this->getDefaults('map_color'),
 			'required' => array( 'is_fashion_store', '=', true )
 		);
 
@@ -377,7 +436,7 @@ class Options extends \PanWPCore\Options {
 			'type'    => 'switch',
 			'title'   => $this->I18n->__( 'This is a Bookstore' ),
 			'desc'    => $this->I18n->__( 'Check this if you are selling books. In this case you must set the ISBN of each book' ),
-			'default' => false,
+			'default' => $this->getDefaults('is_book_store'),
 		);
 
 		$options = array( $this->I18n->__( 'Use Product SKU' ) );
@@ -392,7 +451,7 @@ class Options extends \PanWPCore\Options {
 			'title'             => $this->I18n->__( 'ISBN' ),
 			'desc'              => $this->I18n->__( 'Choose the field that contains books ISBN' ),
 			'options'           => $options,
-			'default'           => 0,
+			'default'           => $this->getDefaults('map_isbn'),
 			'required'          => array( 'is_book_store', '=', true ),
 			'validate_callback' => array( $this, 'reduxCallBackValidateMapOptions' ),
 			'select2'           => array( 'allowClear' => false ),
@@ -409,7 +468,7 @@ class Options extends \PanWPCore\Options {
 
 		$this->Redux->addSection( $this->I18n->__( 'XML Generation Log' ), 'log-section', false, '',
 			array(
-				'class' => 'bskz',
+				'class'  => 'bskz',
 				'fields' => array(
 					array(
 						'id'      => 'show_log',

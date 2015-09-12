@@ -36,16 +36,6 @@ class Installer extends \PanWPCore\Installer{
 			$this->Options->set('xml_interval', $intervalInHours);
 		}
 
-		$generateVarVal = $this->Options->get( 'xml_generate_var_value' );
-		if ( empty( $generateVarVal ) ) {
-			$factory   = new \RandomLib\Factory;
-			$generator = $factory->getGenerator( new \SecurityLib\Strength( \SecurityLib\Strength::MEDIUM ) );
-
-			$generateVarVal = $generator->generateString( 24, \RandomLib\Generator::CHAR_ALNUM );
-
-			$this->Options->set( 'xml_generate_var_value', $generateVarVal );
-		}
-
 		return true;
 	}
 

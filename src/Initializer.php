@@ -49,16 +49,6 @@ class Initializer extends \PanWPCore\Initializer {
 			$this->Options->set( 'xml_generate_var', $generateVar );
 		}
 
-		$generateVarVal = $this->Options->get( 'xml_generate_var_value' );
-		if ( empty( $generateVarVal ) ) {
-			$factory   = new \RandomLib\Factory;
-			$generator = $factory->getGenerator( new \SecurityLib\Strength( \SecurityLib\Strength::MEDIUM ) );
-
-			$generateVarVal = $generator->generateString( 24, \RandomLib\Generator::CHAR_ALNUM );
-
-			$this->Options->set( 'xml_generate_var_value', $generateVarVal );
-		}
-
 		if ( isset( $_GET[ $generateVar ] ) && $_GET[ $generateVar ] == $generateVarVal ) {
 			add_action( 'wp_loaded', array( $this->Skroutz, 'generate_and_print' ), PHP_INT_MAX );
 		}
