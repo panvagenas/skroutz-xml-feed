@@ -10,7 +10,7 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz\Log\Handlers;
+namespace SkroutzXML\Log\Handlers;
 
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Logger as MonoLogger;

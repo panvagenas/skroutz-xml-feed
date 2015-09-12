@@ -9,7 +9,7 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
 
 class Paths extends \PanWPCore\Paths {

@@ -51,7 +51,7 @@ Kudos: WebSharks™ http://www.websharks-inc.com
 
 -- end section for WordPress®. --------------------------------------------------------------------------------------------------------- */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
 if ( ! defined( 'WPINC' ) ) {
 	die;

@@ -9,14 +9,14 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
-use Skroutz\Log\Logger;
+use SkroutzXML\Log\Logger;
 
 
 /**
  * Class Plugin
- * @package Skroutz
+ * @package SkroutzXML
  * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @since TODO ${VERSION}
  *

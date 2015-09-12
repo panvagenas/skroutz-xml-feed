@@ -9,14 +9,14 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
-use Skroutz\Log\Logger;
+use SkroutzXML\Log\Logger;
 
 /**
  * Class Initializer
  *
- * @package Skroutz
+ * @package SkroutzXML
  * @author  Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @since   TODO ${VERSION}
  *
@@ -33,7 +33,7 @@ class Initializer extends \PanWPCore\Initializer {
 		$this->Scripts->enqueueAdminStyle( $this->Scripts->getScriptHandle( 'bootstrap' ),
 			'/' . $this->Paths->pluginDirRel( '/assets/css/bootstrap.css' ) );
 		$this->Scripts->enqueueAdminScript( $this->Scripts->getScriptHandle( 'skz_gen_now' ),
-			'/' . $this->Paths->pluginDirRel( '/assets/js/genarate-now.js' ) );
+			'/' . $this->Paths->pluginDirRel( '/assets/js/genarate-now.min.js' ) );
 
 		add_action( 'wp_ajax_skz_generate_now', array( $this->Ajax, 'generateNow' ) );
 	}

@@ -9,7 +9,7 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz\Log;
+namespace SkroutzXML\Log;
 
 
 class Logger extends \PanWPCore\Log\Logger{

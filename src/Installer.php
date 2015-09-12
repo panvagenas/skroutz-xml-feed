@@ -9,7 +9,7 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
 class Installer extends \PanWPCore\Installer{
 	/**
@@ -54,7 +54,7 @@ class Installer extends \PanWPCore\Installer{
 	 * @since  TODO ${VERSION}
 	 */
 	public static function uninstall(){
-		$plugin = new Plugin(__NAMESPACE__, dirname(dirname(__FILE__)).'/plugin.php', 'Skroutz.gr XML Feed', '*', 'skroutz-xml-feed', 'skroutz_xml_feed');
+		$plugin = new Plugin(__NAMESPACE__, dirname(dirname(__FILE__)).'/plugin.php', 'SkroutzXML.gr XML Feed', '*', 'skroutz-xml-feed', 'skroutz_xml_feed');
 		delete_option($plugin->Options->getOptName());
 		return true;
 	}

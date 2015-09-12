@@ -9,7 +9,7 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
 
 use PanWPCore\Core;
@@ -17,11 +17,11 @@ use PanWPCore\Core;
 /**
  * Class Ajax
  *
- * @package Skroutz
+ * @package SkroutzXML
  * @author  Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @since   TODO ${VERSION}
  *
- * @property \Skroutz\Skroutz $Skroutz
+ * @property \SkroutzXML\Skroutz $Skroutz
  */
 class Ajax extends Core{
 	public function generateNow(){
@@ -30,8 +30,7 @@ class Ajax extends Core{
 		if(!is_super_admin()){
 			$this->sendJSONResult(array(
 				'included' => 0,
-				'msg' => 'Action not permited',
-				'posts_per_page' => -1
+				'msg' => 'Action not permited'
 			));
 		}
 

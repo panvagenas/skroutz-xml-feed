@@ -9,17 +9,17 @@
  * Copyright: 2015 Panagiotis Vagenas
  */
 
-namespace Skroutz;
+namespace SkroutzXML;
 
 
 use PanWPCore\Core;
 use PanWPCore\Log\Handlers\DBHandler;
-use Skroutz\Log\Handlers\HtmlFormater;
-use Skroutz\Log\Logger;
+use SkroutzXML\Log\Handlers\HtmlFormater;
+use SkroutzXML\Log\Logger;
 
 /**
  * Class Skroutz
- * @package Skroutz
+ * @package SkroutzXML
  * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @since TODO ${VERSION}
  *
@@ -43,12 +43,12 @@ class Skroutz extends Core{
 		$logHandler->setFormatter(new HtmlFormater());
 		$this->Log__Logger->addDBHandler($logHandler, \Monolog\Logger::INFO);
 
-		$this->Log__Logger->addInfo( '<strong>Skroutz XML generation started at ' . date( 'd M, Y H:i:s' ) . '</strong>' );
+		$this->Log__Logger->addInfo( '<strong>SkroutzXML XML generation started at ' . date( 'd M, Y H:i:s' ) . '</strong>' );
 
 		$prodInXml = $this->processProducts();
 
 		$this->Log__Logger->addInfo(
-			'<strong>Skroutz XML generation finished at '
+			'<strong>SkroutzXML XML generation finished at '
 			. date( 'd M, Y H:i:s' )
 			. '</strong><br>Time taken: ' . round( microtime( true ) - $sTime, 20 ) . ' sec<br>
 			Mem details: ' . $this->Env->memory_details() );
