@@ -51,7 +51,7 @@ class Ajax extends Core{
 	 * @since  TODO ${VERSION}
 	 */
 	public function sendJSONResult($response, $responseCode = 200){
-		header( 'application/json', $responseCode );
+		header( 'Content-Type: application/json', $responseCode );
 		echo json_encode( $response );
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			wp_die();
