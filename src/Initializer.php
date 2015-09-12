@@ -11,7 +11,6 @@
 
 namespace Skroutz;
 
-use PanWPCore\Dumper;
 use Skroutz\Log\Logger;
 
 /**
@@ -55,7 +54,7 @@ class Initializer extends \PanWPCore\Initializer {
 			$factory   = new \RandomLib\Factory;
 			$generator = $factory->getGenerator( new \SecurityLib\Strength( \SecurityLib\Strength::MEDIUM ) );
 
-			$generateVarVal = $generator->generateString( 24, Generator::CHAR_ALNUM );
+			$generateVarVal = $generator->generateString( 24, \RandomLib\Generator::CHAR_ALNUM );
 
 			$this->Options->set( 'xml_generate_var_value', $generateVarVal );
 		}
