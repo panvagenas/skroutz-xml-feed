@@ -644,7 +644,18 @@ class Skroutz extends Core{
 	 * @since TODO ${VERSION}
 	 */
 	public static function hasBrandsPlugin() {
-		return is_plugin_active( 'woocommerce-brands/woocommerce-brands.php' ) && taxonomy_exists( 'product_brand' );
+		return (in_array( 'woocommerce-brands/woocommerce-brands.php', (array) get_option( 'active_plugins', array() ) ) || self::is_plugin_active_for_network( 'woocommerce-brands/woocommerce-brands.php' )) && taxonomy_exists( 'product_brand' );
+	}
+
+	private static function is_plugin_active_for_network( $plugin ) {
+		if ( !is_multisite() )
+			return false;
+
+		$plugins = get_site_option( 'active_sitewide_plugins');
+		if ( isset($plugins[$plugin]) )
+			return true;
+
+		return false;
 	}
 
 	/**
