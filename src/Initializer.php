@@ -44,6 +44,8 @@ class Initializer extends \PanWPCore\Initializer {
 	 */
 	public function checkRequest() {
 		$generateVar = $this->Options->get( 'xml_generate_var' );
+		$generateVarVal = $this->Options->get( 'xml_generate_var_value' );
+
 		if ( empty( $generateVar ) ) {
 			$generateVar = 'skroutz';
 			$this->Options->set( 'xml_generate_var', $generateVar );
