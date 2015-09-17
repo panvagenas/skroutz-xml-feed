@@ -443,11 +443,12 @@ class Skroutz extends Core{
 	 */
 	protected function getProductId( \WC_Product &$product ) {
 		$option = $this->Options->get( 'map_id' );
-		if ( $option == 0 ) {
+		if ( $option == 'sku' ) {
 			return $product->get_sku();
-		} else {
+		} elseif ($option == 'id'){
 			return $product->id;
 		}
+		return null;
 	}
 
 	/**
@@ -460,8 +461,10 @@ class Skroutz extends Core{
 	protected function getProductMPN( \WC_Product &$product ) {
 		$option = $this->Options->get( 'map_mpn' );
 
-		if ( $option == 0 ) {
+		if ( $option == 'sku' ) {
 			return $product->get_sku();
+		} elseif ($option == 'id'){
+			return $product->id;
 		}
 
 		return $this->getProductAttrValue( $product, $option, $product->get_sku() );
