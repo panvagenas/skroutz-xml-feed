@@ -22,6 +22,6 @@ use SkroutzXML\Log\Logger;
  *
  * @property Logger $Log__Logger
  */
-class Plugin extends \PanWPCore\Plugin{
+class Plugin extends \WPluginCore002\Plugin\Plugin{
 
 }

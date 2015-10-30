@@ -12,7 +12,7 @@
 namespace SkroutzXML;
 
 
-use PanWPCore\Core;
+use WPluginCore002\Abs\AbsClass;
 
 /**
  * Class Ajax
@@ -23,7 +23,7 @@ use PanWPCore\Core;
  *
  * @property \SkroutzXML\Skroutz $Skroutz
  */
-class Ajax extends Core{
+class Ajax extends AbsClass{
 	public function generateNow(){
 		check_ajax_referer( 'skz_gen_now', 'nonce' );
 

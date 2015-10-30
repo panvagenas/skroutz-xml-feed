@@ -13,10 +13,15 @@ namespace SkroutzXML;
 
 
 use Monolog\Logger;
-use PanWPCore\Redux;
-use RandomLib\Generator;
+use WPluginCore002\Helpers\Random;
+use WPluginCore002\Options\Components\Section;
+use WPluginCore002\Options\Fields\Select;
+use WPluginCore002\Options\Fields\Slider;
+use WPluginCore002\Options\MenuPages\MenuPage;
+use WPluginCore002\Scripts\AdminScript;
+use WPluginCore002\Translations\I18n;
 
-class Options extends \PanWPCore\Options {
+class Options extends \WPluginCore002\Options\Options {
 	/**
 	 * @var string
 	 */
@@ -59,20 +64,18 @@ class Options extends \PanWPCore\Options {
 		),
 	);
 
+	protected $options = array();
 	protected $defaults = array();
 
 	/**
 	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
 	 * @since  TODO ${VERSION}
 	 */
-	public function setup() {
-		$generateVarVal = $this->Options->get( 'xml_generate_var_value' );
+	public function menuPages() {
+		$generateVarVal = $this->get( 'xml_generate_var_value', null );
+
 		if ( empty( $generateVarVal ) ) {
-			$factory   = new \RandomLib\Factory;
-			$generator = $factory->getGenerator( new \SecurityLib\Strength( \SecurityLib\Strength::MEDIUM ) );
-
-			$generateVarVal = $generator->generateString( 24, \RandomLib\Generator::CHAR_ALNUM );
-
+			$generateVarVal = Random::lowStrengthRandomString(12);
 			$this->set( 'xml_generate_var_value', $generateVarVal );
 		}
 
@@ -123,6 +126,7 @@ class Options extends \PanWPCore\Options {
 			'map_isbn'               => 0,
 			'is_book_store'          => false,
 		);
+
 		add_action( 'woocommerce_after_register_taxonomy', array( $this, 'setupOptionsPage' ) );
 	}
 
@@ -131,23 +135,37 @@ class Options extends \PanWPCore\Options {
 	 * @since  TODO ${VERSION}
 	 */
 	public function setupOptionsPage() {
+		/* @var I18n $translator */
+		$translator = $this->plugin->getFactory()->createOrGet('Translation\\I18n');
+
 		$params       = array(
 			'ajax_nonce' => wp_create_nonce( 'skz_gen_now' ),
 		);
-		$scriptHandle = $this->Scripts->getScriptHandle( 'skz_gen_now' );
-		add_action( 'admin_enqueue_scripts', function () use ( $params, $scriptHandle ) {
-			wp_localize_script( $scriptHandle, 'skz', $params );
-		} );
 
+		$scriptHandle = 'skz_gen_now';
 
-		$this->Redux->setArg( 'intro_text',
+		/* @var AdminScript $skzScript */
+		$skzScript = $this->plugin->getFactory()->createOrGet('Scripts\\AdminScript', $scriptHandle);
+		$skzScript->enqueue();
+
+		$this->plugin->getHookFactory()->action('admin_enqueue_scripts',
+			function() use ($params, $scriptHandle){
+				wp_localize_script( $scriptHandle, 'skz', $params );
+			}
+		)->add();
+
+		/* @var MenuPage $menuPage */
+		$menuPage = $this->plugin->getFactory()->createOrGet('Options\\MenuPages\\MenuPage');
+
+		$menuPage->setIntroText(
 			'<div class="bskz"><span class="spinner"></span>
 				<a class="btn btn-primary btn-md pull-right" id="genarate-now" href="#" target="_blank" role="button" style="min-width: 184px;">
 					<i class="glyphicon glyphicon-refresh glyphicon-refresh-animate hidden"></i> '
-			. $this->I18n->__( 'Generate XML Now' )
+			. $translator->__( 'Generate XML Now' )
 			. '</a>
 			</div>
-			<div style="clear:both;"></div>' );
+			<div style="clear:both;"></div>'
+		);
 
 		$availOptions = array();
 		foreach ( Options::$availOptions as $value => $label ) {
@@ -156,10 +174,13 @@ class Options extends \PanWPCore\Options {
 
 		$availOptionsDoNotInclude = $availOptions;
 
-		$availOptionsDoNotInclude[ count( $availOptions ) ] = '<span style="color: red;">' . $this->I18n->__( 'Do not Include' ) . '</span>';
+		$availOptionsDoNotInclude[ count( $availOptions ) ] = '<span style="color: red;">' . $translator->__( 'Do not Include' ) . '</span>';
 
-		$this->Redux->addSection( $this->I18n->__( 'General Options' ), 'general-options', false, '',
-			array( 'icon' => 'el el-edit' ) );
+		/* @var Section $genOptionsSection */
+		$genOptionsSection = $this->plugin->getFactory()->createOrGet('Options\\Components\\Section', $translator->__( 'General Options' ));
+		$genOptionsSection->setIcon('el el-edit');
+
+		$menuPage->addSection($genOptionsSection);
 
 		$productCats = get_terms( 'product_cat', array( 'orderby' => 'name' ) );
 
@@ -170,31 +191,33 @@ class Options extends \PanWPCore\Options {
 			}
 		}
 
+		/* @var Section $basicOptionsSection */
+		$basicOptionsSection = $this->plugin->getFactory()->createOrGet('Options\\Components\\SubSection', $translator->__( 'Basic Options' ));
+		$basicOptionsSection->setIcon('el el-home');
+
+		$menuPage->addSection($basicOptionsSection);
+
+		$fieldXmlInterval = new Slider('xml_interval', $translator->__( 'XML File Generation Interval' ), $this->def('xml_interval'));
+		$fieldXmlInterval
+			->setDesc($translator->__( 'Choose the interval of XML file generation' ))
+			->setMin(0)
+			->setMax(24)
+			->setStep(1)
+			->setDisplayValue($translator->__('Hours'));
+
+		$basicOptionsSection->addField($fieldXmlInterval);
+
+		$fieldCategories = new Select('categories', $translator->__( 'Product categories to exclude' ), $this->def('categories'));
+		$fieldCategories
+			->setDesc($translator->__( 'Choose the availability of product when this is in stock' ))
+			->setOptions($availOptions);
+
+		$basicOptionsSection->addField($fieldCategories);
 
 		$this->Redux->addSection( $this->I18n->__( 'Basic Options' ), 'basic-options', true, '',
 			array(
 				'icon'   => 'el el-home',
 				'fields' => array(
-					array(
-						'id'            => 'xml_interval',
-						'type'          => 'slider',
-						'title'         => $this->I18n->__( 'XML File Generation Interval' ),
-						'desc'          => $this->I18n->__( 'Choose the interval of XML file generation' ),
-						'default'       => $this->getDefaults('xml_interval'),
-						'min'           => 0,
-						'step'          => 1,
-						'max'           => 24,
-						'display_value' => 'Hours'
-					),
-					array(
-						'id'      => 'categories',
-						'type'    => 'select',
-						'multi'   => true,
-						'title'   => $this->I18n->__( 'Product categories to exclude' ),
-						'desc'    => $this->I18n->__( 'All products in selected categories will be excluded from XML' ),
-						'options' => $prodCatsOptions,
-						'default' => $this->getDefaults('categories'),
-					),
 					array(
 						'id'       => 'avail_inStock',
 						'type'     => 'radio',

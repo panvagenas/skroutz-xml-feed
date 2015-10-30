@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "hash": "31a53cab05a4bb7f8b8e75c025f8b7ff",
+    "content-hash": "8888b47942c0a0c390bd97a728df7bac",
     "packages": [
         {
             "name": "aura/session",
@@ -504,12 +505,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/panvagenas/wp-plugin-core.git",
-                "reference": "03658a99ceb10287d28f212ff3540f145f8d3be2"
+                "reference": "2d5deeff5b042a5fac07002dadb0621c6a95a38d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/panvagenas/wp-plugin-core/zipball/03658a99ceb10287d28f212ff3540f145f8d3be2",
-                "reference": "03658a99ceb10287d28f212ff3540f145f8d3be2",
+                "url": "https://api.github.com/repos/panvagenas/wp-plugin-core/zipball/2d5deeff5b042a5fac07002dadb0621c6a95a38d",
+                "reference": "2d5deeff5b042a5fac07002dadb0621c6a95a38d",
                 "shasum": ""
             },
             "require": {
@@ -525,8 +526,9 @@
                 "vierbergenlars/php-semver": "3.*"
             },
             "require-dev": {
+                "codacy/coverage": "dev-master",
                 "devster/ubench": "1.*",
-                "phpunit/phpunit": "4.8.*",
+                "mikey179/vfsstream": "~1",
                 "symfony/var-dumper": "2.7.*"
             },
             "type": "library",
@@ -552,7 +554,7 @@
                 }
             ],
             "description": "WP Plugins Core for developing plugins",
-            "time": "2015-10-16 08:02:29"
+            "time": "2015-10-21 11:57:24"
         },
         {
             "name": "psr/log",
@@ -1268,16 +1270,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.13",
+            "version": "4.8.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "be067d6105286b74272facefc2697038f8807b77"
+                "reference": "be8f7b9eacf8243940f8412f8b4a9a434c73dd7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/be067d6105286b74272facefc2697038f8807b77",
-                "reference": "be067d6105286b74272facefc2697038f8807b77",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/be8f7b9eacf8243940f8412f8b4a9a434c73dd7b",
+                "reference": "be8f7b9eacf8243940f8412f8b4a9a434c73dd7b",
                 "shasum": ""
             },
             "require": {
@@ -1336,7 +1338,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-14 13:49:40"
+            "time": "2015-10-22 09:05:37"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
