@@ -105,7 +105,9 @@ class WooArrayGenerator {
 
             $genProduct = new Product( $product );
 
-            if ( ! $product->is_purchasable() || ! $product->is_visible() || $genProduct->getAvailability() < 1 ) {
+            $notAvailable = ! $this->options['availability'][ $product->getAvailability() ];
+
+            if ( ! $product->is_purchasable() || ! $product->is_visible() || $notAvailable ) {
                 $reason = array();
                 if ( ! $product->is_purchasable() ) {
                     $reason[] = 'product is not purchasable';
@@ -113,7 +115,7 @@ class WooArrayGenerator {
                 if ( ! $product->is_visible() ) {
                     $reason[] = 'product is not visible';
                 }
-                if ( $genProduct->getAvailability() < 1 ) {
+                if ( $notAvailable ) {
                     $reason[] = 'product is unavailable';
                 }
                 $this->log(
