@@ -40,43 +40,6 @@ class Product {
         $this->wcHelper = new WcHelper();
     }
 
-    public function composeProductArray() {
-        $out = array();
-
-        $out['id']             = $this->getProductId( $product );
-        $out['mpn']            = $this->getProductMPN( $product );
-        $out['name']           = $this->getProductName( $product );
-        $out['link']           = $this->getProductLink( $product );
-        $out['image']          = $this->getProductImageLink( $product );
-        $out['category']       = $this->getProductCategories( $product );
-        $out['price_with_vat'] = $this->getProductPrice( $product );
-        $out['instock']        = $this->isInStock( $product );
-        $out['availability']   = $this->getAvailabilityString( $product );
-        $out['manufacturer']   = $this->getProductManufacturer( $product );
-
-        if ( $product->product_type == 'variable' && (bool) $this->©option->get( 'is_fashion_store' ) ) {
-            $product = new \WC_Product_Variable( $product );
-
-            $colors = $this->getProductColors( $product );
-            $sizes  = $this->getProductSizes( $product );
-
-            if ( ! empty( $colors ) ) {
-                $out['color'] = $colors;
-            }
-
-            if ( ! empty( $sizes ) ) {
-                $out['size'] = $sizes;
-            }
-        } elseif ( (bool) $this->©option->get( 'is_book_store' ) ) {
-            $isbn = $this->getProductISBN( $product );
-            if ( $isbn ) {
-                $out['isbn'] = $isbn;
-            }
-        }
-
-        return $out;
-    }
-
     /**
      * @param array $getFromAttrIds
      *
@@ -86,7 +49,7 @@ class Product {
      */
     protected function getAttrNamesFromIds( array $getFromAttrIds ) {
         if ( ! $this->isProductVariable() ) {
-            return '';
+            return [];
         }
 
         $variations = $this->product->get_available_variations();

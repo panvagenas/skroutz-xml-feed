@@ -26,6 +26,12 @@ class WooArrayGenerator {
 
     protected $log = [];
 
+    protected $options;
+
+    public function __construct(array $options) {
+        $this->options = $this->parseOptions($options);
+    }
+
     protected function getProductIds($limit = 0, $offset = 0){
         global $wpdb;
 
@@ -66,7 +72,7 @@ class WooArrayGenerator {
             $product = WC()->product_factory->get_product( (int) $pid );
 
             if ( ! is_object( $product ) || ! ( $product instanceof \WC_Product ) ) {
-                $this->log( self::LOG_ERROR, 'Product with failed in ' . __METHOD__, $product );
+                $this->log( self::LOG_ERROR, 'Product failed in ' . __METHOD__, $product );
                 continue;
             }
 
@@ -98,13 +104,19 @@ class WooArrayGenerator {
                 continue;
             }
 
-            $return[] = $genProduct->composeProductArray();
+            $return[] = $this->composeProductArray($genProduct);
         }
 
         wp_cache_flush();
 
         return $return;
     }
+
+    protected function composeProductArray(Product $product){
+        return [];
+    }
+
+    protected function parseOptions(array $options){}
 
     /**
      * @param $mem
