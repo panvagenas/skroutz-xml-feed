@@ -28,9 +28,7 @@
         "psr-4": {
             "Pan\\": "src/"
         },
-        "files": [
-            "includes/SimpleXMLExtended.php"
-        ]
+        "files": []
     },
     "autoload-dev": {
         "psr-4": {

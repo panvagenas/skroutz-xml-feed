@@ -22,7 +22,7 @@ namespace Pan\XmlGenerator;
  */
 class XML {
     /**
-     * @var \SimpleXMLExtended
+     * @var SimpleXMLExtended
      */
     public $simpleXML = null;
     /**
@@ -96,7 +96,7 @@ class XML {
     }
 
     protected function initSimpleXML() {
-        $this->simpleXML = new \SimpleXMLExtended( '<?xml version="1.0" encoding="UTF-8"?><' . $this->rootElemName . '></' . $this->rootElemName . '>' );
+        $this->simpleXML = new SimpleXMLExtended( '<?xml version="1.0" encoding="UTF-8"?><' . $this->rootElemName . '></' . $this->rootElemName . '>' );
         $this->simpleXML->addChild( $this->productsElemWrapper );
 
         return $this;
@@ -184,7 +184,7 @@ class XML {
         }
     }
     public function saveXML() {
-        if ( ! ( $this->simpleXML instanceof \SimpleXMLExtended ) ) {
+        if ( ! ( $this->simpleXML instanceof SimpleXMLExtended ) ) {
             return false;
         }
         $dir = dirname( $this->fileLocation );
@@ -208,7 +208,7 @@ class XML {
             return;
         }
 
-        if ( ! ( $this->simpleXML instanceof \SimpleXMLExtended ) ) {
+        if ( ! ( $this->simpleXML instanceof SimpleXMLExtended ) ) {
             $fileLocation = $this->fileLocation;
             if ( ! $this->existsAndReadable( $fileLocation ) ) {
                 return;
@@ -262,7 +262,7 @@ class XML {
     public function countProductsInFile( $file ) {
         if ( $this->existsAndReadable( $file ) ) {
             $sXML = simplexml_load_file( $file );
-        } elseif ( $file instanceof \SimpleXMLElement || $file instanceof \SimpleXMLExtended ) {
+        } elseif ( $file instanceof \SimpleXMLElement || $file instanceof SimpleXMLExtended ) {
             $sXML = &$file;
         } else {
             return 0;

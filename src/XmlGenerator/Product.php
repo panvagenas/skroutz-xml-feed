@@ -47,7 +47,7 @@ class Product {
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @since  TODO ${VERSION}
      */
-    protected function getAttrNamesFromIds( array $getFromAttrIds ) {
+    public function getAttrNamesFromIds( array $getFromAttrIds ) {
         if ( ! $this->isProductVariable() ) {
             return [];
         }
@@ -95,13 +95,13 @@ class Product {
         return array_unique( $names );
     }
 
-    protected function getAttrValue( $attrId, $default = null ) {
+    public function getAttrValue( $attrId, $default = null ) {
         $value = $this->product->get_attribute( $this->wcHelper->getAttributeNameFromId( $attrId ) );
 
         return empty( $value ) ? $default : $value;
     }
 
-    protected function getTaxonomyTermNames( $taxonomy, $includeParents = false, $parentsSep = ' > ' ) {
+    public function getTaxonomyTermNames( $taxonomy, $includeParents = false, $parentsSep = ' > ' ) {
         $terms = get_the_terms( $this->product->id, $taxonomy );
         $out   = array();
 
@@ -142,11 +142,11 @@ class Product {
         return $out;
     }
 
-    protected function isInStock() {
+    public function isInStock() {
         return $this->product->is_in_stock();
     }
 
-    protected function isProductVariable() {
+    public function isProductVariable() {
         return $this->product instanceof \WC_Product_Variable;
     }
 
@@ -159,7 +159,7 @@ class Product {
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @since  TODO ${VERSION}
      */
-    protected function getPrice( $withTax = true ) {
+    public function getPrice( $withTax = true ) {
         if ( $salePrice = $this->product->get_sale_price() ) {
             return $salePrice;
         }
@@ -167,26 +167,26 @@ class Product {
         return $withTax ? $this->product->get_price_including_tax() : $this->product->get_price_excluding_tax();
     }
 
-    protected function getImageLink( $size = 'full' ) {
+    public function getImageLink( $size = 'full' ) {
         $imageLink = wp_get_attachment_image_src( $this->product->get_image_id(), $size );
         $imageLink = is_array( $imageLink ) ? $imageLink[0] : '';
 
         return is_array( $imageLink ) ? $imageLink[0] : '';
     }
 
-    protected function getId() {
+    public function getId() {
         return $this->product->id;
     }
 
-    protected function getSku() {
+    public function getSku() {
         return $this->product->get_sku();
     }
 
-    protected function getLink() {
+    public function getLink() {
         return $this->product->get_permalink();
     }
 
-    protected function getTitle() {
+    public function getTitle() {
         return $this->product->get_title();
     }
 
