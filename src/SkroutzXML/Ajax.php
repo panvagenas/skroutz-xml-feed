@@ -21,5 +21,21 @@ namespace Pan\SkroutzXML;
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Ajax {
+    public function generateNow() {
+        check_ajax_referer( 'skz_gen_now', 'nonce' );
 
+        if ( ! is_super_admin() ) {
+            wp_die('Not allowed');
+        }
+
+        $skroutz  = new Skroutz();
+        $included = $skroutz->generateXml();
+
+        wp_send_json_success([
+            'included' => $included,
+            'msg'      => 'Generation is complete. A total of '
+                          . $included
+                          . ' items were included in XML, please see the generation log for more details.',
+        ]);
+    }
 }
