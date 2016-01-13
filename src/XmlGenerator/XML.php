@@ -56,7 +56,6 @@ class XML {
      */
     protected $errors = [];
 
-    protected $fields = [];
     protected $fieldLengths = [];
     protected $requiredFields = [];
     protected $fieldMap = [];
@@ -69,8 +68,7 @@ class XML {
         $this->productElemName = $productElemName;
     }
 
-    public function parseArray( Array $array, $fields, $fieldMap, $fieldLengths, $requiredFields ) {
-        $this->fields = $fields;
+    public function parseArray( Array $array, $fieldMap, $fieldLengths, $requiredFields ) {
         $this->fieldLengths = $fieldLengths;
         $this->requiredFields = $requiredFields;
         $this->fieldMap = $fieldMap;
@@ -96,7 +94,9 @@ class XML {
     }
 
     protected function initSimpleXML() {
-        $this->simpleXML = new SimpleXMLExtended( '<?xml version="1.0" encoding="UTF-8"?><' . $this->rootElemName . '></' . $this->rootElemName . '>' );
+        $this->simpleXML = new SimpleXMLExtended( '<?xml version="1.0" encoding="UTF-8"?><'
+                                                  . $this->rootElemName . '></'
+                                                  . $this->rootElemName . '>' );
         $this->simpleXML->addChild( $this->productsElemWrapper );
 
         return $this;
@@ -138,7 +138,10 @@ class XML {
                         array_push( $fields, $f );
                     }
                 }
-                $name = isset( $array['name'] ) ? $array['name'] : ( isset( $array['id'] ) ? 'with id ' . $array['id'] : '' );
+                $name = isset( $array['name'] )
+                    ? $array['name']
+                    : ( isset( $array['id'] ) ? 'with id ' . $array['id'] : '' );
+
                 if ( isset( $array['link'] ) ) {
                     $name = '<a href="' . $array['link'] . '" target="_blank">' . $name . '</a>';
                 }
@@ -156,7 +159,7 @@ class XML {
         }
 
         foreach ( $array as $k => $v ) {
-            if ( ! in_array( $k, $this->fields ) ) {
+            if ( ! array_key_exists( $k, $this->fieldMap ) ) {
                 unset( $array[ $k ] );
             }
         }
@@ -192,7 +195,8 @@ class XML {
             mkdir( $dir, 0755, true );
         }
 
-        if ( $this->simpleXML && ! empty( $this->fileLocation ) && ( is_writable( $this->fileLocation ) || is_writable( $dir ) ) ) {
+        if ( $this->simpleXML && ! empty( $this->fileLocation )
+             && ( is_writable( $this->fileLocation ) || is_writable( $dir ) ) ) {
             if ( is_file( $this->fileLocation ) ) {
                 unlink( $this->fileLocation );
             }
