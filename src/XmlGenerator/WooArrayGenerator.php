@@ -27,49 +27,33 @@ class WooArrayGenerator {
 
     protected $log = [ ];
 
+    /**
+     * @var Options
+     */
     protected $options;
 
-    protected $defaults = [
-        'map_id'              => 0,
-        'map_mpn'             => 0,
-        'map_name'            => 0,
-        'map_name_append_sku' => 0,
-        'map_image'           => 3,
-        'map_category'        => 'product',
-        'map_category_tree'   => 0,
-        'map_category_glue'   => ' - ',
-        'map_price'           => 1,
-        'inStock_Y'           => 'Y',
-        'inStock_N'           => 'N',
-        'availability'        => [
-            'Out of stock, back-orders **NOT** allowed',
-            'Out of stock, back-orders allowed',
-            'In stock',
-        ],
-        'map_manufacturer'    => 0,
-        'map_color'           => [ ],
-        'map_size'            => [ ],
-        'colorGlue'           => ', ',
-        'sizeGlue'            => ', ',
-        'is_book_store'       => 0,
-        'map_isbn'            => 0,
-    ];
+    public function __construct( array $options = [] ) {
+        $this->options = new Options($options);
+    }
 
-    public function __construct( array $options ) {
-        $this->options = array_merge( $this->defaults, $options );
+    public function getOptions(){
+        return $this->options;
     }
 
     protected function getProductIds( $limit = 0, $offset = 0 ) {
         global $wpdb;
 
-        $sql = 'SELECT ID FROM ' . $wpdb->posts
-               . ' WHERE post_type="product" AND post_status="publish" ORDER BY ID DESC';
+        /** @noinspection SqlResolve */
+        $sql = "SELECT ID
+                FROM {$wpdb->posts}
+                WHERE post_type = 'product' AND post_status = 'publish'
+                ORDER BY ID DESC";
 
         if ( $limit ) {
-            $sql . ' LIMIT ' . absint( $limit );
+            $sql .= ' LIMIT ' . absint( $limit );
         }
         if ( $offset ) {
-            $sql . ' OFFSET ' . absint( $offset );
+            $sql .= ' OFFSET ' . absint( $offset );
         }
 
         return (array) $wpdb->get_col( $sql );
@@ -105,7 +89,7 @@ class WooArrayGenerator {
 
             $genProduct = new Product( $product );
 
-            $notAvailable = ! $this->options['availability'][ $product->getAvailability() ];
+            $notAvailable = ! $this->options->getAvailability()[ $genProduct->getAvailability() ];
 
             if ( ! $product->is_purchasable() || ! $product->is_visible() || $notAvailable ) {
                 $reason = array();
@@ -146,73 +130,73 @@ class WooArrayGenerator {
 
         $out['ID'] = $product->getId();
 
-        $out['id'] = $this->options['map_id'] == 0 ? $product->getSku() : $product->getId();
+        $out['id'] = $this->options->getMapId() == 0 ? $product->getSku() : $product->getId();
 
-        $out['mpn'] = $this->options['map_mpn'] == 0
+        $out['mpn'] = $this->options->getMapMpn() == 0
             ? $product->getSku()
-            : $product->getAttrValue( $this->options['map_mpn'], $product->getSku() );
+            : $product->getAttrValue( $this->options->getMapMpn(), $product->getSku() );
 
         $out['name'] = '';
-        if ( $this->options['map_name'] != 0 ) {
-            $out['name'] = $product->getAttrValue( $this->options['map_name'], '' );
+        if ( $this->options->getMapName() != 0 ) {
+            $out['name'] = $product->getAttrValue( $this->options->getMapName(), '' );
         }
         if ( empty( $out['name'] ) ) {
             $out['name'] = $product->getTitle();
         }
         $out['name'] = trim( $out['name'] );
 
-        if ( $this->options['map_name_append_sku'] && ! is_numeric( strpos( $out['name'], $out['id'] ) ) ) {
+        if ( $this->options->getMapNameAppendSku() && ! is_numeric( strpos( $out['name'], $out['id'] ) ) ) {
             $out['name'] .= ' ' . $out['id'];
         }
 
         $out['link'] = $product->getLink();
 
         $out['image'] = $product->getImageLink(
-            $this->options['map_image'] ? $this->options['map_image'] : 'full'
+            $this->options->getMapImage() ? $this->options->getMapImage() : 'full'
         );
 
         $out['category'] = '';
 
-        if ( is_numeric( $this->options['map_category'] ) ) {
-            $out['category'] = $product->getAttrValue( $this->options['map_category'], '' );
+        if ( is_numeric( $this->options->getMapCategory() ) ) {
+            $out['category'] = $product->getAttrValue( $this->options->getMapCategory(), '' );
         }
 
         if ( empty( $out['category'] ) ) {
             $categories      = $product->getTaxonomyTermNames(
                 $out['category'],
-                (bool) $this->options['map_category_tree'] && ! is_numeric( $this->options['map_category'] )
+                (bool) $this->options->getMapCategoryTree() && ! is_numeric( $this->options->getMapCategory() )
             );
-            $out['category'] = implode( $this->options['map_category_glue'], $categories );
+            $out['category'] = implode( $this->options->getMapCategoryGlue(), $categories );
         }
 
-        $out['price'] = $this->options['map_price'] == 2 ? $product->getPrice( false ) : $product->getPrice();
+        $out['price'] = $this->options->getMapPrice() == 2 ? $product->getPrice( false ) : $product->getPrice();
 
-        $out['inStock'] = $product->isInStock() ? $this->options['inStock_Y'] : $this->options['inStock_N'];
+        $out['inStock'] = $product->isInStock() ? $this->options->getInStockY() : $this->options->getInStockN();
 
-        $out['availability'] = $this->options['availability'][ $product->getAvailability() ];
+        $out['availability'] = $this->options->getAvailability()[ $product->getAvailability() ];
 
-        $out['manufacturer'] = is_numeric( $this->options['map_manufacturer'] )
-            ? $product->getAttrValue( $this->options['map_manufacturer'], '' )
-            : $product->getTaxonomyTermNames( $this->options['map_manufacturer'], false );
+        $out['manufacturer'] = is_numeric( $this->options->getMapManufacturer() )
+            ? $product->getAttrValue( $this->options->getMapManufacturer(), '' )
+            : $product->getTaxonomyTermNames( $this->options->getMapManufacturer(), false );
 
-        if ( $product->isProductVariable() && $this->options['is_fashion_store'] ) {
+        if ( $product->isProductVariable() && $this->options->isFashionStore() ) {
 
-            $colors = $product->getAttrNamesFromIds( $this->options['map_color'] );
-            $sizes  = $product->getAttrNamesFromIds( $this->options['map_size'] );
+            $colors = $product->getAttrNamesFromIds( $this->options->getMapColor() );
+            $sizes  = $product->getAttrNamesFromIds( $this->options->getMapSize() );
 
             if ( ! empty( $colors ) ) {
-                $out['color'] = implode( $this->options['colorGlue'], $colors );
+                $out['color'] = implode( $this->options->getMapColorGlue(), $colors );
             }
 
             if ( ! empty( $sizes ) ) {
-                $out['size'] = implode( $this->options['sizeGlue'], $sizes );
+                $out['size'] = implode( $this->options->getMapSizeGlue(), $sizes );
             }
         }
 
-        if ( $this->options['is_book_store'] ) {
-            $isbn = $this->options['map_isbn'] == 0
+        if ( $this->options->isBookStore() ) {
+            $isbn = $this->options->getMapIsbn() == 0
                 ? $product->getSku()
-                : $product->getAttrValue( $this->options['map_isbn'] );
+                : $product->getAttrValue( $this->options->getMapIsbn() );
 
             if ( $isbn ) {
                 $out['isbn'] = $isbn;
