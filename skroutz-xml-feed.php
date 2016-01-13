@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* -- WordPress® --------------------------------------------------------------------------------------------------------------------------
+/* -- WordPress® -------------------------------------------------------------------------------------------------------
 
 Version: 151228
 Stable tag: 151127
@@ -49,9 +49,7 @@ Tags: skroutz, skroutz.gr, XML, generate XML, price comparison
 
 Kudos: WebSharks™ http://www.websharks-inc.com
 
--- end section for WordPress®. --------------------------------------------------------------------------------------------------------- */
-
-namespace SkroutzXML;
+-- end section for WordPress®. -------------------------------------------------------------------------------------- */
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -59,4 +57,4 @@ if ( ! defined( 'WPINC' ) ) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$plugin = new Plugin(__NAMESPACE__, __FILE__, 'Skroutz.gr XML Feed', '150903', 'skroutz-xml-feed', 'skroutz_xml_feed');
+$initializer = new \Pan\SkroutzXML\Initializer(__FILE__);

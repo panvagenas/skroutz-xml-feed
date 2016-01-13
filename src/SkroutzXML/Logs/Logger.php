@@ -24,6 +24,7 @@ use Pan\SkroutzXML\Logs\Handlers\DBHandler;
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Logger {
+    const LOG_NAME = 'skz_gen_log';
     /**
      * @var \Monolog\Logger
      */
@@ -33,8 +34,8 @@ class Logger {
      */
     protected $logFilePath;
 
-    public function __construct( $logName ) {
-        $this->logger = new \Monolog\Logger( $logName );
+    public function __construct() {
+        $this->logger = new \Monolog\Logger( self::LOG_NAME );
     }
 
     public function clearDBLog(){

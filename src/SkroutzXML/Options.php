@@ -11,6 +11,8 @@
 
 namespace Pan\SkroutzXML;
 
+use Pan\MenuPages\WpMenuPages;
+
 /**
  * Class Options
  *
@@ -20,11 +22,13 @@ namespace Pan\SkroutzXML;
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
-class Options extends \Pan\MenuPages\Options{
+class Options extends \Pan\MenuPages\Options {
+    const OPTIONS_NAME = 'skz__options';
+
     /**
      * @var array Availability options for skroutz.gr
      */
-    public $availOptions = array(
+    public static $availOptions = array(
         'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
         'Παράδοση σε 1-3 ημέρες',
         'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
@@ -34,19 +38,19 @@ class Options extends \Pan\MenuPages\Options{
     );
 
     protected $fieldMap = [
-        'id' => 'id',
-        'mpn' => 'mpn',
-        'name' => 'name',
-        'link' => 'link',
-        'image' => 'image',
-        'category' => 'category',
-        'price' => 'price',
-        'inStock' => 'inStock',
+        'id'           => 'id',
+        'mpn'          => 'mpn',
+        'name'         => 'name',
+        'link'         => 'link',
+        'image'        => 'image',
+        'category'     => 'category',
+        'price'        => 'price',
+        'inStock'      => 'inStock',
         'availability' => 'availability',
         'manufacturer' => 'manufacturer',
-        'color' => 'color',
-        'size' => 'size',
-        'isbn' => 'isbn',
+        'color'        => 'color',
+        'size'         => 'size',
+        'isbn'         => 'isbn',
     ];
 
     protected $fieldLengths = [
@@ -77,30 +81,116 @@ class Options extends \Pan\MenuPages\Options{
         'mpn',
     ];
 
-    protected $logName = 'skz_gen_log';
-
-    protected static $optionsName = 'skz__options';
-
     /**
      * @return $this
      * @throws \ErrorException
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
     public static function getInstance() {
-        return parent::getInstance( self::$optionsName, self::getDefaultsArray() );
+        return parent::getInstance( self::OPTIONS_NAME, self::getDefaultsArray() );
     }
 
-    public static function getDefaultsArray(){
-        return [];
+    public function getDefaults() {
+        if ( ! $this->defaults ) {
+            $this->defaults = self::getDefaultsArray();
+        }
+
+        return parent::getDefaults();
     }
 
-    public function setUp(){}
+    public static function getDefaultsArray() {
+        return [
+            /*********************
+             * XML File relative
+             ********************/
+            // File location
+            'xml_location'                               => '',
+            // File name
+            'xml_fileName'                               => 'skroutz.xml',
+            // Generation interval
+            'xml_interval'                               => 'daily',
+            // XML Generate Request Var
+            'xml_generate_var'                           => 'skroutz',
+            // XML Generate Request Var Value
+            'xml_generate_var_value'                     => '',
+            /*********************
+             * Products relative
+             ********************/
+            // Include products
+            'products_include'                           => array( 'product' ),
+            // Availability when products in stock
+            'avail_inStock'                              => 0,
+            // Availability when products out stock
+            'avail_outOfStock'                           => 6,
+            // Availability when products out stock and backorders are allowed
+            'avail_backorders'                           => 6,
+            /*********************
+             * Custom fields
+             ********************/
+            'map_id'                                     => 0,
+            'map_name'                                   => 0,
+            'map_name_append_sku'                        => 1,
+            'map_link'                                   => 0,
+            'map_image'                                  => 3,
+            'map_category'                               => 'product',
+            'map_category_tree'                          => 0,
+            'map_price_with_vat'                         => 1,
+            'map_manufacturer'                           => 0,
+            'map_mpn'                                    => 0,
+            'map_size'                                   => array(),
+            'map_size_use'                               => 0,
+            'map_color'                                  => array(),
+            'map_color_use'                              => 0,
+            /***********************************************
+             * Fashion store
+             ***********************************************/
+            'is_fashion_store'                           => 0,
+            /***********************************************
+             * ISBN
+             ***********************************************/
+            'map_isbn'                                   => 0,
+            'is_book_store'                              => 0,
+        ];
+    }
 
-    public function getFileLocationOption(){}
-    public function getCreatedAtOption(){}
-    public function getXmlRootElemName(){}
-    public function getXmlProductsElemWrapper(){}
-    public function getXmlProductElemName(){}
+    public function translateOptions(){
+        return [
+            'mapId' => $this->get('map_id'),
+            'mapMpn' => $this->get('map_mpn'),
+            'mapName' => $this->get('map_name'),
+            'mapNameAppendSku' => $this->get('map_name_append_sku'),
+            'mapImage' => $this->get('map_image'),
+            'mapCategory' => $this->get('map_category'),
+            'mapCategoryTree' => $this->get('map_category_tree'),
+            'mapPrice' => $this->get('map_price_with_vat'),
+            'mapManufacturer' => $this->get('map_manufacturer'),
+            'mapColor' => $this->get('map_color'),
+            'mapSize' => $this->get('map_size'),
+            'mapIsbn' => $this->get('map_isbn'),
+            'fashionStore' => $this->get('is_fashion_store'),
+            'bookStore' =>  $this->get('is_book_store'),
+        ];
+    }
+
+    public function getFileLocationOption() {
+        return $this->get('xml_location');
+    }
+
+    public function getCreatedAtOption() {
+        return 'created_at';
+    }
+
+    public function getXmlRootElemName() {
+        return 'mywebstore';
+    }
+
+    public function getXmlProductsElemWrapper() {
+        return 'products';
+    }
+
+    public function getXmlProductElemName() {
+        return 'product';
+    }
 
     /**
      * @return array
@@ -130,35 +220,5 @@ class Options extends \Pan\MenuPages\Options{
      */
     public function getRequiredFields() {
         return $this->requiredFields;
-    }
-
-    /**
-     * @return string
-     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @see    Options::$optionsName
-     * @codeCoverageIgnore
-     */
-    public static function getOptionsName() {
-        return self::$optionsName;
-    }
-
-    /**
-     * @return string
-     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @see    Options::$logName
-     * @codeCoverageIgnore
-     */
-    public function getLogName() {
-        return $this->logName;
-    }
-
-    /**
-     * @return array
-     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @see    Options::$availOptions
-     * @codeCoverageIgnore
-     */
-    public function getAvailOptions() {
-        return $this->availOptions;
     }
 }

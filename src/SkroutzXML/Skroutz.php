@@ -28,6 +28,7 @@ use Pan\XmlGenerator\XML;
  */
 class Skroutz {
     const DEV = false;
+    const VERSION = '151227';
 
     /**
      * @var Options
@@ -96,9 +97,9 @@ class Skroutz {
 
     public function getLogger() {
         if ( ! $this->logger ) {
-            $this->logger = new Logger( $this->options->getLogName() );
+            $this->logger = new Logger( );
 
-            $dbHandler = new DBHandler( $this->options->getLogName(), $this->getLogLevel() );
+            $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
             $dbHandler->setFormatter( new HtmlFormatter() );
             $this->logger->addDBHandler( $dbHandler );
         }
