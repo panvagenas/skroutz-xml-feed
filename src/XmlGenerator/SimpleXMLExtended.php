@@ -2,7 +2,7 @@
 /**
  * SimpleXMLExtended.php description
  *
- * @author    Panagiotis Vagenas <Panagiotis.Vagenas@interactivedata.com>
+ * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-28
  * @version   $Id$
  * @package   Pan\XmlGenerator
@@ -15,7 +15,7 @@ namespace Pan\XmlGenerator;
 /**
  * Class SimpleXMLExtended
  *
- * @author    Panagiotis Vagenas <Panagiotis.Vagenas@interactivedata.com>
+ * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-28
  * @version   $Id$
  * @package   Pan\XmlGenerator

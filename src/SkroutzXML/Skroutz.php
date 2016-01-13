@@ -37,45 +37,52 @@ class Skroutz {
      * @var Logger
      */
     protected $logger;
-    protected $logName = 'skz_gen_log';
     /**
      * @var XML
      */
     protected $xmlObj;
 
-    public function __construct() {
-        $this->init();
-    }
-
-    public function init() {
+    public function __construct( ) {
         $this->options = Options::getInstance();
-
-        add_action( 'init', [ $this, 'checkRequest' ] );
-    }
-
-    public function checkRequest() {
-        $generateVar    = $this->options->get( 'xml_generate_var' );
-        $generateVarVal = $this->options->get( 'xml_generate_var_value' );
-
-        parse_str( $_SERVER["REQUEST_URI"] );
-
-        if ( isset( $$generateVar ) && $$generateVar === $generateVarVal ) {
-            add_action( 'wp_loaded', [ $this, 'generateAndPrint' ], PHP_INT_MAX );
-        }
     }
 
     public function generateXml() {
+        $sTime = microtime( true );
+        ignore_user_abort( true );
+
+        $env = new Env();
+        $env->maximize_time_memory_limits();
+
         // TODO Set options
         $wooGen = new WooArrayGenerator( [ ] );
+        $this->logger->clearDBLog();
 
         $genArray = $wooGen->getArray();
 
-        return $this->getXmlObj()->parseArray(
+        $this->logger->addInfo(
+            '<strong>SkroutzXML XML generation started at ' . date( 'd M, Y H:i:s' ) . '</strong>'
+        );
+
+        $this->parseStoreLog($wooGen->getLog());
+
+        $res = $this->getXmlObj()->parseArray(
             $genArray,
             $this->options->getFieldMap(),
             $this->options->getFieldLengths(),
             $this->options->getRequiredFields()
         );
+
+        $this->logger->addInfo(
+            '<strong>SkroutzXML XML generation finished at '
+            . date( 'd M, Y H:i:s' )
+            . '</strong><br>Time taken: ' . round( microtime( true ) - $sTime, 20 ) . ' sec<br>
+			Mem details: ' . $env->memory_details() );
+
+        return $res;
+    }
+
+    protected function parseStoreLog(array $log){
+        // TODO Implement
     }
 
     public function generateAndPrint() {
@@ -89,9 +96,9 @@ class Skroutz {
 
     public function getLogger() {
         if ( ! $this->logger ) {
-            $this->logger = new Logger( $this->logName );
+            $this->logger = new Logger( $this->options->getLogName() );
 
-            $dbHandler = new DBHandler( $this->logName, $this->getLogLevel() );
+            $dbHandler = new DBHandler( $this->options->getLogName(), $this->getLogLevel() );
             $dbHandler->setFormatter( new HtmlFormatter() );
             $this->logger->addDBHandler( $dbHandler );
         }

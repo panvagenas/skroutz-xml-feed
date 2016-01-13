@@ -239,4 +239,8 @@ class WooArrayGenerator {
 
         return false;
     }
+
+    public function getLog(){
+        return $this->log;
+    }
 }

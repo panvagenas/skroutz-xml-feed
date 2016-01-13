@@ -77,8 +77,15 @@ class Options extends \Pan\MenuPages\Options{
         'mpn',
     ];
 
+    protected $logName = 'skz_gen_log';
+
     protected static $optionsName = 'skz__options';
 
+    /**
+     * @return $this
+     * @throws \ErrorException
+     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+     */
     public static function getInstance() {
         return parent::getInstance( self::$optionsName, self::getDefaultsArray() );
     }
@@ -133,5 +140,25 @@ class Options extends \Pan\MenuPages\Options{
      */
     public static function getOptionsName() {
         return self::$optionsName;
+    }
+
+    /**
+     * @return string
+     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+     * @see    Options::$logName
+     * @codeCoverageIgnore
+     */
+    public function getLogName() {
+        return $this->logName;
+    }
+
+    /**
+     * @return array
+     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+     * @see    Options::$availOptions
+     * @codeCoverageIgnore
+     */
+    public function getAvailOptions() {
+        return $this->availOptions;
     }
 }
