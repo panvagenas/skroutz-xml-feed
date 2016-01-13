@@ -14,7 +14,8 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "panvagenas/wp-menu-pages": "*"
+        "panvagenas/wp-menu-pages": "*",
+        "monolog/monolog": "^1.17"
     },
     "require-dev": {
         "satooshi/php-coveralls": ">=0.6"
