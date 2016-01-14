@@ -81,6 +81,11 @@ class Options extends \Pan\MenuPages\Options {
         'mpn',
     ];
 
+    public function __construct( $optionsBaseName, array $defaults ) {
+        parent::__construct( $optionsBaseName, $defaults );
+    }
+
+
     /**
      * @return $this
      * @throws \ErrorException
@@ -104,76 +109,76 @@ class Options extends \Pan\MenuPages\Options {
              * XML File relative
              ********************/
             // File location
-            'xml_location'                               => '',
+            'xml_location'           => '',
             // File name
-            'xml_fileName'                               => 'skroutz.xml',
+            'xml_fileName'           => 'skroutz.xml',
             // Generation interval
-            'xml_interval'                               => 'daily',
+            'xml_interval'           => 'daily',
             // XML Generate Request Var
-            'xml_generate_var'                           => 'skroutz',
+            'xml_generate_var'       => 'skroutz',
             // XML Generate Request Var Value
-            'xml_generate_var_value'                     => '',
+            'xml_generate_var_value' => dechex( mt_rand( 99999999999999999999999, 9999999999999999999999999 ) ),
             /*********************
              * Products relative
              ********************/
             // Include products
-            'products_include'                           => array( 'product' ),
+            'products_include'       => array( 'product' ),
             // Availability when products in stock
-            'avail_inStock'                              => 0,
+            'avail_inStock'          => 0,
             // Availability when products out stock
-            'avail_outOfStock'                           => 6,
+            'avail_outOfStock'       => 6,
             // Availability when products out stock and backorders are allowed
-            'avail_backorders'                           => 6,
+            'avail_backorders'       => 6,
             /*********************
              * Custom fields
              ********************/
-            'map_id'                                     => 0,
-            'map_name'                                   => 0,
-            'map_name_append_sku'                        => 1,
-            'map_link'                                   => 0,
-            'map_image'                                  => 3,
-            'map_category'                               => 'product',
-            'map_category_tree'                          => 0,
-            'map_price_with_vat'                         => 1,
-            'map_manufacturer'                           => 0,
-            'map_mpn'                                    => 0,
-            'map_size'                                   => array(),
-            'map_size_use'                               => 0,
-            'map_color'                                  => array(),
-            'map_color_use'                              => 0,
+            'map_id'                 => 0,
+            'map_name'               => 0,
+            'map_name_append_sku'    => 1,
+            'map_link'               => 0,
+            'map_image'              => 3,
+            'map_category'           => 'product_cat',
+            'map_category_tree'      => 0,
+            'map_price_with_vat'     => 1,
+            'map_manufacturer'       => 'product_cat',
+            'map_mpn'                => 0,
+            'map_size'               => array(),
+            'map_size_use'           => 0,
+            'map_color'              => array(),
+            'map_color_use'          => 0,
             /***********************************************
              * Fashion store
              ***********************************************/
-            'is_fashion_store'                           => 0,
+            'is_fashion_store'       => 0,
             /***********************************************
              * ISBN
              ***********************************************/
-            'map_isbn'                                   => 0,
-            'is_book_store'                              => 0,
+            'map_isbn'               => 0,
+            'is_book_store'          => 0,
         ];
     }
 
-    public function translateOptions(){
+    public function translateOptions() {
         return [
-            'mapId' => $this->get('map_id'),
-            'mapMpn' => $this->get('map_mpn'),
-            'mapName' => $this->get('map_name'),
-            'mapNameAppendSku' => $this->get('map_name_append_sku'),
-            'mapImage' => $this->get('map_image'),
-            'mapCategory' => $this->get('map_category'),
-            'mapCategoryTree' => $this->get('map_category_tree'),
-            'mapPrice' => $this->get('map_price_with_vat'),
-            'mapManufacturer' => $this->get('map_manufacturer'),
-            'mapColor' => $this->get('map_color'),
-            'mapSize' => $this->get('map_size'),
-            'mapIsbn' => $this->get('map_isbn'),
-            'fashionStore' => $this->get('is_fashion_store'),
-            'bookStore' =>  $this->get('is_book_store'),
+            'mapId'            => $this->get( 'map_id' ),
+            'mapMpn'           => $this->get( 'map_mpn' ),
+            'mapName'          => $this->get( 'map_name' ),
+            'mapNameAppendSku' => $this->get( 'map_name_append_sku' ),
+            'mapImage'         => $this->get( 'map_image' ),
+            'mapCategory'      => $this->get( 'map_category' ),
+            'mapCategoryTree'  => $this->get( 'map_category_tree' ),
+            'mapPrice'         => $this->get( 'map_price_with_vat' ),
+            'mapManufacturer'  => $this->get( 'map_manufacturer' ),
+            'mapColor'         => $this->get( 'map_color' ),
+            'mapSize'          => $this->get( 'map_size' ),
+            'mapIsbn'          => $this->get( 'map_isbn' ),
+            'fashionStore'     => $this->get( 'is_fashion_store' ),
+            'bookStore'        => $this->get( 'is_book_store' ),
         ];
     }
 
     public function getFileLocationOption() {
-        return $this->get('xml_location');
+        return $this->get( 'xml_location' );
     }
 
     public function getCreatedAtOption() {

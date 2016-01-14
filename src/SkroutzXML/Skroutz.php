@@ -45,6 +45,21 @@ class Skroutz {
 
     public function __construct( ) {
         $this->options = Options::getInstance();
+
+        $this->logger = new Logger( );
+
+        $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
+
+        $dbHandler->setFormatter( new HtmlFormatter() );
+        $this->logger->addDBHandler( $dbHandler );
+
+        $this->xmlObj = new XML(
+            $this->options->getFileLocationOption(),
+            $this->options->getCreatedAtOption(),
+            $this->options->getXmlRootElemName(),
+            $this->options->getXmlProductsElemWrapper(),
+            $this->options->getXmlProductElemName()
+        );
     }
 
     public function generateXml() {
@@ -96,14 +111,6 @@ class Skroutz {
     }
 
     public function getLogger() {
-        if ( ! $this->logger ) {
-            $this->logger = new Logger( );
-
-            $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
-            $dbHandler->setFormatter( new HtmlFormatter() );
-            $this->logger->addDBHandler( $dbHandler );
-        }
-
         return $this->logger;
     }
 
@@ -133,17 +140,7 @@ class Skroutz {
         return time() > $nextCreationTime;
     }
 
-    protected function getXmlObj() {
-        if ( ! $this->xmlObj ) {
-            $this->xmlObj = new XML(
-                $this->options->getFileLocationOption(),
-                $this->options->getCreatedAtOption(),
-                $this->options->getXmlRootElemName(),
-                $this->options->getXmlProductsElemWrapper(),
-                $this->options->getXmlProductElemName()
-            );
-        }
-
+    public function getXmlObj() {
         return $this->xmlObj;
     }
 

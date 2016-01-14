@@ -38,9 +38,12 @@ class Logger {
         $this->logger = new \Monolog\Logger( self::LOG_NAME );
     }
 
-    public function clearDBLog(){
-        update_option($this->logger->getName(), array());
-        return $this;
+    public static function clearDbLog(){
+        return update_option(self::LOG_NAME, array());
+    }
+
+    public static function getDbLog(){
+        return get_option(self::LOG_NAME, []);
     }
 
     /**
