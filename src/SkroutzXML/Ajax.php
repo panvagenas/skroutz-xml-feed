@@ -22,7 +22,7 @@ namespace Pan\SkroutzXML;
  */
 class Ajax {
     public function generateNow() {
-        check_ajax_referer( 'skz_gen_now', 'nonce' );
+        check_ajax_referer( 'skz_generate_now', 'nonce' );
 
         if ( ! is_super_admin() ) {
             wp_die('Not allowed');

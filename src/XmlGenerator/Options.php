@@ -27,9 +27,9 @@ class Options {
     protected $inStock_N = 'N';
 
     protected $availability = [
-        'Out of stock, back-orders **NOT** allowed',
-        'Out of stock, back-orders allowed',
-        'In stock',
+        WooArrayGenerator::AVAIL_OUT_OF_STOCK,
+        WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS,
+        WooArrayGenerator::AVAIL_IN_STOCK,
     ];
 
     public function __construct(array $options = []) {

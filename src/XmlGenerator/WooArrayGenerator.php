@@ -25,6 +25,10 @@ class WooArrayGenerator {
 
     const LOG_ERROR = 'error';
 
+    const AVAIL_IN_STOCK = 'In stock';
+    const AVAIL_OUT_OF_STOCK = 'Out of stock, back-orders **NOT** allowed';
+    const AVAIL_OUT_OF_STOCK_BACKORDERS = 'Out of stock, back-orders allowed';
+
     protected $log = [ ];
 
     /**
@@ -163,7 +167,7 @@ class WooArrayGenerator {
 
         if ( empty( $out['category'] ) ) {
             $categories      = $product->getTaxonomyTermNames(
-                $out['category'],
+                $this->options->getMapCategory(),
                 (bool) $this->options->getMapCategoryTree() && ! is_numeric( $this->options->getMapCategory() )
             );
             $out['category'] = implode( $this->options->getMapCategoryGlue(), $categories );

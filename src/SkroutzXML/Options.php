@@ -11,8 +11,6 @@
 
 namespace Pan\SkroutzXML;
 
-use Pan\MenuPages\WpMenuPages;
-
 /**
  * Class Options
  *
@@ -105,6 +103,7 @@ class Options extends \Pan\MenuPages\Options {
 
     public static function getDefaultsArray() {
         return [
+            'donate' => 1,
             /*********************
              * XML File relative
              ********************/
@@ -136,7 +135,7 @@ class Options extends \Pan\MenuPages\Options {
             'map_name'               => 0,
             'map_name_append_sku'    => 1,
             'map_link'               => 0,
-            'map_image'              => 3,
+            'map_image'              => 'full', // TODO Need translation for the new version
             'map_category'           => 'product_cat',
             'map_category_tree'      => 0,
             'map_price_with_vat'     => 1,

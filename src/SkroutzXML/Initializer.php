@@ -3,25 +3,22 @@
 namespace Pan\SkroutzXML;
 
 use Pan\MenuPages\Fields\Button;
-use Pan\MenuPages\Fields\PostType;
+use Pan\MenuPages\Fields\Nonce;
 use Pan\MenuPages\Fields\Range;
+use Pan\MenuPages\Fields\Raw;
 use Pan\MenuPages\Fields\Select;
 use Pan\MenuPages\Fields\Select2;
 use Pan\MenuPages\Fields\SwitchField;
 use Pan\MenuPages\Fields\Text;
-use Pan\MenuPages\PageElements\Components\FieldsComponent;
-use Pan\MenuPages\PageElements\Components\Form;
-use Pan\MenuPages\PageElements\Components\Tab;
-use Pan\MenuPages\PageElements\Components\TabForm;
-use Pan\MenuPages\PageElements\Containers\Collapsible;
-use Pan\MenuPages\PageElements\Containers\Panel;
-use Pan\MenuPages\PageElements\Containers\TabbedSettings;
-use Pan\MenuPages\PageElements\Containers\Tabs;
+use Pan\MenuPages\PageElements\Components\CmpFields;
+use Pan\MenuPages\PageElements\Components\CmpForm;
+use Pan\MenuPages\PageElements\Components\CmpTab;
+use Pan\MenuPages\PageElements\Components\CmpTabForm;
+use Pan\MenuPages\PageElements\Containers\CnrCollapsible;
+use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
+use Pan\MenuPages\PageElements\Containers\CnrTabs;
 use Pan\MenuPages\Pages\Page;
-use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\WpMenuPages;
-use Pan\SkroutzXML\Logs\Handlers\DBHandler;
-use Pan\SkroutzXML\Logs\Handlers\HtmlFormatter;
 use Pan\SkroutzXML\Logs\Logger;
 use Respect\Validation\Validator;
 
@@ -118,15 +115,15 @@ class Initializer {
             $attrTaxonomies[ $atrTax->attribute_label ] = $atrTax->attribute_id;
         }
 
-        $tabs = new TabbedSettings( $menuPage, Page::EL_MAIN );
+        $tabs = new CnrTabbedSettings( $menuPage, Page::POSITION_MAIN );
 
-        $colInfo     = new Collapsible( $menuPage, Page::EL_ASIDE, 'XML File Information' );
-        $panelGenNow = new Collapsible( $menuPage, Page::EL_ASIDE, 'Generate Now' );
+        $colInfo     = new CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'XML File Information' );
+        $panelGenNow = new CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generate Now' );
 
-        $tabGeneral  = new TabForm( $tabs, 'General Settings', true );
-        $tabAdvanced = new TabForm( $tabs, 'Advanced Settings' );
-        $tabMap      = new TabForm( $tabs, 'Map Fields Settings' );
-        $tabLog      = new Tab( $tabs, 'Log' );
+        $tabGeneral  = new CmpTabForm( $tabs, 'General Settings', true );
+        $tabAdvanced = new CmpTabForm( $tabs, 'Advanced Settings' );
+        $tabMap      = new CmpTabForm( $tabs, 'Map Fields Settings' );
+        $tabLog      = new CmpTab( $tabs, 'Log' );
 
         $xmlLocationFld = new Text( $tabGeneral, 'xml_location' );
         $xmlLocationFld->setLabel( 'Cached XML File Location' )
@@ -217,10 +214,10 @@ class Initializer {
                         ->attachValidator( Validator::numeric()->between( 0, 1 ) );
 
         $options = [
-            'Thumbnail' => 0,
-            'Medium'    => 1,
-            'Large'     => 2,
-            'Full'      => 3,
+            'Thumbnail' => 'thumbnail',
+            'Medium'    => 'medium',
+            'Large'     => 'large',
+            'Full'      => 'full',
         ];
 
         $mapProdImgFld = new Select2( $tabMap, 'map_image' );
@@ -294,9 +291,10 @@ class Initializer {
 
         $tabLog->setContent( $logMarkup );
 
-        $cmpGenNow = new FieldsComponent( $panelGenNow );
-        $genNowBtn = new Button( $cmpGenNow, 'generate', 'Generate XML Now' );
-        $genNowBtn->setClass( 'btn btn-success col-md-9' );
+        $cmpGenNow = new CmpFields( $panelGenNow );
+        $genNowBtn = new Button( $cmpGenNow, 'Generate XML Now' );
+        $genNowBtn->setClass( 'btn btn-success col-md-9 gen-now-button' );
+        new Nonce($cmpGenNow, 'skz_generate_now', 'nonce');
 
         $skz      = new Skroutz();
         $fileInfo = $skz->getXmlObj()->getFileInfo();
@@ -313,5 +311,13 @@ class Initializer {
             }
             $content .= '</ul>';
         }
+
+        $raw = new Raw(new CmpFields($colInfo));
+        $raw->setContent($content);
+
+        $donateForm = new CmpForm($tabs, CnrTabs::CNR_FOOTER);
+        $donateForm->setClass('form form-inline');
+        $donateSelect = new Select($donateForm, 'donate');
+        $donateSelect->setOptions(['1' => 0, '2' => 1]);
     }
 }

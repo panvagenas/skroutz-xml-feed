@@ -169,7 +169,6 @@ class Product {
 
     public function getImageLink( $size = 'full' ) {
         $imageLink = wp_get_attachment_image_src( $this->product->get_image_id(), $size );
-        $imageLink = is_array( $imageLink ) ? $imageLink[0] : '';
 
         return is_array( $imageLink ) ? $imageLink[0] : '';
     }

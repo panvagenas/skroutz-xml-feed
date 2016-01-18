@@ -3,10 +3,13 @@
  */
 
 jQuery(document).ready(function ($) {
-    $('#genarate-now').click(function (e) {
+    $('.gen-now-button').click(function (e) {
         e.preventDefault();
 
         var $button = $(this);
+
+        var nonce = $('#nonce').val();
+        var action = 'skz_generate_now';
 
         if ($button.hasClass('disabled')) {
             return false;
@@ -16,8 +19,8 @@ jQuery(document).ready(function ($) {
         $button.addClass('disabled');
 
         var data = {
-            'action': 'skz_generate_now',
-            'nonce': skz.ajax_nonce
+            action: action,
+            nonce: nonce
         };
 
         $.post(ajaxurl, data, function ($response) {
