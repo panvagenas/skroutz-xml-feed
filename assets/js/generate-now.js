@@ -27,7 +27,13 @@ jQuery(document).ready(function ($) {
             $button.find('i').addClass('hidden');
             $button.removeClass('disabled');
 
-            alert($response.msg);
+            alert($response.data.msg);
+
+            if($response.data.included.hasOwnProperty('logMarkUp')){
+                var $logTab = $('a[data-title="Log"]');
+                $($logTab.attr('href')).html($response.data.included.logMarkUp);
+            }
+
         }, 'json');
     })
 });

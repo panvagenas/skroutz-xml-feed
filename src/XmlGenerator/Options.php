@@ -7,11 +7,11 @@ class Options {
     protected $mapMpn = 0;
     protected $mapName = 0;
     protected $mapNameAppendSku = 0;
-    protected $mapImage = 3;
-    protected $mapCategory = 'product';
+    protected $mapImage = 'full';
+    protected $mapCategory = 'product_cat';
     protected $mapCategoryTree = 0;
     protected $mapPrice = 1;
-    protected $mapManufacturer = 0;
+    protected $mapManufacturer = 'product_cat';
     protected $mapColor = [];
     protected $mapSize = [];
     protected $mapIsbn = 0;

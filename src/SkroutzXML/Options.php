@@ -42,8 +42,8 @@ class Options extends \Pan\MenuPages\Options {
         'link'         => 'link',
         'image'        => 'image',
         'category'     => 'category',
-        'price'        => 'price',
-        'inStock'      => 'inStock',
+        'price'        => 'price_with_vat',
+        'inStock'      => 'instock',
         'availability' => 'availability',
         'manufacturer' => 'manufacturer',
         'color'        => 'color',
@@ -57,8 +57,8 @@ class Options extends \Pan\MenuPages\Options {
         'link'           => 1000,
         'image'          => 400,
         'category'       => 250,
-        'price_with_vat' => 0,
-        'instock'        => 0,
+        'price' => 0,
+        'inStock'        => 0,
         'availability'   => 60,
         'manufacturer'   => 100,
         'mpn'            => 80,
@@ -72,8 +72,8 @@ class Options extends \Pan\MenuPages\Options {
         'link',
         'image',
         'category',
-        'price_with_vat',
-        'instock',
+        'price',
+        'inStock',
         'availability',
         'manufacturer',
         'mpn',
@@ -103,7 +103,7 @@ class Options extends \Pan\MenuPages\Options {
 
     public static function getDefaultsArray() {
         return [
-            'donate' => 1,
+            'donate'                 => 1,
             /*********************
              * XML File relative
              ********************/
@@ -112,7 +112,7 @@ class Options extends \Pan\MenuPages\Options {
             // File name
             'xml_fileName'           => 'skroutz.xml',
             // Generation interval
-            'xml_interval'           => 'daily',
+            'xml_interval'           => 86399, // TODO Changed to int from 151228
             // XML Generate Request Var
             'xml_generate_var'       => 'skroutz',
             // XML Generate Request Var Value
@@ -133,8 +133,8 @@ class Options extends \Pan\MenuPages\Options {
              ********************/
             'map_id'                 => 0,
             'map_name'               => 0,
-            'map_name_append_sku'    => 1,
-            'map_link'               => 0,
+            'map_name_append_sku'    => 0,
+            'map_link'               => 0, // TODO Deprecated since 151228
             'map_image'              => 'full', // TODO Need translation for the new version
             'map_category'           => 'product_cat',
             'map_category_tree'      => 0,
@@ -142,9 +142,9 @@ class Options extends \Pan\MenuPages\Options {
             'map_manufacturer'       => 'product_cat',
             'map_mpn'                => 0,
             'map_size'               => array(),
-            'map_size_use'           => 0,
+            'map_size_use'           => 0, // TODO Deprecated since 151228
             'map_color'              => array(),
-            'map_color_use'          => 0,
+            'map_color_use'          => 0, // TODO Deprecated since 151228
             /***********************************************
              * Fashion store
              ***********************************************/
@@ -177,7 +177,9 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function getFileLocationOption() {
-        return $this->get( 'xml_location' );
+        return trailingslashit( ABSPATH )
+               . ($this->get( 'xml_location' ) ? trailingslashit( $this->get( 'xml_location' ) ) : '')
+               . $this->get( 'xml_fileName' );
     }
 
     public function getCreatedAtOption() {

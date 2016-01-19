@@ -26,7 +26,9 @@ class WooArrayGenerator {
     const LOG_ERROR = 'error';
 
     const AVAIL_IN_STOCK = 'In stock';
+
     const AVAIL_OUT_OF_STOCK = 'Out of stock, back-orders **NOT** allowed';
+
     const AVAIL_OUT_OF_STOCK_BACKORDERS = 'Out of stock, back-orders allowed';
 
     protected $log = [ ];
@@ -36,11 +38,11 @@ class WooArrayGenerator {
      */
     protected $options;
 
-    public function __construct( array $options = [] ) {
-        $this->options = new Options($options);
+    public function __construct( array $options = [ ] ) {
+        $this->options = new Options( $options );
     }
 
-    public function getOptions(){
+    public function getOptions() {
         return $this->options;
     }
 
@@ -149,7 +151,10 @@ class WooArrayGenerator {
         }
         $out['name'] = trim( $out['name'] );
 
-        if ( $this->options->getMapNameAppendSku() && ! is_numeric( strpos( $out['name'], $out['id'] ) ) ) {
+        if ( $this->options->getMapNameAppendSku()
+             && $out['id']
+             && ! is_numeric( strpos( $out['name'], $out['id'] ) )
+        ) {
             $out['name'] .= ' ' . $out['id'];
         }
 
@@ -163,14 +168,16 @@ class WooArrayGenerator {
 
         if ( is_numeric( $this->options->getMapCategory() ) ) {
             $out['category'] = $product->getAttrValue( $this->options->getMapCategory(), '' );
-        }
-
-        if ( empty( $out['category'] ) ) {
+        } else {
             $categories      = $product->getTaxonomyTermNames(
                 $this->options->getMapCategory(),
                 (bool) $this->options->getMapCategoryTree() && ! is_numeric( $this->options->getMapCategory() )
             );
             $out['category'] = implode( $this->options->getMapCategoryGlue(), $categories );
+        }
+
+        if ( empty( $out['category'] ) ) {
+
         }
 
         $out['price'] = $this->options->getMapPrice() == 2 ? $product->getPrice( false ) : $product->getPrice();
@@ -182,6 +189,10 @@ class WooArrayGenerator {
         $out['manufacturer'] = is_numeric( $this->options->getMapManufacturer() )
             ? $product->getAttrValue( $this->options->getMapManufacturer(), '' )
             : $product->getTaxonomyTermNames( $this->options->getMapManufacturer(), false );
+
+        if(is_array($out['manufacturer'])){
+            $out['manufacturer'] = implode(' - ', $out['manufacturer']);
+        }
 
         if ( $product->isProductVariable() && $this->options->isFashionStore() ) {
 
@@ -244,7 +255,7 @@ class WooArrayGenerator {
         return false;
     }
 
-    public function getLog(){
+    public function getLog() {
         return $this->log;
     }
 }

@@ -38,12 +38,31 @@ class Logger {
         $this->logger = new \Monolog\Logger( self::LOG_NAME );
     }
 
-    public static function clearDbLog(){
+    public function clearDbLog(){
+        foreach ( $this->logger->getHandlers() as $handler ) {
+            if($handler instanceof DBHandler){
+                $handler->clear();
+            }
+        }
         return update_option(self::LOG_NAME, array());
     }
 
     public static function getDbLog(){
         return get_option(self::LOG_NAME, []);
+    }
+
+    public static function getLogMarkUp(){
+        $logs = self::getDbLog();
+
+        if ( empty( $logs ) ) {
+            $logMarkup = '<div class="alert alert-default" role="alert">Nothing to show</div>';
+        } else {
+            $logMarkup = '';
+            foreach ( $logs as $log ) {
+                $logMarkup .= $log['message'];
+            }
+        }
+        return $logMarkup;
     }
 
     /**

@@ -18,6 +18,7 @@ use Pan\MenuPages\PageElements\Containers\CnrCollapsible;
 use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
 use Pan\MenuPages\PageElements\Containers\CnrTabs;
 use Pan\MenuPages\Pages\Page;
+use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\WpMenuPages;
 use Pan\SkroutzXML\Logs\Logger;
 use Respect\Validation\Validator;
@@ -57,9 +58,7 @@ class Initializer {
         $generateVar    = $this->options->get( 'xml_generate_var' );
         $generateVarVal = $this->options->get( 'xml_generate_var_value' );
 
-        parse_str( $_SERVER["REQUEST_URI"] );
-
-        if ( isset( $$generateVar ) && $$generateVar === $generateVarVal ) {
+        if ( isset( $_REQUEST[$generateVar] ) && $_REQUEST[$generateVar] === $generateVarVal ) {
             add_action( 'wp_loaded', [ new Skroutz(), 'generateAndPrint' ], PHP_INT_MAX );
         }
     }
@@ -100,7 +99,7 @@ class Initializer {
         }
         $wpMenuPages = new WpMenuPages( $this->pluginFile, $this->options );
 
-        $menuPage = new Page( $wpMenuPages, 'Skroutz XML Settings' );
+        $menuPage = new SubPage( $wpMenuPages, SubPage::PARENT_SETTINGS, 'Skroutz XML Settings' );
 
         $availOptions = [ ];
         foreach ( Options::$availOptions as $value => $label ) {
@@ -278,18 +277,7 @@ class Initializer {
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $options ) );
 
-        $logs = Logger::getDbLog();
-
-        if ( empty( $logs ) ) {
-            $logMarkup = '<div class="alert alert-default" role="alert">Nothing to show</div>';
-        } else {
-            $logMarkup = '';
-            foreach ( $logs as $log ) {
-                $logMarkup .= $log['message'];
-            }
-        }
-
-        $tabLog->setContent( $logMarkup );
+        $tabLog->setContent( Logger::getLogMarkUp() );
 
         $cmpGenNow = new CmpFields( $panelGenNow );
         $genNowBtn = new Button( $cmpGenNow, 'Generate XML Now' );

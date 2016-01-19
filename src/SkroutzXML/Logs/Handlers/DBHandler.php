@@ -54,4 +54,9 @@ class DBHandler extends AbstractProcessingHandler {
 		);
 		update_option( $this->logName, $this->logs );
 	}
+
+	public function clear(){
+		$this->logs = [];
+		update_option($this->logName, $this->logs);
+	}
 }

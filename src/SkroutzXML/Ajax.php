@@ -34,7 +34,7 @@ class Ajax {
         wp_send_json_success([
             'included' => $included,
             'msg'      => 'Generation is complete. A total of '
-                          . $included
+                          . $included['totalSuccess']
                           . ' items were included in XML, please see the generation log for more details.',
         ]);
     }

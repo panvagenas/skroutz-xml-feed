@@ -54,43 +54,50 @@ class XML {
     /**
      * @var array
      */
-    protected $errors = [];
+    protected $errors = [ ];
 
-    protected $fieldLengths = [];
-    protected $requiredFields = [];
-    protected $fieldMap = [];
+    protected $fieldLengths = [ ];
+    protected $requiredFields = [ ];
+    protected $fieldMap = [ ];
 
-    public function __construct($fileLocation, $createdAtName, $rootElemName, $productsElemWrapper, $productElemName) {
-        $this->fileLocation = $fileLocation;
-        $this->createdAtName = $createdAtName;
-        $this->rootElemName = $rootElemName;
+    public function __construct(
+        $fileLocation,
+        $createdAtName,
+        $rootElemName,
+        $productsElemWrapper,
+        $productElemName
+    ) {
+        $this->fileLocation        = $fileLocation;
+        $this->createdAtName       = $createdAtName;
+        $this->rootElemName        = $rootElemName;
         $this->productsElemWrapper = $productsElemWrapper;
-        $this->productElemName = $productElemName;
+        $this->productElemName     = $productElemName;
     }
 
     public function parseArray( Array $array, $fieldMap, $fieldLengths, $requiredFields ) {
-        $this->fieldLengths = $fieldLengths;
+        $this->fieldLengths   = $fieldLengths;
         $this->requiredFields = $requiredFields;
-        $this->fieldMap = $fieldMap;
+        $this->fieldMap       = $fieldMap;
 
         // init simple xml if is not initialized already
         if ( ! $this->simpleXML ) {
             $this->initSimpleXML();
         }
 
-        $this->errors = [];
+        $this->errors = [ ];
 
         // parse array
+        $totalSuccess = 0;
         foreach ( $array as $k => $v ) {
-            $this->appendProduct( $v );
+            $totalSuccess += $this->appendProduct( $v );
         }
 
         $save = false;
-        if(!empty($array)){
+        if ( ! empty( $array ) ) {
             $save = $this->saveXML();
         }
 
-        return ['save' => $save, 'errors' => $this->errors];
+        return [ 'save' => $save, 'totalSuccess' => $totalSuccess, 'errors' => $this->errors ];
     }
 
     protected function initSimpleXML() {
@@ -116,10 +123,10 @@ class XML {
 
             foreach ( $validated as $key => $value ) {
                 if ( $this->isValidXmlName( $value ) ) {
-                    $product->addChild( $this->fieldMap[$key], $value );
+                    $product->addChild( $this->fieldMap[ $key ], $value );
                 } else {
-                    $product->{$this->fieldMap[$key]} = null;
-                    $product->{$this->fieldMap[$key]}->addCData( $value );
+                    $product->{$this->fieldMap[ $key ]} = null;
+                    $product->{$this->fieldMap[ $key ]}->addCData( $value );
                 }
             }
 
@@ -166,6 +173,7 @@ class XML {
 
         return $array;
     }
+
     protected function trimField( $value, $fieldName ) {
         if ( ! isset( $this->fieldLengths[ $fieldName ] ) ) {
             return false;
@@ -177,15 +185,20 @@ class XML {
 
         return mb_substr( (string) $value, 0, $this->fieldLengths[ $fieldName ] );
     }
+
     protected function isValidXmlName( $name ) {
+        $getIniDisplayErrors = ini_get('display_errors');
+        ini_set('display_errors', 0);
         try {
             new \DOMElement( $name );
-
+            ini_set('display_errors', $getIniDisplayErrors);
             return true;
         } catch ( \DOMException $e ) {
+            ini_set('display_errors', $getIniDisplayErrors);
             return false;
         }
     }
+
     public function saveXML() {
         if ( ! ( $this->simpleXML instanceof SimpleXMLExtended ) ) {
             return false;
@@ -196,7 +209,8 @@ class XML {
         }
 
         if ( $this->simpleXML && ! empty( $this->fileLocation )
-             && ( is_writable( $this->fileLocation ) || is_writable( $dir ) ) ) {
+             && ( is_writable( $this->fileLocation ) || is_writable( $dir ) )
+        ) {
             if ( is_file( $this->fileLocation ) ) {
                 unlink( $this->fileLocation );
             }
@@ -207,6 +221,7 @@ class XML {
 
         return false;
     }
+
     public function printXML() {
         if ( headers_sent() ) {
             return;
@@ -226,9 +241,11 @@ class XML {
 
         exit( 0 );
     }
+
     protected function existsAndReadable( $file ) {
         return is_string( $file ) && file_exists( $file ) && is_readable( $file );
     }
+
     public function getFileInfo() {
         $fileLocation = $this->fileLocation;
 
@@ -240,26 +257,26 @@ class XML {
 
             $info[ $this->createdAtName ] = array(
                 'value' => end( $sXML->$cratedAtName ),
-                'label' => 'Cached File Creation Datetime'
+                'label' => 'Cached File Creation Datetime',
             );
 
             $info['productCount'] = array(
                 'value' => $this->countProductsInFile( $sXML ),
-                'label' => 'Number of Products Included'
+                'label' => 'Number of Products Included',
             );
 
             $info['cachedFilePath'] = array( 'value' => $fileLocation, 'label' => 'Cached File Path' );
 
             $info['url'] = array(
                 'value' => get_home_url( null, str_replace( ABSPATH, '', $fileLocation ) ),
-                'label' => 'Cached File Url'
+                'label' => 'Cached File Url',
             );
 
             $info['size'] = array( 'value' => filesize( $fileLocation ), 'label' => 'Cached File Size' );
 
             return $info;
         } else {
-            return null;
+            return [];
         }
     }
 
@@ -279,5 +296,14 @@ class XML {
         }
 
         return 0;
+    }
+
+    /**
+     * @return array
+     * @see    XML::$errors
+     * @codeCoverageIgnore
+     */
+    public function getErrors() {
+        return $this->errors;
     }
 }

@@ -28,6 +28,7 @@ use Pan\XmlGenerator\XML;
  */
 class Skroutz {
     const DEV = false;
+
     const VERSION = '151227';
 
     /**
@@ -43,10 +44,10 @@ class Skroutz {
      */
     protected $xmlObj;
 
-    public function __construct( ) {
+    public function __construct() {
         $this->options = Options::getInstance();
 
-        $this->logger = new Logger( );
+        $this->logger = new Logger();
 
         $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
 
@@ -70,7 +71,7 @@ class Skroutz {
         $env->maximize_time_memory_limits();
 
         // TODO Set options
-        $wooGen = new WooArrayGenerator( [ ] );
+        $wooGen = new WooArrayGenerator( $this->options->translateOptions() );
         $this->logger->clearDBLog();
 
         $genArray = $wooGen->getArray();
@@ -79,7 +80,7 @@ class Skroutz {
             '<strong>SkroutzXML XML generation started at ' . date( 'd M, Y H:i:s' ) . '</strong>'
         );
 
-        $this->parseStoreLog($wooGen->getLog());
+        $this->parseStoreLog( $wooGen->getLog() );
 
         $res = $this->getXmlObj()->parseArray(
             $genArray,
@@ -88,16 +89,22 @@ class Skroutz {
             $this->options->getRequiredFields()
         );
 
+        foreach ( $this->getXmlObj()->getErrors() as $error ) {
+            $this->logger->addError( $error );
+        }
+
         $this->logger->addInfo(
             '<strong>SkroutzXML XML generation finished at '
             . date( 'd M, Y H:i:s' )
             . '</strong><br>Time taken: ' . round( microtime( true ) - $sTime, 20 ) . ' sec<br>
 			Mem details: ' . $env->memory_details() );
 
+        $res['logMarkUp'] = Logger::getLogMarkUp();
+
         return $res;
     }
 
-    protected function parseStoreLog(array $log){
+    protected function parseStoreLog( array $log ) {
         // TODO Implement
     }
 
@@ -129,13 +136,17 @@ class Skroutz {
             $schedules = wp_get_schedules();
             if ( isset( $schedules[ $xmlInterval ] ) ) {
                 $xmlInterval = $schedules[ $xmlInterval ]['interval'];
+            } else {
+
             }
         }
 
         $xmlInfo     = $this->xmlObj->getFileInfo();
-        $createdTime = strtotime( $xmlInfo[ $this->xmlObj->createdAtName ]['value'] );
+        $createdTime = isset( $xmlInfo[ $this->xmlObj->createdAtName ] ) ?
+            strtotime( $xmlInfo[ $this->xmlObj->createdAtName ]['value'] )
+            : 0;
 
-        $nextCreationTime = (int) $xmlInterval + (int) $createdTime;
+        $nextCreationTime = ( (int) $xmlInterval * 60 * 60 ) + (int) $createdTime;
 
         return time() > $nextCreationTime;
     }
