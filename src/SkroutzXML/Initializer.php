@@ -15,6 +15,7 @@ use Pan\MenuPages\PageElements\Components\CmpForm;
 use Pan\MenuPages\PageElements\Components\CmpTab;
 use Pan\MenuPages\PageElements\Components\CmpTabForm;
 use Pan\MenuPages\PageElements\Containers\CnrCollapsible;
+use Pan\MenuPages\PageElements\Containers\CnrPanelComponents;
 use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
 use Pan\MenuPages\PageElements\Containers\CnrTabs;
 use Pan\MenuPages\Pages\Page;
@@ -303,8 +304,10 @@ class Initializer {
         $raw = new Raw(new CmpFields($colInfo));
         $raw->setContent($content);
 
-        $donateForm = new CmpForm($tabs, CnrTabs::CNR_FOOTER);
-        $donateForm->setClass('form form-inline');
+        $panelDonate = new CnrPanelComponents($menuPage, $menuPage::POSITION_ASIDE);
+        $panelDonate->setTitle('Support this Plugin');
+
+        $donateForm = new CmpForm($panelDonate);
         $donateSelect = new Select($donateForm, 'donate');
         $donateSelect->setOptions(['1' => 0, '2' => 1]);
     }
