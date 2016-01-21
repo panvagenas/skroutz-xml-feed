@@ -31,15 +31,24 @@ class WooArrayGenerator {
 
     const AVAIL_OUT_OF_STOCK_BACKORDERS = 'Out of stock, back-orders allowed';
 
-    protected $log = [ ];
+    /**
+     * @var callable
+     */
+    protected $prodArrayValidator;
+    /**
+     * @var callable
+     */
+    protected $logger;
 
     /**
      * @var Options
      */
     protected $options;
 
-    public function __construct( array $options = [ ] ) {
+    public function __construct( array $options = [ ], callable $prodArrayValidator, callable $logger) {
         $this->options = new Options( $options );
+        $this->prodArrayValidator = $prodArrayValidator;
+        $this->logger = $logger;
     }
 
     public function getOptions() {
@@ -66,11 +75,12 @@ class WooArrayGenerator {
     }
 
     protected function log( $type, $message, $data = [ ] ) {
-        $this->log[] = [
+        $data = [
             'type' => $type,
             'msg'  => $message,
             'data' => $data,
         ];
+        call_user_func_array($this->logger, $data);
     }
 
     public function getArray( $limit = 0, $offset = 0 ) {
@@ -123,7 +133,11 @@ class WooArrayGenerator {
                 continue;
             }
 
-            $return[] = $this->composeProductArray( $genProduct );
+            $pAr = $this->composeProductArray( $genProduct );
+
+            if($pAr){
+                $return[] = $pAr;
+            }
         }
 
         wp_cache_flush();
@@ -218,7 +232,7 @@ class WooArrayGenerator {
             }
         }
 
-        return $out;
+        return call_user_func($this->prodArrayValidator, $out);
     }
 
 
@@ -253,9 +267,5 @@ class WooArrayGenerator {
         }
 
         return false;
-    }
-
-    public function getLog() {
-        return $this->log;
     }
 }

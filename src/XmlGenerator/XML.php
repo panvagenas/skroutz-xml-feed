@@ -74,9 +74,7 @@ class XML {
         $this->productElemName     = $productElemName;
     }
 
-    public function parseArray( Array $array, $fieldMap, $fieldLengths, $requiredFields ) {
-        $this->fieldLengths   = $fieldLengths;
-        $this->requiredFields = $requiredFields;
+    public function parseArray( array $array, array $fieldMap ) {
         $this->fieldMap       = $fieldMap;
 
         // init simple xml if is not initialized already
@@ -116,12 +114,10 @@ class XML {
 
         $products = $this->simpleXML->children();
 
-        $validated = $this->validateArrayKeys( $p );
-
-        if ( ! empty( $validated ) ) {
+        if ( ! empty( $p ) ) {
             $product = $products->addChild( $this->productElemName );
 
-            foreach ( $validated as $key => $value ) {
+            foreach ( $p as $key => $value ) {
                 if ( $this->isValidXmlName( $value ) ) {
                     $product->addChild( $this->fieldMap[ $key ], $value );
                 } else {
@@ -134,56 +130,6 @@ class XML {
         }
 
         return 0;
-    }
-
-    protected function validateArrayKeys( Array $array ) {
-        foreach ( $this->requiredFields as $fieldName ) {
-            if ( ! isset( $array[ $fieldName ] ) || empty( $array[ $fieldName ] ) ) {
-                $fields = array();
-                foreach ( $this->requiredFields as $f ) {
-                    if ( ! isset( $array[ $f ] ) || empty( $array[ $f ] ) ) {
-                        array_push( $fields, $f );
-                    }
-                }
-                $name = isset( $array['name'] )
-                    ? $array['name']
-                    : ( isset( $array['id'] ) ? 'with id ' . $array['id'] : '' );
-
-                if ( isset( $array['link'] ) ) {
-                    $name = '<a href="' . $array['link'] . '" target="_blank">' . $name . '</a>';
-                }
-
-                $this->errors[] = 'Product <strong>' . $name . '</strong> not included in XML file because field(s) '
-                                  . implode( ', ', $fields ) . ' is/are missing or is invalid';
-
-                return array();
-            } else {
-                $array[ $fieldName ] = $this->trimField( $array[ $fieldName ], $fieldName );
-                if ( is_string( $array[ $fieldName ] ) ) {
-                    $array[ $fieldName ] = mb_convert_encoding( $array[ $fieldName ], "UTF-8" );
-                }
-            }
-        }
-
-        foreach ( $array as $k => $v ) {
-            if ( ! array_key_exists( $k, $this->fieldMap ) ) {
-                unset( $array[ $k ] );
-            }
-        }
-
-        return $array;
-    }
-
-    protected function trimField( $value, $fieldName ) {
-        if ( ! isset( $this->fieldLengths[ $fieldName ] ) ) {
-            return false;
-        }
-
-        if ( $this->fieldLengths[ $fieldName ] === 0 ) {
-            return $value;
-        }
-
-        return mb_substr( (string) $value, 0, $this->fieldLengths[ $fieldName ] );
     }
 
     protected function isValidXmlName( $name ) {

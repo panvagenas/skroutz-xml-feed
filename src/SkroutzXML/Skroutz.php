@@ -70,24 +70,21 @@ class Skroutz {
         $env = new Env();
         $env->maximize_time_memory_limits();
 
-        // TODO Set options
-        $wooGen = new WooArrayGenerator( $this->options->translateOptions() );
         $this->logger->clearDBLog();
-
-        $genArray = $wooGen->getArray();
 
         $this->logger->addInfo(
             '<strong>SkroutzXML XML generation started at ' . date( 'd M, Y H:i:s' ) . '</strong>'
         );
 
-        $this->parseStoreLog( $wooGen->getLog() );
-
-        $res = $this->getXmlObj()->parseArray(
-            $genArray,
-            $this->options->getFieldMap(),
-            $this->options->getFieldLengths(),
-            $this->options->getRequiredFields()
+        $wooGen = new WooArrayGenerator(
+            $this->options->translateOptions(),
+            [$this, 'validateProductArray'],
+            [$this, 'wooArrayGeneratorLogger']
         );
+
+        $genArray = $wooGen->getArray();
+
+        $res = $this->getXmlObj()->parseArray( $genArray, $this->options->getFieldMap() );
 
         foreach ( $this->getXmlObj()->getErrors() as $error ) {
             $this->logger->addError( $error );
@@ -102,6 +99,66 @@ class Skroutz {
         $res['logMarkUp'] = Logger::getLogMarkUp();
 
         return $res;
+    }
+
+    public function wooArrayGeneratorLogger($type, $msg, $data){
+        switch($type){
+            default:
+            case WooArrayGenerator::LOG_INFO:
+                $this->logger->addWarning($msg, $data);
+                break;
+            case WooArrayGenerator::LOG_ERROR:
+                $this->logger->addError($msg, $data);
+                break;
+        }
+    }
+
+    public function validateProductArray( array $array ) {
+        $failed = [ ];
+        foreach ( $this->options->getRequiredFields() as $fieldName ) {
+            if ( ! isset( $array[ $fieldName ] ) || empty( $array[ $fieldName ] ) ) {
+                $failed[] = $fieldName;
+            } else {
+                $array[ $fieldName ] = $this->trimField( $array[ $fieldName ], $fieldName );
+                if ( is_string( $array[ $fieldName ] ) ) {
+                    $array[ $fieldName ] = mb_convert_encoding( $array[ $fieldName ], "UTF-8" );
+                }
+            }
+        }
+
+        if ( $failed ) {
+            $name = isset( $array['link'] )
+                ? '<a href="' . $array['link'] . '" target="_blank">' . $array['name'] . '</a>'
+                : $array['name'];
+
+            $this->logger->addError( 'Product <strong>' . $name . '</strong> not included in XML file because field(s) '
+                                     . implode( ', ', $failed ) . ' is/are missing or is invalid'
+            );
+
+            return [ ];
+        }
+
+        foreach ( $array as $k => $v ) {
+            if ( ! array_key_exists( $k, $this->options->getFieldMap() ) ) {
+                unset( $array[ $k ] );
+            }
+        }
+
+        return $array;
+    }
+
+    protected function trimField( $value, $fieldName ) {
+        $fieldLengths = $this->options->getFieldLengths();
+
+        if ( ! isset( $fieldLengths[ $fieldName ] ) ) {
+            return false;
+        }
+
+        if ( $fieldLengths[ $fieldName ] === 0 ) {
+            return $value;
+        }
+
+        return mb_substr( (string) $value, 0, $fieldLengths[ $fieldName ] );
     }
 
     protected function parseStoreLog( array $log ) {
