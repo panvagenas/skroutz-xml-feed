@@ -17,7 +17,6 @@ use Pan\MenuPages\PageElements\Components\CmpTabForm;
 use Pan\MenuPages\PageElements\Containers\CnrCollapsible;
 use Pan\MenuPages\PageElements\Containers\CnrPanelComponents;
 use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
-use Pan\MenuPages\PageElements\Containers\CnrTabs;
 use Pan\MenuPages\Pages\Page;
 use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\WpMenuPages;

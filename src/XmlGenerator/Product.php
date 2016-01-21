@@ -63,6 +63,7 @@ class Product {
             }
 
             foreach ( $variations as $variation ) {
+                /** @noinspection PhpUndefinedFieldInspection */
                 $attrName = wc_attribute_taxonomy_name( $taxonomy->attribute_name );
                 $key      = sanitize_title( 'attribute_' . $attrName );
 
