@@ -1,6 +1,6 @@
 <?php
 
-namespace Pan\SkroutzXML\Logs\Handlers;
+namespace Pan\XmlGenerator\Logger\Handlers;
 
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;

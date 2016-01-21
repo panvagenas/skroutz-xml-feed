@@ -20,7 +20,7 @@ use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
 use Pan\MenuPages\Pages\Page;
 use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\WpMenuPages;
-use Pan\SkroutzXML\Logs\Logger;
+use Pan\XmlGenerator\Logger\Logger;
 use Respect\Validation\Validator;
 
 class Initializer {

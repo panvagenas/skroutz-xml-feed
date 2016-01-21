@@ -5,11 +5,11 @@
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
  * @since     TODO ${VERSION}
- * @package   Pan\SkroutzXML\Logs\Handlers
+ * @package   Pan\XmlGenerator\Logger\Handlers
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 
-namespace Pan\SkroutzXML\Logs\Handlers;
+namespace Pan\XmlGenerator\Logger\Handlers;
 
 use Monolog\Formatter\HtmlFormatter as MonologHtmlFormatter;
 use Monolog\Logger as MonoLogger;
@@ -20,7 +20,7 @@ use Monolog\Logger as MonoLogger;
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
  * @since     TODO ${VERSION}
- * @package   Pan\SkroutzXML\Logs\Handlers
+ * @package   Pan\XmlGenerator\Logger\Handlers
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class HtmlFormatter extends MonologHtmlFormatter {

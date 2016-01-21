@@ -51,10 +51,6 @@ class XML {
      * @var string
      */
     protected $productElemName = 'product';
-    /**
-     * @var array
-     */
-    protected $errors = [ ];
 
     protected $fieldLengths = [ ];
     protected $requiredFields = [ ];
@@ -82,8 +78,6 @@ class XML {
             $this->initSimpleXML();
         }
 
-        $this->errors = [ ];
-
         // parse array
         $totalSuccess = 0;
         foreach ( $array as $k => $v ) {
@@ -95,7 +89,7 @@ class XML {
             $save = $this->saveXML();
         }
 
-        return [ 'save' => $save, 'totalSuccess' => $totalSuccess, 'errors' => $this->errors ];
+        return [ 'save' => $save, 'totalSuccess' => $totalSuccess ];
     }
 
     protected function initSimpleXML() {
@@ -242,14 +236,5 @@ class XML {
         }
 
         return 0;
-    }
-
-    /**
-     * @return array
-     * @see    XML::$errors
-     * @codeCoverageIgnore
-     */
-    public function getErrors() {
-        return $this->errors;
     }
 }

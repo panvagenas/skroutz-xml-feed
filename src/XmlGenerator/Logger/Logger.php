@@ -5,14 +5,14 @@
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
  * @since     TODO ${VERSION}
- * @package   Pan\SkroutzXML\Logs
+ * @package   Pan\XmlGenerator\Logger
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 
-namespace Pan\SkroutzXML\Logs;
+namespace Pan\XmlGenerator\Logger;
 
 use Monolog\Handler\StreamHandler;
-use Pan\SkroutzXML\Logs\Handlers\DBHandler;
+use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 
 /**
  * Class Logger
@@ -20,38 +20,51 @@ use Pan\SkroutzXML\Logs\Handlers\DBHandler;
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
  * @since     TODO ${VERSION}
- * @package   Pan\SkroutzXML\Logs
+ * @package   Pan\XmlGenerator\Logger
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Logger {
+    // FIXME Since we moved logger to XmlGenerator ns we should set this upon instantiation
     const LOG_NAME = 'skz_gen_log';
+
     /**
      * @var \Monolog\Logger
      */
     protected $logger;
+
     /**
      * @var string
      */
     protected $logFilePath;
 
-    public function __construct() {
+    protected function __construct() {
         $this->logger = new \Monolog\Logger( self::LOG_NAME );
     }
 
-    public function clearDbLog(){
+    public static function getInstance() {
+        static $instance = null;
+        if ( null === $instance ) {
+            $instance = new static();
+        }
+
+        return $instance;
+    }
+
+    public function clearDbLog() {
         foreach ( $this->logger->getHandlers() as $handler ) {
-            if($handler instanceof DBHandler){
+            if ( $handler instanceof DBHandler ) {
                 $handler->clear();
             }
         }
-        return update_option(self::LOG_NAME, array());
+
+        return update_option( self::LOG_NAME, array() );
     }
 
-    public static function getDbLog(){
-        return get_option(self::LOG_NAME, []);
+    public static function getDbLog() {
+        return get_option( self::LOG_NAME, [ ] );
     }
 
-    public static function getLogMarkUp(){
+    public static function getLogMarkUp() {
         $logs = self::getDbLog();
 
         if ( empty( $logs ) ) {
@@ -62,6 +75,7 @@ class Logger {
                 $logMarkup .= $log['message'];
             }
         }
+
         return $logMarkup;
     }
 

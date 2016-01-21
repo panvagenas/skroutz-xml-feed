@@ -11,6 +11,8 @@
 
 namespace Pan\XmlGenerator;
 
+use Pan\XmlGenerator\Logger\Logger;
+
 /**
  * Class WooArrayGenerator
  *
@@ -36,7 +38,7 @@ class WooArrayGenerator {
      */
     protected $prodArrayValidator;
     /**
-     * @var callable
+     * @var Logger
      */
     protected $logger;
 
@@ -45,10 +47,10 @@ class WooArrayGenerator {
      */
     protected $options;
 
-    public function __construct( array $options = [ ], callable $prodArrayValidator, callable $logger) {
-        $this->options = new Options( $options );
+    public function __construct( array $options = [ ], callable $prodArrayValidator ) {
+        $this->options            = new Options( $options );
         $this->prodArrayValidator = $prodArrayValidator;
-        $this->logger = $logger;
+        $this->logger             = Logger::getInstance();
     }
 
     public function getOptions() {
@@ -74,15 +76,6 @@ class WooArrayGenerator {
         return (array) $wpdb->get_col( $sql );
     }
 
-    protected function log( $type, $message, $data = [ ] ) {
-        $data = [
-            'type' => $type,
-            'msg'  => $message,
-            'data' => $data,
-        ];
-        call_user_func_array($this->logger, $data);
-    }
-
     public function getArray( $limit = 0, $offset = 0 ) {
         $mem = $this->getMemInM( ini_get( 'memory_limit' ) );
 
@@ -99,7 +92,7 @@ class WooArrayGenerator {
             $product = WC()->product_factory->get_product( (int) $pid );
 
             if ( ! is_object( $product ) || ! ( $product instanceof \WC_Product ) ) {
-                $this->log( self::LOG_ERROR, 'Product failed in ' . __METHOD__, $product );
+                $this->logger->addError( 'Product failed in ' . __METHOD__, $product );
                 continue;
             }
 
@@ -118,24 +111,25 @@ class WooArrayGenerator {
                 if ( $notAvailable ) {
                     $reason[] = 'product is unavailable';
                 }
-                $this->log(
-                    self::LOG_INFO,
-                    'Product <strong>' . $product->get_formatted_name()
-                    . '</strong> failed. Reason(s) is(are): ' . implode( ', ', $reason ),
-                    array(
-                        'id'             => $product->id,
-                        'SKU'            => $product->get_sku(),
-                        'is_purchasable' => $product->is_purchasable(),
-                        'is_visible'     => $product->is_visible(),
-                        'availability'   => $genProduct->getAvailability(),
-                    )
+                $msg = 'Product <strong>' . $product->get_formatted_name()
+                       . '</strong> failed. Reason(s) is(are): ' . implode( ', ', $reason );
+
+                $logData = array(
+                    'id'             => $product->id,
+                    'SKU'            => $product->get_sku(),
+                    'is_purchasable' => $product->is_purchasable(),
+                    'is_visible'     => $product->is_visible(),
+                    'availability'   => $genProduct->getAvailability(),
                 );
+
+                $this->logger->addWarning( $msg, $logData );
+
                 continue;
             }
 
             $pAr = $this->composeProductArray( $genProduct );
 
-            if($pAr){
+            if ( $pAr ) {
                 $return[] = $pAr;
             }
         }
@@ -204,8 +198,8 @@ class WooArrayGenerator {
             ? $product->getAttrValue( $this->options->getMapManufacturer(), '' )
             : $product->getTaxonomyTermNames( $this->options->getMapManufacturer(), false );
 
-        if(is_array($out['manufacturer'])){
-            $out['manufacturer'] = implode(' - ', $out['manufacturer']);
+        if ( is_array( $out['manufacturer'] ) ) {
+            $out['manufacturer'] = implode( ' - ', $out['manufacturer'] );
         }
 
         if ( $product->isProductVariable() && $this->options->isFashionStore() ) {
@@ -232,7 +226,7 @@ class WooArrayGenerator {
             }
         }
 
-        return call_user_func($this->prodArrayValidator, $out);
+        return call_user_func( $this->prodArrayValidator, $out );
     }
 
 

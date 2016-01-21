@@ -11,9 +11,9 @@
 
 namespace Pan\SkroutzXML;
 
-use Pan\SkroutzXML\Logs\Handlers\DBHandler;
-use Pan\SkroutzXML\Logs\Handlers\HtmlFormatter;
-use Pan\SkroutzXML\Logs\Logger;
+use Pan\XmlGenerator\Logger\Handlers\DBHandler;
+use Pan\XmlGenerator\Logger\Handlers\HtmlFormatter;
+use Pan\XmlGenerator\Logger\Logger;
 use Pan\XmlGenerator\WooArrayGenerator;
 use Pan\XmlGenerator\XML;
 
@@ -47,7 +47,7 @@ class Skroutz {
     public function __construct() {
         $this->options = Options::getInstance();
 
-        $this->logger = new Logger();
+        $this->logger = Logger::getInstance();
 
         $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
 
@@ -85,10 +85,6 @@ class Skroutz {
         $genArray = $wooGen->getArray();
 
         $res = $this->getXmlObj()->parseArray( $genArray, $this->options->getFieldMap() );
-
-        foreach ( $this->getXmlObj()->getErrors() as $error ) {
-            $this->logger->addError( $error );
-        }
 
         $this->logger->addInfo(
             '<strong>SkroutzXML XML generation finished at '
