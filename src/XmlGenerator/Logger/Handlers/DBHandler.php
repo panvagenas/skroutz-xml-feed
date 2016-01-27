@@ -59,4 +59,24 @@ class DBHandler extends AbstractProcessingHandler {
 		$this->logs = [];
 		update_option($this->logName, $this->logs);
 	}
+
+
+	public static function getLogMarkUp($logName) {
+		$logs = self::getDbLog($logName);
+
+		if ( empty( $logs ) ) {
+			$logMarkup = '<div class="alert alert-default" role="alert">Nothing to show</div>';
+		} else {
+			$logMarkup = '';
+			foreach ( $logs as $log ) {
+				$logMarkup .= $log['message'];
+			}
+		}
+
+		return $logMarkup;
+	}
+
+	public static function getDbLog($logName) {
+		return get_option( $logName, [ ] );
+	}
 }

@@ -24,8 +24,9 @@ use Pan\XmlGenerator\Logger\Handlers\DBHandler;
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Logger {
-    // FIXME Since we moved logger to XmlGenerator ns we should set this upon instantiation
-    const LOG_NAME = 'skz_gen_log';
+    private static $instances = array();
+
+    protected $logName = '';
 
     /**
      * @var \Monolog\Logger
@@ -37,17 +38,17 @@ class Logger {
      */
     protected $logFilePath;
 
-    protected function __construct() {
-        $this->logger = new \Monolog\Logger( self::LOG_NAME );
+    protected function __construct($logName) {
+        $this->logger = new \Monolog\Logger( $logName );
+        $this->logName = $logName;
     }
 
-    public static function getInstance() {
-        static $instance = null;
-        if ( null === $instance ) {
-            $instance = new static();
+    public static function getInstance($logName) {
+        if ( ! isset( self::$instances[ $logName ] ) ) {
+            self::$instances[ $logName ] = new static($logName);
         }
 
-        return $instance;
+        return self::$instances[ $logName ];
     }
 
     public function clearDbLog() {
@@ -56,27 +57,6 @@ class Logger {
                 $handler->clear();
             }
         }
-
-        return update_option( self::LOG_NAME, array() );
-    }
-
-    public static function getDbLog() {
-        return get_option( self::LOG_NAME, [ ] );
-    }
-
-    public static function getLogMarkUp() {
-        $logs = self::getDbLog();
-
-        if ( empty( $logs ) ) {
-            $logMarkup = '<div class="alert alert-default" role="alert">Nothing to show</div>';
-        } else {
-            $logMarkup = '';
-            foreach ( $logs as $log ) {
-                $logMarkup .= $log['message'];
-            }
-        }
-
-        return $logMarkup;
     }
 
     /**

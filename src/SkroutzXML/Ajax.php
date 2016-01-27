@@ -31,11 +31,10 @@ class Ajax {
         $skroutz  = new Skroutz();
         $included = $skroutz->generateXml();
 
-        wp_send_json_success([
-            'included' => $included,
-            'msg'      => 'Generation is complete. A total of '
-                          . $included['totalSuccess']
-                          . ' items were included in XML, please see the generation log for more details.',
-        ]);
+        $included['msg'] = 'Generation is complete. A total of '
+               . $included['totalSuccess']
+               . ' items were included in XML, please see the generation log for more details.';
+
+        wp_send_json_success($included);
     }
 }

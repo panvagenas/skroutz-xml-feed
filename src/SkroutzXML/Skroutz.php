@@ -31,6 +31,8 @@ class Skroutz {
 
     const VERSION = '151227';
 
+    const DB_LOG_NAME = 'skz_gen_log';
+
     /**
      * @var Options
      */
@@ -47,9 +49,9 @@ class Skroutz {
     public function __construct() {
         $this->options = Options::getInstance();
 
-        $this->logger = Logger::getInstance();
+        $this->logger = Logger::getInstance(self::DB_LOG_NAME);
 
-        $dbHandler = new DBHandler( Logger::LOG_NAME, $this->getLogLevel() );
+        $dbHandler = new DBHandler( self::DB_LOG_NAME, $this->getLogLevel() );
 
         $dbHandler->setFormatter( new HtmlFormatter() );
         $this->logger->addDBHandler( $dbHandler );
@@ -79,7 +81,7 @@ class Skroutz {
         $wooGen = new WooArrayGenerator(
             $this->options->translateOptions(),
             [$this, 'validateProductArray'],
-            [$this, 'wooArrayGeneratorLogger']
+            self::DB_LOG_NAME
         );
 
         $genArray = $wooGen->getArray();
@@ -87,26 +89,37 @@ class Skroutz {
         $res = $this->getXmlObj()->parseArray( $genArray, $this->options->getFieldMap() );
 
         $this->logger->addInfo(
-            '<strong>SkroutzXML XML generation finished at '
+            '<strong>Skroutz XML generation finished at '
             . date( 'd M, Y H:i:s' )
-            . '</strong><br>Time taken: ' . round( microtime( true ) - $sTime, 20 ) . ' sec<br>
+            . '</strong><br>Time taken: ' . $this->timeAbbreviation( floor(microtime( true ) - $sTime )) . '<br>
 			Mem details: ' . $env->memory_details() );
 
-        $res['logMarkUp'] = Logger::getLogMarkUp();
+        $res['logMarkUp'] = DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME);
+        $res['infoMarkUp'] = Initializer::getFileInfoMarkUp();
 
         return $res;
     }
 
-    public function wooArrayGeneratorLogger($type, $msg, $data){
-        switch($type){
-            default:
-            case WooArrayGenerator::LOG_INFO:
-                $this->logger->addWarning($msg, $data);
-                break;
-            case WooArrayGenerator::LOG_ERROR:
-                $this->logger->addError($msg, $data);
-                break;
+    protected function timeAbbreviation($seconds){
+        $dtF = new \DateTime("@0");
+        $dtT = new \DateTime("@$seconds");
+        $dif = $dtF->diff($dtT);
+
+        $format = '';
+        if($dif->d){
+            $format .= ('%a days, ');
         }
+        if($dif->d || $dif->h){
+            $format .= ('%h hours, ');
+        }
+        if($dif->d || $dif->h || $dif->i){
+            $format .= ('%i minutes ');
+        }
+        if($dif->d || $dif->h || $dif->i || $dif->s){
+            $format .= ($format ? 'and ' : '') . ('%s seconds');
+        }
+
+        return $dif->format($format);
     }
 
     public function validateProductArray( array $array ) {

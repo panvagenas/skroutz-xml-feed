@@ -47,10 +47,10 @@ class WooArrayGenerator {
      */
     protected $options;
 
-    public function __construct( array $options = [ ], callable $prodArrayValidator ) {
+    public function __construct( array $options = [ ], callable $prodArrayValidator, $logName ) {
         $this->options            = new Options( $options );
         $this->prodArrayValidator = $prodArrayValidator;
-        $this->logger             = Logger::getInstance();
+        $this->logger             = Logger::getInstance($logName);
     }
 
     public function getOptions() {

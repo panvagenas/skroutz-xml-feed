@@ -20,7 +20,7 @@ use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
 use Pan\MenuPages\Pages\Page;
 use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\WpMenuPages;
-use Pan\XmlGenerator\Logger\Logger;
+use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 use Respect\Validation\Validator;
 
 class Initializer {
@@ -41,8 +41,22 @@ class Initializer {
 
         add_action( 'wp_loaded', array( $this, 'setupOptionsPage' ) );
 
+        add_action( 'wp_dashboard_setup', [$this, 'addDashboardWidget'] );
+
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
+    }
+
+    public function addDashboardWidget(){
+        wp_add_dashboard_widget(
+            'skz-xml-info',
+            'Skroutz XML',
+            [$this, 'dashboardWidgetMarkUp']
+        );
+    }
+
+    public function dashboardWidgetMarkUp(){
+        echo __METHOD__;
     }
 
     public function actionAdminEnqueueScripts() {
@@ -88,7 +102,7 @@ class Initializer {
 
     public static function uninstall() {
         delete_option( Options::OPTIONS_NAME );
-        delete_option( Logger::LOG_NAME );
+        delete_option( Skroutz::DB_LOG_NAME );
 
         return true;
     }
@@ -277,13 +291,26 @@ class Initializer {
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $options ) );
 
-        $tabLog->setContent( Logger::getLogMarkUp() );
+        $tabLog->setContent( DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME) );
 
         $cmpGenNow = new CmpFields( $panelGenNow );
         $genNowBtn = new Button( $cmpGenNow, 'Generate XML Now' );
         $genNowBtn->setClass( 'btn btn-success col-md-9 gen-now-button' );
         new Nonce($cmpGenNow, 'skz_generate_now', 'nonce');
 
+        $raw = new Raw(new CmpFields($colInfo));
+        $raw->setClass($raw->getClass() . ' info-panel');
+        $raw->setContent(self::getFileInfoMarkUp());
+
+        $panelDonate = new CnrPanelComponents($menuPage, $menuPage::POSITION_ASIDE);
+        $panelDonate->setTitle('Support this Plugin');
+
+        $donateForm = new CmpForm($panelDonate);
+        $donateSelect = new Select($donateForm, 'donate');
+        $donateSelect->setOptions(['1' => 0, '2' => 1]);
+    }
+
+    public static function getFileInfoMarkUp(){
         $skz      = new Skroutz();
         $fileInfo = $skz->getXmlObj()->getFileInfo();
         if ( empty( $fileInfo ) ) {
@@ -300,14 +327,6 @@ class Initializer {
             $content .= '</ul>';
         }
 
-        $raw = new Raw(new CmpFields($colInfo));
-        $raw->setContent($content);
-
-        $panelDonate = new CnrPanelComponents($menuPage, $menuPage::POSITION_ASIDE);
-        $panelDonate->setTitle('Support this Plugin');
-
-        $donateForm = new CmpForm($panelDonate);
-        $donateSelect = new Select($donateForm, 'donate');
-        $donateSelect->setOptions(['1' => 0, '2' => 1]);
+        return $content;
     }
 }
