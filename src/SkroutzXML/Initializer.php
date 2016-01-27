@@ -45,21 +45,21 @@ class Initializer {
 
         add_action( 'wp_loaded', array( $this, 'setupOptionsPage' ) );
 
-        add_action( 'wp_dashboard_setup', [$this, 'addDashboardWidget'] );
+        add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidget' ] );
 
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
     }
 
-    public function addDashboardWidget(){
+    public function addDashboardWidget() {
         wp_add_dashboard_widget(
             'skz-xml-info',
             'Skroutz XML',
-            [$this, 'dashboardWidgetMarkUp']
+            [ $this, 'dashboardWidgetMarkUp' ]
         );
     }
 
-    public function dashboardWidgetMarkUp(){
+    public function dashboardWidgetMarkUp() {
         echo __METHOD__;
     }
 
@@ -76,7 +76,7 @@ class Initializer {
         $generateVar    = $this->options->get( 'xml_generate_var' );
         $generateVarVal = $this->options->get( 'xml_generate_var_value' );
 
-        if ( isset( $_REQUEST[$generateVar] ) && $_REQUEST[$generateVar] === $generateVarVal ) {
+        if ( isset( $_REQUEST[ $generateVar ] ) && $_REQUEST[ $generateVar ] === $generateVarVal ) {
             add_action( 'wp_loaded', [ new Skroutz(), 'generateAndPrint' ], PHP_INT_MAX );
         }
     }
@@ -295,41 +295,62 @@ class Initializer {
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $options ) );
 
-        $tabLog->setContent( DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME) );
+        $tabLog->setContent( DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME ) );
 
-        $cmpGenNow = new CmpFields( $panelGenNow );
+        $cmpGenNow    = new CmpFields( $panelGenNow );
+        $skzGenUrlFld = new Raw( $cmpGenNow );
+        $skzGenUrlFld->setContent(
+            '<p class="alert alert-info">Skroutz XML Generation URL: ' . $this->options->getGenerateXmlUrl() . '</p>'
+        );
         $genNowBtn = new Button( $cmpGenNow, 'Generate XML Now' );
         $genNowBtn->setClass( 'btn btn-success col-md-9 gen-now-button' );
-        new Nonce($cmpGenNow, 'skz_generate_now', 'nonce');
+        new Nonce( $cmpGenNow, 'skz_generate_now', 'nonce' );
 
-        $raw = new Raw(new CmpFields($colInfo));
-        $raw->setClass($raw->getClass() . ' info-panel');
-        $raw->setContent(self::getFileInfoMarkUp());
+        $cmpFields = new CmpFields( $colInfo );
+        $raw       = new Raw( $cmpFields );
+        $raw->setClass( $raw->getClass() . ' info-panel' );
+        $raw->setContent( self::getFileInfoMarkUp() );
 
-        $panelDonate = new CnrPanelComponents($menuPage, $menuPage::POSITION_ASIDE);
-        $panelDonate->setTitle('Support this Plugin');
+        $panelDonate = new CnrPanelComponents( $menuPage, $menuPage::POSITION_ASIDE );
+        $panelDonate->setTitle( 'Support this Plugin' );
 
-        $donateForm = new CmpForm($panelDonate);
-        $donateSelect = new Select($donateForm, 'donate');
-        $donateSelect->setOptions(['1' => 0, '2' => 1]);
+        $donateForm   = new CmpForm( $panelDonate );
+        $donateSelect = new Select( $donateForm, 'donate' );
+        $donateSelect->setOptions( [ '1' => 0, '2' => 1 ] );
     }
 
-    public static function getFileInfoMarkUp(){
+    public static function getFileInfoMarkUp() {
         $skz      = new Skroutz();
         $fileInfo = $skz->getXmlObj()->getFileInfo();
+
+        $genUrl = Options::getInstance()->getGenerateXmlUrl();
+
+        $content = '<div class="row">';
         if ( empty( $fileInfo ) ) {
-            $content = '<div class="alert alert-default">
+            $content .= '<p class="alert alert-danger">
                         File not generated yet. Please use the <i>Generate XML Now</i>
-                        button to generate a new XML file</div>';
+                        button to generate a new XML file</p>';
         } else {
-            $content = '<ul class="list-group">';
+            $content .= '<ul class="list-group">';
             foreach ( $fileInfo as $item ) {
                 $content .= '<li class="list-group-item">';
                 $content .= $item['label'] . ': <strong>' . $item['value'] . '</strong>';
                 $content .= '</li>';
             }
             $content .= '</ul>';
+
+            $content .= '<a class="btn btn-primary btn-sm" href="'
+                        . home_url( Options::getInstance()->getXmlRelLocationOption() )
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Cached File';
+            $content .= '</a>';
+            $content .= '<a class="btn btn-primary btn-sm copy-gen-url pull-right" href="'
+                        . $genUrl
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Generate URL';
+            $content .= '</a>';
         }
+        $content .= '</div>';
 
         return $content;
     }

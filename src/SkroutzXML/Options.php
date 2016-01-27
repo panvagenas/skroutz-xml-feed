@@ -181,8 +181,11 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function getFileLocationOption() {
-        return trailingslashit( ABSPATH )
-               . ($this->get( 'xml_location' ) ? trailingslashit( $this->get( 'xml_location' ) ) : '')
+        return trailingslashit( ABSPATH ) . $this->getXmlRelLocationOption();
+    }
+
+    public function getXmlRelLocationOption(){
+        return ($this->get( 'xml_location' ) ? trailingslashit( $this->get( 'xml_location' ) ) : '')
                . $this->get( 'xml_fileName' );
     }
 
@@ -230,5 +233,9 @@ class Options extends \Pan\MenuPages\Options {
      */
     public function getRequiredFields() {
         return $this->requiredFields;
+    }
+
+    public function getGenerateXmlUrl(){
+        return home_url() . "?{$this->get('xml_generate_var')}={$this->get('xml_generate_var_value')}";
     }
 }
