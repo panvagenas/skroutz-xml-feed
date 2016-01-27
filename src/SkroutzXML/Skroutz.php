@@ -11,6 +11,10 @@
 
 namespace Pan\SkroutzXML;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 use Pan\XmlGenerator\Logger\Handlers\HtmlFormatter;
 use Pan\XmlGenerator\Logger\Logger;

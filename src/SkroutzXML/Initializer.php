@@ -2,6 +2,10 @@
 
 namespace Pan\SkroutzXML;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 use Pan\MenuPages\Fields\Button;
 use Pan\MenuPages\Fields\Nonce;
 use Pan\MenuPages\Fields\Range;

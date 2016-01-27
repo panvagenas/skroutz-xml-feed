@@ -2,6 +2,10 @@
 
 namespace Pan\XmlGenerator;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 class Options {
     protected $mapId = 0;
     protected $mapMpn = 0;

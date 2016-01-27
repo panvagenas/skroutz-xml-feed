@@ -11,6 +11,10 @@
 
 namespace Pan\SkroutzXML;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 /**
  * Class Env
  *

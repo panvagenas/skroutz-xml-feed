@@ -11,6 +11,10 @@
 
 namespace Pan\XmlGenerator\Logger;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 use Monolog\Handler\StreamHandler;
 use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 

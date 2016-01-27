@@ -2,6 +2,10 @@
 
 namespace Pan\XmlGenerator\Logger\Handlers;
 
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 

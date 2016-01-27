@@ -11,6 +11,10 @@
 
 namespace Pan\XmlGenerator;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 use Pan\XmlGenerator\Logger\Logger;
 
 /**

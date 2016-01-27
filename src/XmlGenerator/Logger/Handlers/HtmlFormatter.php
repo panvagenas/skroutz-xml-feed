@@ -11,6 +11,10 @@
 
 namespace Pan\XmlGenerator\Logger\Handlers;
 
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 use Monolog\Formatter\HtmlFormatter as MonologHtmlFormatter;
 use Monolog\Logger as MonoLogger;
 
