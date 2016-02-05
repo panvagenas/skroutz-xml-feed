@@ -62,5 +62,16 @@ jQuery(document).ready(function ($) {
                 alert(responseJson.data.msg);
             }
         });
-    })
+    });
+
+    $('.hide-log').click(function(){
+        var scope = $(this).data('scope');
+        if($(this).hasClass('active')){
+            $(this).removeClass('active');
+            $('.'+scope).slideUp('fast');
+        }else{
+            $(this).addClass('active');
+            $('.'+scope).slideDown('fast');
+        }
+    });
 });
