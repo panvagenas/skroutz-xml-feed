@@ -53,7 +53,7 @@ class Skroutz {
     public function __construct() {
         $this->options = Options::getInstance();
 
-        $this->logger = Logger::getInstance(self::DB_LOG_NAME);
+        $this->logger = Logger::getInstance( self::DB_LOG_NAME );
 
         $dbHandler = new DBHandler( self::DB_LOG_NAME, $this->getLogLevel() );
 
@@ -84,7 +84,7 @@ class Skroutz {
 
         $wooGen = new WooArrayGenerator(
             $this->options->translateOptions(),
-            [$this, 'validateProductArray'],
+            [ $this, 'validateProductArray' ],
             self::DB_LOG_NAME
         );
 
@@ -95,35 +95,35 @@ class Skroutz {
         $this->logger->addInfo(
             '<strong>Skroutz XML generation finished at '
             . date( 'd M, Y H:i:s' )
-            . '</strong><br>Time taken: ' . $this->timeAbbreviation( floor(microtime( true ) - $sTime )) . '<br>
+            . '</strong><br>Time taken: ' . $this->timeAbbreviation( floor( microtime( true ) - $sTime ) ) . '<br>
 			Mem details: ' . $env->memory_details() );
 
-        $res['logMarkUp'] = DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME);
+        $res['logMarkUp']  = DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME );
         $res['infoMarkUp'] = Initializer::getFileInfoMarkUp();
 
         return $res;
     }
 
-    protected function timeAbbreviation($seconds){
-        $dtF = new \DateTime("@0");
-        $dtT = new \DateTime("@$seconds");
-        $dif = $dtF->diff($dtT);
+    protected function timeAbbreviation( $seconds ) {
+        $dtF = new \DateTime( "@0" );
+        $dtT = new \DateTime( "@$seconds" );
+        $dif = $dtF->diff( $dtT );
 
         $format = '';
-        if($dif->d){
-            $format .= ('%a days, ');
+        if ( $dif->d ) {
+            $format .= ( '%a days, ' );
         }
-        if($dif->d || $dif->h){
-            $format .= ('%h hours, ');
+        if ( $dif->d || $dif->h ) {
+            $format .= ( '%h hours, ' );
         }
-        if($dif->d || $dif->h || $dif->i){
-            $format .= ('%i minutes ');
+        if ( $dif->d || $dif->h || $dif->i ) {
+            $format .= ( '%i minutes ' );
         }
-        if($dif->d || $dif->h || $dif->i || $dif->s){
-            $format .= ($format ? 'and ' : '') . ('%s seconds');
+        if ( $dif->d || $dif->h || $dif->i || $dif->s ) {
+            $format .= ( $format ? 'and ' : '' ) . ( '%s seconds' );
         }
 
-        return $dif->format($format);
+        return $dif->format( $format );
     }
 
     public function validateProductArray( array $array ) {
@@ -140,12 +140,10 @@ class Skroutz {
         }
 
         if ( $failed ) {
-            $name = isset( $array['link'] )
-                ? '<a href="' . $array['link'] . '" target="_blank">' . $array['name'] . '</a>'
-                : $array['name'];
-
-            $this->logger->addError( 'Product <strong>' . $name . '</strong> not included in XML file because field(s) '
-                                     . implode( ', ', $failed ) . ' is/are missing or is invalid'
+            $this->logger->addError(
+                'Product <strong>' . $array['name'] . '</strong> not included in XML file because field(s) '
+                . implode( ', ', $failed ) . ' is/are missing or is invalid',
+                $array
             );
 
             return [ ];

@@ -34,12 +34,10 @@ jQuery(document).ready(function ($) {
                 if ($button.hasClass('disabled')) {
                     return false;
                 }
-                $button.find('i').removeClass('hidden');
-                $button.addClass('disabled');
+                WpmControls.startLoading($button, true);
             },
             complete: function () {
-                $button.find('i').addClass('hidden');
-                $button.removeClass('disabled');
+                WpmControls.endLoading($button, true);
             },
             success: function (responseJson) {
                 if (!responseJson.hasOwnProperty('data')) {

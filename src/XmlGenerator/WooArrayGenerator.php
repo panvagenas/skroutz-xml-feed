@@ -188,10 +188,6 @@ class WooArrayGenerator {
             $out['category'] = implode( $this->options->getMapCategoryGlue(), $categories );
         }
 
-        if ( empty( $out['category'] ) ) {
-
-        }
-
         $out['price'] = $this->options->getMapPrice() == 2 ? $product->getPrice( false ) : $product->getPrice();
 
         $out['inStock'] = $product->isInStock() ? $this->options->getInStockY() : $this->options->getInStockN();

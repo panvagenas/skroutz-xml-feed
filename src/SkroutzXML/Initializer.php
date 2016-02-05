@@ -23,6 +23,7 @@ use Pan\MenuPages\PageElements\Containers\CnrPanelComponents;
 use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
 use Pan\MenuPages\Pages\Page;
 use Pan\MenuPages\Pages\SubPage;
+use Pan\MenuPages\Scripts\Ifc\IfcScripts;
 use Pan\MenuPages\WpMenuPages;
 use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 use Respect\Validation\Validator;
@@ -66,7 +67,8 @@ class Initializer {
     public function actionAdminEnqueueScripts() {
         wp_enqueue_script(
             'skz_gen_now_js',
-            plugins_url( 'assets/js/generate-now.min.js', $this->pluginFile ), [ 'jquery' ],
+            plugins_url( 'assets/js/generate-now.min.js', $this->pluginFile ),
+            [ 'jquery', IfcScripts::CORE_JS_SLUG ],
             false,
             true
         );
