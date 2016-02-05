@@ -6,21 +6,9 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-use Pan\MenuPages\Fields\Button;
-use Pan\MenuPages\Fields\Nonce;
-use Pan\MenuPages\Fields\Range;
-use Pan\MenuPages\Fields\Raw;
-use Pan\MenuPages\Fields\Select;
-use Pan\MenuPages\Fields\Select2;
-use Pan\MenuPages\Fields\SwitchField;
-use Pan\MenuPages\Fields\Text;
-use Pan\MenuPages\PageElements\Components\CmpFields;
-use Pan\MenuPages\PageElements\Components\CmpForm;
-use Pan\MenuPages\PageElements\Components\CmpTab;
-use Pan\MenuPages\PageElements\Components\CmpTabForm;
-use Pan\MenuPages\PageElements\Containers\CnrCollapsible;
-use Pan\MenuPages\PageElements\Containers\CnrPanelComponents;
-use Pan\MenuPages\PageElements\Containers\CnrTabbedSettings;
+use Pan\MenuPages\Fields as Fields;
+use Pan\MenuPages\PageElements\Components as Components;
+use Pan\MenuPages\PageElements\Containers as Containers;
 use Pan\MenuPages\Pages\Page;
 use Pan\MenuPages\Pages\SubPage;
 use Pan\MenuPages\Scripts\Ifc\IfcScripts;
@@ -134,34 +122,34 @@ class Initializer {
             $attrTaxonomies[ $atrTax->attribute_label ] = $atrTax->attribute_id;
         }
 
-        $tabs = new CnrTabbedSettings( $menuPage, Page::POSITION_MAIN );
+        $tabs = new Containers\CnrTabbedSettings( $menuPage, Page::POSITION_MAIN );
 
-        $colInfo     = new CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'XML File Information' );
-        $panelGenNow = new CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generate Now' );
+        $colInfo     = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'XML File Information' );
+        $panelGenNow = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generate Now' );
 
-        $tabGeneral  = new CmpTabForm( $tabs, 'General Settings', true );
-        $tabAdvanced = new CmpTabForm( $tabs, 'Advanced Settings' );
-        $tabMap      = new CmpTabForm( $tabs, 'Map Fields Settings' );
-        $tabLog      = new CmpTab( $tabs, 'Log' );
+        $tabGeneral  = new Components\CmpTabForm( $tabs, 'General Settings', true );
+        $tabAdvanced = new Components\CmpTabForm( $tabs, 'Advanced Settings' );
+        $tabMap      = new Components\CmpTabForm( $tabs, 'Map Fields Settings' );
+        $tabLog      = new Components\CmpTab( $tabs, 'Log' );
 
-        $xmlLocationFld = new Text( $tabGeneral, 'xml_location' );
+        $xmlLocationFld = new Fields\Text( $tabGeneral, 'xml_location' );
         $xmlLocationFld->setLabel( 'Cached XML File Location' )
                        ->attachValidator( Validator::stringType() );
 
-        $xmlFileNameFld = new Text( $tabGeneral, 'xml_fileName' );
+        $xmlFileNameFld = new Fields\Text( $tabGeneral, 'xml_fileName' );
         $xmlFileNameFld->setLabel( 'XML Filename' )
                        ->attachValidator( Validator::stringType()->notEmpty() );
 
-        $xmlIntervalFld = new Range( $tabGeneral, 'xml_interval' );
+        $xmlIntervalFld = new Fields\Range( $tabGeneral, 'xml_interval' );
         $xmlIntervalFld->setLabel( 'XML File Generation Interval' )
                        ->setMin( 1 )
                        ->setMax( 24 );
 
-        $xmlGenVarFld = new Text( $tabAdvanced, 'xml_generate_var' );
+        $xmlGenVarFld = new Fields\Text( $tabAdvanced, 'xml_generate_var' );
         $xmlGenVarFld->setLabel( 'XML Generation Request Variable' )
                      ->attachValidator( Validator::stringType()->length( 1 )->alnum() );
 
-        $xmlGenVarValFld = new Text( $tabAdvanced, 'xml_generate_var_value' );
+        $xmlGenVarValFld = new Fields\Text( $tabAdvanced, 'xml_generate_var_value' );
         $xmlGenVarValFld->setLabel( 'XML Generation Request Variable Value' )
                         ->attachValidator( Validator::stringType()->length( 8 )->alnum() );
 
@@ -171,28 +159,28 @@ class Initializer {
 //                       ->setMultiple( true )
 //                       ->validate( Validator::arrayType() );
 
-        $availInStockFld = new Select( $tabGeneral, 'avail_inStock' );
+        $availInStockFld = new Fields\Select( $tabGeneral, 'avail_inStock' );
         $availInStockFld->setLabel( 'Product availability when item is in stock' )
                         ->setOptions( $availOptions )
                         ->attachValidator( Validator::numeric()
                                                     ->min( min( $availOptions ) )
                                                     ->max( max( $availOptions ) ) );
 
-        $availOutOfStockFld = new Select( $tabGeneral, 'avail_outOfStock' );
+        $availOutOfStockFld = new Fields\Select( $tabGeneral, 'avail_outOfStock' );
         $availOutOfStockFld->setLabel( 'Product availability when item is out of stock' )
                            ->setOptions( $availOptionsDoNotInclude )
                            ->attachValidator( Validator::numeric()
                                                        ->min( min( $availOptionsDoNotInclude ) )
                                                        ->max( max( $availOptionsDoNotInclude ) ) );
 
-        $availBackOrdersFld = new Select( $tabGeneral, 'avail_backorders' );
+        $availBackOrdersFld = new Fields\Select( $tabGeneral, 'avail_backorders' );
         $availBackOrdersFld->setLabel( 'Product availability when item is out of stock and backorders are allowed' )
                            ->setOptions( $availOptionsDoNotInclude )
                            ->attachValidator( Validator::numeric()
                                                        ->min( min( $availOptionsDoNotInclude ) )
                                                        ->max( max( $availOptionsDoNotInclude ) ) );
 
-        $mapIdFld = new SwitchField( $tabMap, 'map_id' );
+        $mapIdFld = new Fields\SwitchField( $tabMap, 'map_id' );
         $mapIdFld->setLabel( 'Product ID' )
                  ->setOptions( [ 'Use Product SKU' => 0, 'Use Product ID' => 1 ] )
                  ->attachValidator( Validator::numeric()->min( 0 )->max( 1 ) );
@@ -203,7 +191,7 @@ class Initializer {
             $attrTaxonomies
         );
 
-        $mapProductCatFld = new Select2( $tabMap, 'map_manufacturer' );
+        $mapProductCatFld = new Fields\Select2( $tabMap, 'map_manufacturer' );
         $mapProductCatFld->setLabel( 'Product Manufacturer Field' )
                          ->setOptions( $options )
                          ->attachValidator( Validator::in( $options ) );
@@ -213,7 +201,7 @@ class Initializer {
             $attrTaxonomies
         );
 
-        $mapMpnFld = new Select2( $tabMap, 'map_mpn' );
+        $mapMpnFld = new Fields\Select2( $tabMap, 'map_mpn' );
         $mapMpnFld->setLabel( 'Product Manufacturer SKU' )
                   ->setOptions( $options )
                   ->attachValidator( Validator::in( $options ) );
@@ -223,12 +211,12 @@ class Initializer {
             $attrTaxonomies
         );
 
-        $mapMpnName = new Select2( $tabMap, 'map_name' );
+        $mapMpnName = new Fields\Select2( $tabMap, 'map_name' );
         $mapMpnName->setLabel( 'Product Name' )
                    ->setOptions( $options )
                    ->attachValidator( Validator::in( $options ) );
 
-        $mapAppendSkuFld = new SwitchField( $tabMap, 'map_name_append_sku' );
+        $mapAppendSkuFld = new Fields\SwitchField( $tabMap, 'map_name_append_sku' );
         $mapAppendSkuFld->setLabel( 'Append SKU to Product Name' )
                         ->attachValidator( Validator::numeric()->between( 0, 1 ) );
 
@@ -239,7 +227,7 @@ class Initializer {
             'Full'      => 'full',
         ];
 
-        $mapProdImgFld = new Select2( $tabMap, 'map_image' );
+        $mapProdImgFld = new Fields\Select2( $tabMap, 'map_image' );
         $mapProdImgFld->setLabel( 'Product Image' )
                       ->setOptions( $options )
                       ->validate( Validator::in( $options ) );
@@ -250,7 +238,7 @@ class Initializer {
             'Price Without Tax' => 2,
         ];
 
-        $mapPriceFld = new Select2( $tabMap, 'map_price_with_vat' );
+        $mapPriceFld = new Fields\Select2( $tabMap, 'map_price_with_vat' );
         $mapPriceFld->setLabel( 'Product Price' )
                     ->setOptions( $options )
                     ->attachValidator( Validator::in( $options ) );
@@ -260,30 +248,30 @@ class Initializer {
             $attrTaxonomies
         );
 
-        $mapCatFld = new Select2( $tabMap, 'map_category' );
+        $mapCatFld = new Fields\Select2( $tabMap, 'map_category' );
         $mapCatFld->setLabel( 'Product Categories' )
                   ->setOptions( $options )
                   ->attachValidator( Validator::in( $options ) );
 
-        $mapAppendSkuFld = new SwitchField( $tabMap, 'map_category_tree' );
+        $mapAppendSkuFld = new Fields\SwitchField( $tabMap, 'map_category_tree' );
         $mapAppendSkuFld->setLabel( 'Include full path to product category' )
                         ->attachValidator( Validator::numeric()->between( 0, 1 ) );
 
-        $mapAppendSkuFld = new SwitchField( $tabMap, 'is_fashion_store' );
+        $mapAppendSkuFld = new Fields\SwitchField( $tabMap, 'is_fashion_store' );
         $mapAppendSkuFld->setLabel( 'This Store Contains Fashion Products' )
                         ->attachValidator( Validator::numeric()->between( 0, 1 ) );
 
-        $mapSizeFld = new Select2( $tabMap, 'map_size' );
+        $mapSizeFld = new Fields\Select2( $tabMap, 'map_size' );
         $mapSizeFld->setLabel( 'Product Sizes' )
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $attrTaxonomies ) );
 
-        $mapSizeFld = new Select2( $tabMap, 'map_color' );
+        $mapSizeFld = new Fields\Select2( $tabMap, 'map_color' );
         $mapSizeFld->setLabel( 'Product Colors' )
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $attrTaxonomies ) );
 
-        $mapAppendSkuFld = new SwitchField( $tabMap, 'is_book_store' );
+        $mapAppendSkuFld = new Fields\SwitchField( $tabMap, 'is_book_store' );
         $mapAppendSkuFld->setLabel( 'This is a Bookstore' )
                         ->attachValidator( Validator::numeric()->between( 0, 1 ) );
 
@@ -292,32 +280,32 @@ class Initializer {
             $attrTaxonomies
         );
 
-        $mapSizeFld = new Select2( $tabMap, 'map_isbn' );
+        $mapSizeFld = new Fields\Select2( $tabMap, 'map_isbn' );
         $mapSizeFld->setLabel( 'ISBN' )
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $options ) );
 
         $tabLog->setContent( DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME ) );
 
-        $cmpGenNow    = new CmpFields( $panelGenNow );
-        $skzGenUrlFld = new Raw( $cmpGenNow );
+        $cmpGenNow    = new Components\CmpFields( $panelGenNow );
+        $skzGenUrlFld = new Fields\Raw( $cmpGenNow );
         $skzGenUrlFld->setContent(
             '<p class="alert alert-info">Skroutz XML Generation URL: ' . $this->options->getGenerateXmlUrl() . '</p>'
         );
-        $genNowBtn = new Button( $cmpGenNow, 'Generate XML Now' );
+        $genNowBtn = new Fields\Button( $cmpGenNow, 'Generate XML Now' );
         $genNowBtn->setClass( 'btn btn-success col-md-9 gen-now-button' );
-        new Nonce( $cmpGenNow, 'skz_generate_now', 'nonce' );
+        new Fields\Nonce( $cmpGenNow, 'skz_generate_now', 'nonce' );
 
-        $cmpFields = new CmpFields( $colInfo );
-        $raw       = new Raw( $cmpFields );
+        $cmpFields = new Components\CmpFields( $colInfo );
+        $raw       = new Fields\Raw( $cmpFields );
         $raw->setClass( $raw->getClass() . ' info-panel' );
         $raw->setContent( self::getFileInfoMarkUp() );
 
-        $panelDonate = new CnrPanelComponents( $menuPage, $menuPage::POSITION_ASIDE );
+        $panelDonate = new Containers\CnrPanelComponents( $menuPage, $menuPage::POSITION_ASIDE );
         $panelDonate->setTitle( 'Support this Plugin' );
 
-        $donateForm   = new CmpForm( $panelDonate );
-        $donateSelect = new Select( $donateForm, 'donate' );
+        $donateForm   = new Components\CmpForm( $panelDonate );
+        $donateSelect = new Fields\Select( $donateForm, 'donate' );
         $donateSelect->setOptions( [ '1' => 0, '2' => 1 ] );
     }
 
