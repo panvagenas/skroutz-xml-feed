@@ -27,18 +27,20 @@ if ( ! defined( 'WPINC' ) ) {
 class Env {
     /**
      * @static * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since TODO ${VERSION}
+     * @since  TODO ${VERSION}
      */
-    public static function maximize_time_memory_limits()
-    {
-        set_time_limit(0);
+    public static function maximize_time_memory_limits() {
+        $timeLimitSet = set_time_limit(0);
 
         $limit = WP_MAX_MEMORY_LIMIT;
 
-        if(is_admin() && current_user_can('manage_options'))
-            $limit = apply_filters('admin_memory_limit', $limit);
+        if ( is_admin() && current_user_can( 'manage_options' ) ) {
+            $limit = apply_filters( 'admin_memory_limit', $limit );
+        }
 
-        ini_set('memory_limit', $limit);
+        ini_set( 'memory_limit', $limit );
+
+        return ini_get( 'memory_limit' ) == $limit && $timeLimitSet && ini_get('max_execution_time') === '0';
     }
 
     /**
@@ -68,23 +70,24 @@ class Env {
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @since  TODO ${VERSION}
      */
-    public function bytes_abbr($bytes, $precision = 2)
-    {
-        $precision = ($precision >= 0) ? $precision : 2;
-        $units     = array('bytes', 'kbs', 'MB', 'GB', 'TB');
+    public function bytes_abbr( $bytes, $precision = 2 ) {
+        $precision = ( $precision >= 0 ) ? $precision : 2;
+        $units     = array( 'bytes', 'kbs', 'MB', 'GB', 'TB' );
 
-        $bytes = ($bytes > 0) ? $bytes : 0;
-        $power = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $bytes = ( $bytes > 0 ) ? $bytes : 0;
+        $power = floor( ( $bytes ? log( $bytes ) : 0 ) / log( 1024 ) );
 
-        $abbr_bytes = round($bytes / pow(1024, $power), $precision);
-        $abbr       = $units[min($power, count($units) - 1)];
+        $abbr_bytes = round( $bytes / pow( 1024, $power ), $precision );
+        $abbr       = $units[ min( $power, count( $units ) - 1 ) ];
 
-        if($abbr_bytes === (float)1 && $abbr === 'bytes')
-            $abbr = 'byte'; // Quick fix here.
+        if ( $abbr_bytes === (float) 1 && $abbr === 'bytes' ) {
+            $abbr = 'byte';
+        } // Quick fix here.
 
-        else if($abbr_bytes === (float)1 && $abbr === 'kbs')
-            $abbr = 'kb'; // Quick fix here.
+        else if ( $abbr_bytes === (float) 1 && $abbr === 'kbs' ) {
+            $abbr = 'kb';
+        } // Quick fix here.
 
-        return $abbr_bytes.' '.$abbr;
+        return $abbr_bytes . ' ' . $abbr;
     }
 }
