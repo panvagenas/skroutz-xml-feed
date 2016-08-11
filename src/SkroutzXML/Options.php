@@ -89,11 +89,13 @@ class Options extends \Pan\MenuPages\Options {
 
 
     /**
+     * @param string $optionsBaseName
+     * @param array  $defaults
+     *
      * @return $this
-     * @throws \ErrorException
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
-    public static function getInstance() {
+    public static function getInstance($optionsBaseName = '', array $defaults = []) {
         return parent::getInstance( self::OPTIONS_NAME, self::getDefaultsArray() );
     }
 

@@ -90,12 +90,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/panvagenas/wp-menu-pages.git",
-                "reference": "aea21233bd8774c1873cf2f7f2fc9922df3929b6"
+                "reference": "f18d289312b983d632ccf96db12591a0aaf51bab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/panvagenas/wp-menu-pages/zipball/aea21233bd8774c1873cf2f7f2fc9922df3929b6",
-                "reference": "aea21233bd8774c1873cf2f7f2fc9922df3929b6",
+                "url": "https://api.github.com/repos/panvagenas/wp-menu-pages/zipball/f18d289312b983d632ccf96db12591a0aaf51bab",
+                "reference": "f18d289312b983d632ccf96db12591a0aaf51bab",
                 "shasum": ""
             },
             "require": {
@@ -126,7 +126,7 @@
                 }
             ],
             "description": "A library for creating settings pages for WordPress",
-            "time": "2016-02-05 10:59:24"
+            "time": "2016-02-15 14:54:30"
         },
         {
             "name": "psr/log",

@@ -29,7 +29,8 @@ class Initializer {
         $this->options = Options::getInstance();
 
         add_action( 'init', [ $this, 'checkRequest' ] );
-        add_action( 'admin_enqueue_scripts', [ $this, 'actionAdminEnqueueScripts' ], false, true );
+//        add_action( 'admin_enqueue_scripts', [ $this, 'actionAdminEnqueueScripts' ], false, true );
+        add_action("MenuPages\\Scripts\\Script::printScripts@{$this->options->getOptionsBaseName()}", [ $this, 'actionAdminEnqueueScripts' ], false, true );
         add_action( 'wp_ajax_skz_generate_now', [ new Ajax(), 'generateNow' ] );
 
         add_action( 'wp_loaded', array( $this, 'setupOptionsPage' ) );
@@ -264,11 +265,14 @@ class Initializer {
         $mapSizeFld = new Fields\Select2( $tabMap, 'map_size' );
         $mapSizeFld->setLabel( 'Product Sizes' )
                    ->setOptions( $attrTaxonomies )
+                   ->setMultiple( true )
                    ->attachValidator( Validator::in( $attrTaxonomies ) );
 
         $mapSizeFld = new Fields\Select2( $tabMap, 'map_color' );
         $mapSizeFld->setLabel( 'Product Colors' )
                    ->setOptions( $attrTaxonomies )
+                   ->setMultiple( true )
+                   ->setSelect2option( 'allowClear', true )
                    ->attachValidator( Validator::in( $attrTaxonomies ) );
 
         $mapAppendSkuFld = new Fields\SwitchField( $tabMap, 'is_book_store' );
