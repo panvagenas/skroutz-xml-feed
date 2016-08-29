@@ -154,11 +154,11 @@ class Initializer {
         $xmlGenVarValFld->setLabel( 'XML Generation Request Variable Value' )
                         ->attachValidator( Validator::stringType()->length( 8 )->alnum() );
 
-        // TODO Are we gonna use this?
-//        $productsIncFld = new PostType( $tabGeneral, 'products_include' );
-//        $productsIncFld->setLabel( '' )
-//                       ->setMultiple( true )
-//                       ->validate( Validator::arrayType() );
+        // TODO Are we gonna use this? Better use a procuct_exclude
+        $productsIncFld = new Fields\Taxonomies( $tabGeneral, 'products_include', 'product' );
+        $productsIncFld->setLabel( '' )
+                       ->setMultiple( true )
+                       ->validate( Validator::arrayType() );
 
         $availInStockFld = new Fields\Select( $tabGeneral, 'avail_inStock' );
         $availInStockFld->setLabel( 'Product availability when item is in stock' )

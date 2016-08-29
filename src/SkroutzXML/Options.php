@@ -127,7 +127,7 @@ class Options extends \Pan\MenuPages\Options {
              * Products relative
              ********************/
             // Include products
-            'products_include'       => array( 'product' ),
+            'products_include'       => [],
             // Availability when products in stock
             'avail_inStock'          => 0,
             // Availability when products out stock
