@@ -122,7 +122,7 @@ class Options extends \Pan\MenuPages\Options {
             // XML Generate Request Var
             'xml_generate_var'       => 'skroutz',
             // XML Generate Request Var Value
-            'xml_generate_var_value' => wp_generate_password(32),
+            'xml_generate_var_value' => self::generatePassword(32),
             /*********************
              * Products relative
              ********************/
@@ -239,5 +239,16 @@ class Options extends \Pan\MenuPages\Options {
 
     public function getGenerateXmlUrl(){
         return home_url() . "?{$this->get('xml_generate_var')}={$this->get('xml_generate_var_value')}";
+    }
+
+    public static function generatePassword( $length = 32) {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        $password = '';
+        for ( $i = 0; $i < $length; $i++ ) {
+            $password .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+
+        return $password;
     }
 }
