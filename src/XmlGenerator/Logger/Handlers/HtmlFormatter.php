@@ -51,9 +51,9 @@ class HtmlFormatter extends MonologHtmlFormatter {
         $output = '<div class="' . $this->logLevelsClassNames[ $record['level'] ] . '" role="alert">';
         $output .= $record['level_name'] . ': ' . $record['message'];
 
-        if ( isset( $record['context'] ) && isset( $record['context']['id'] ) ) {
-            $editLink  = get_edit_post_link( $record['context']['id'] );
-            $viewLink  = get_permalink( $record['context']['id'] );
+        if ( isset( $record['context'] ) && isset( $record['context']['ID'] ) ) {
+            $editLink  = get_edit_post_link( $record['context']['ID'] );
+            $viewLink  = get_permalink( $record['context']['ID'] );
             $iconStyle = 'style="color: black; padding-right: 5px; font-size: 20px;"';
 
             $output .= '<div class="pull-right">';
