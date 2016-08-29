@@ -51,6 +51,7 @@ jQuery(document).ready(function ($) {
                 updateLogMarkUp(responseJson.data.logMarkUp);
                 //noinspection JSUnresolvedVariable
                 updateInfoMarkUp(responseJson.data.infoMarkUp);
+                bindHideButtons();
             },
             error: function (response) {
                 if (!response.hasOwnProperty('data')) {
@@ -64,14 +65,16 @@ jQuery(document).ready(function ($) {
         });
     });
 
-    $('.hide-log').click(function(){
-        var scope = $(this).data('scope');
-        if($(this).hasClass('active')){
-            $(this).removeClass('active');
-            $('.'+scope).slideUp('fast');
-        }else{
-            $(this).addClass('active');
-            $('.'+scope).slideDown('fast');
-        }
-    });
+    function bindHideButtons(){
+        $('.hide-log').unbind('click').click(function(){
+            var scope = $(this).data('scope');
+            if($(this).hasClass('active')){
+                $(this).removeClass('active');
+                $('.'+scope).slideUp('fast');
+            }else{
+                $(this).addClass('active');
+                $('.'+scope).slideDown('fast');
+            }
+        });
+    }
 });
