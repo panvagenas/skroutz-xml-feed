@@ -122,7 +122,7 @@ class Options extends \Pan\MenuPages\Options {
             // XML Generate Request Var
             'xml_generate_var'       => 'skroutz',
             // XML Generate Request Var Value
-            'xml_generate_var_value' => dechex( mt_rand( 99999999999999999999999, 9999999999999999999999999 ) ),
+            'xml_generate_var_value' => wp_generate_password(32),
             /*********************
              * Products relative
              ********************/
