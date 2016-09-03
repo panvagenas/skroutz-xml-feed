@@ -125,6 +125,14 @@ class Initializer {
 
         $tabs = new Containers\CnrTabbedSettings( $menuPage, Page::POSITION_MAIN );
 
+        if(!extension_loaded('mbstring')){
+            $alert = new Components\CmpAlert($tabs, Containers\Abs\AbsCnrComponents::CNR_HEAD);
+            $alert->setContent('The PHP extension "mbstring" must be enabled or this plugin will not work properly.');
+            $alert->setType(Components\CmpAlert::TYPE_DANGER);
+            $alert->setDismissible(false);
+            $menuPage->addAlert($alert);
+        }
+
         $colInfo     = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'XML File Information' );
         $panelGenNow = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generate Now' );
 
