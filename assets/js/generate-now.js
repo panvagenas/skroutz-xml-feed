@@ -4,8 +4,8 @@
 
 jQuery(document).ready(function ($) {
     function updateLogMarkUp(newMarkUp) {
-        var $logTab = $('a[data-title="Log"]');
-        $($logTab.attr('href')).html(newMarkUp);
+        var $logTab = $('#log-container');
+        $logTab.parent().html(newMarkUp);
     }
 
     function updateInfoMarkUp(newMarkUp) {

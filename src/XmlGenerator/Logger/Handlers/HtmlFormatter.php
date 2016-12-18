@@ -48,19 +48,21 @@ class HtmlFormatter extends MonologHtmlFormatter {
      * @return mixed The formatted record
      */
     public function format( array $record ) {
-        $output = '<div class="' . $this->logLevelsClassNames[ $record['level'] ] . '" role="alert">';
+        $output = '<div class="' . $this->logLevelsClassNames[ $record['level'] ] . ' row" role="alert">';
+        $output .= '<div class="col-md-10">';
         $output .= $record['level_name'] . ': ' . $record['message'];
+        $output .= '</div>';
 
         if ( isset( $record['context'] ) && isset( $record['context']['ID'] ) ) {
             $editLink  = get_edit_post_link( $record['context']['ID'] );
             $viewLink  = get_permalink( $record['context']['ID'] );
             $iconStyle = 'style="color: black; padding-right: 5px; font-size: 20px;"';
 
-            $output .= '<div class="pull-right">';
-            $output .= '<a href="' . $editLink . '" target="_blank" ' . $iconStyle
-                       . '><i class="fa fa-edit fa-2"></i></a>';
-            $output .= '<a href="' . $viewLink . '" target="_blank" ' . $iconStyle
-                       . '><i class="fa fa-eye fa-2"></i></a>';
+            $output .= '<div class="pull-right col-md-1">';
+            $output .= '<div class="row"><a href="' . $editLink . '" target="_blank" ' . $iconStyle
+                       . '><i class="fa fa-edit fa-2"></i> Edit</a></div>';
+            $output .= '<div class="row"><a href="' . $viewLink . '" target="_blank" ' . $iconStyle
+                       . '><i class="fa fa-eye fa-2"></i> View</a></div>';
             $output .= '</div>';
         }
 

@@ -71,7 +71,7 @@ class DBHandler extends AbstractProcessingHandler {
         if ( empty( $logs ) ) {
             $logMarkup = '<div class="alert alert-info" role="alert">Nothing to show</div>';
         } else {
-            $logMarkup = '<div class="col-md-12">';
+            $logMarkup = '<div id="log-container" class="col-md-12">';
             $logMarkup .= '<div class="well">';
             $logMarkup .= '<div class="btn-group btn-group-justified" role="group" aria-label="...">';
             $logMarkup .= '<div class="btn-group" role="group">';

@@ -124,6 +124,7 @@ class Initializer {
         }
 
         $tabs = new Containers\CnrTabbedSettings( $menuPage, Page::POSITION_MAIN );
+        $log = new Containers\CnrCollapsible( $menuPage, Page::POSITION_MAIN, 'Log' );
 
         if(!extension_loaded('mbstring')){
             $alert = new Components\CmpAlert($tabs, Containers\Abs\AbsCnrComponents::CNR_HEAD);
@@ -134,12 +135,12 @@ class Initializer {
         }
 
         $colInfo     = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'XML File Information' );
+        $panelGenUrl = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generation URL' );
         $panelGenNow = new Containers\CnrCollapsible( $menuPage, Page::POSITION_ASIDE, 'Generate Now' );
 
         $tabGeneral  = new Components\CmpTabForm( $tabs, 'General Settings', true );
         $tabAdvanced = new Components\CmpTabForm( $tabs, 'Advanced Settings' );
         $tabMap      = new Components\CmpTabForm( $tabs, 'Map Fields Settings' );
-        $tabLog      = new Components\CmpTab( $tabs, 'Log' );
 
         $xmlLocationFld = new Fields\Text( $tabGeneral, 'xml_location' );
         $xmlLocationFld->setLabel( 'Cached XML File Location' )
@@ -297,28 +298,25 @@ class Initializer {
                    ->setOptions( $attrTaxonomies )
                    ->attachValidator( Validator::in( $options ) );
 
-        $tabLog->setContent( DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME ) );
+        $cmpLogRaw = new Components\CmpRaw( $log );
+        $cmpLogRaw->setContent( DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME ) );
 
-        $cmpGenNow    = new Components\CmpFields( $panelGenNow );
+        $cmpGenNow    = new Components\CmpFields( $panelGenUrl );
         $skzGenUrlFld = new Fields\Raw( $cmpGenNow );
         $skzGenUrlFld->setContent(
-            '<p class="alert alert-info">Skroutz XML Generation URL: ' . $this->options->getGenerateXmlUrl() . '</p>'
+            'Give this URL to skroutz.gr: '
+            . '<p class="alert alert-info">' . $this->options->getGenerateXmlUrl() . '</p>'
         );
+
+        $cmpGenNow    = new Components\CmpFields( $panelGenNow );
         $genNowBtn = new Fields\Button( $cmpGenNow, 'Generate XML Now' );
-        $genNowBtn->setClass( 'btn btn-success col-md-9 gen-now-button' );
+        $genNowBtn->setClass( 'btn btn-success col-md-12 gen-now-button' );
         new Fields\Nonce( $cmpGenNow, 'skz_generate_now', 'nonce' );
 
         $cmpFields = new Components\CmpFields( $colInfo );
         $raw       = new Fields\Raw( $cmpFields );
         $raw->setClass( $raw->getClass() . ' info-panel' );
         $raw->setContent( self::getFileInfoMarkUp() );
-
-        $panelDonate = new Containers\CnrPanelComponents( $menuPage, $menuPage::POSITION_ASIDE );
-        $panelDonate->setTitle( 'Support this Plugin' );
-
-        $donateForm   = new Components\CmpForm( $panelDonate );
-        $donateSelect = new Fields\Select( $donateForm, 'donate' );
-        $donateSelect->setOptions( [ '1' => 0, '2' => 1 ] );
     }
 
     public static function getFileInfoMarkUp() {
