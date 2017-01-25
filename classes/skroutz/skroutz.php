@@ -619,7 +619,15 @@ class skroutz extends framework {
             }
         }
 
-        $this->©xml->printXML();
+        $compression = $this->©option->get( 'xml_compress' );
+        if ( $compression == 1 && $this->©env->supportsGzCompression() ) {
+            $this->©xml->printXML(xml::PRINT_GZ);
+        } elseif ( $compression == 2 && $this->©env->supportsZipCompression() ) {
+            $this->©xml->printXML(xml::PRINT_ZIP);
+        } else {
+            $this->©xml->printXML(xml::PRINT_XML);
+        }
+
         exit( 0 );
     }
 

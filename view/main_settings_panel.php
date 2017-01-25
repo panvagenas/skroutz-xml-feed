@@ -42,6 +42,14 @@ $tags = [];
 foreach ( $productTags as $productTag ) {
 	$tags[] = [ 'label' => $productTag->name, 'value' => (string) $productTag->term_id ];
 }
+
+$compressOptions = [ [ 'label' => $this->__( 'None' ), 'value' => '0' ] ];
+if ( $this->©env->supportsGzCompression() ) {
+	$compressOptions[] = [ 'label' => $this->__( 'GZ Compress' ), 'value' => '1' ];
+}
+if ( $this->©env->supportsZipCompression() ) {
+	$compressOptions[] = [ 'label' => $this->__( 'ZIP Compress' ), 'value' => '2' ];
+}
 ?>
 <div class="form-horizontal main-settings-form-wrapper" role="form">
 	<div class="form-group row">
@@ -167,6 +175,28 @@ foreach ( $productTags as $productTag ) {
 				'classes'     => 'form-control col-md-10'
 			);
 			echo $callee->menu_page->option_form_fields->markup( $this->©option->get( 'xml_location' ), $inputOptions );
+			?>
+		</div>
+	</div>
+
+	<div class="form-group row advanced" <?php echo $showAdvancedHide; ?>>
+		<label for="xml-compression"
+		       class="col-md-3 control-label"><?php echo $this->__( 'XML File Compression' ); ?></label>
+
+		<div class="col-sm-7">
+			<?php
+			$inputOptions = array(
+				'type'        => 'select',
+				'name'        => '[xml_compress]',
+				'title'       => $this->__( 'XML File Compression' ),
+				'placeholder' => $this->__( 'Choose if and how the XML will be compressed' ),
+				'required'    => true,
+				'id'          => 'xml-compress',
+				'attrs'       => '',
+				'classes'     => 'form-control col-md-10',
+				'options'     => $compressOptions
+			);
+			echo $callee->menu_page->option_form_fields->markup( $this->©option->get( 'xml_compress' ), $inputOptions );
 			?>
 		</div>
 	</div>

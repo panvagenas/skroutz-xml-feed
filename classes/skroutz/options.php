@@ -18,14 +18,15 @@ class options extends \xd_v141226_dev\options {
     /**
      * @var array Availability options for skroutz.gr
      */
-    public $availOptions = array(
-        'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
-        'Παράδοση σε 1-3 ημέρες',
-        'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
-        'Παραλαβή από το κατάστημα ή Παράδοση, σε 4-10 ημέρες',
-        'Παράδοση σε 4-10 ημέρες',
-        'Κατόπιν παραγγελίας, παραλαβή ή παράδοση έως 30 ημέρες',
-    );
+    public $availOptions
+        = array(
+            'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
+            'Παράδοση σε 1-3 ημέρες',
+            'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
+            'Παραλαβή από το κατάστημα ή Παράδοση, σε 4-10 ημέρες',
+            'Παράδοση σε 4-10 ημέρες',
+            'Κατόπιν παραγγελίας, παραλαβή ή παράδοση έως 30 ημέρες',
+        );
 
     /**
      * Sets up default options and validators.
@@ -41,6 +42,16 @@ class options extends \xd_v141226_dev\options {
      * @throws exception If `count($defaults) !== count($validators)`.
      */
     public function setup( $defaults, $validators ) {
+        $defaultCompress = 0;
+        $compressRange = [ 0 ];
+        if ( $this->©env->supportsGzCompression() ) {
+            $compressRange[] = 1;
+            $defaultCompress = 1;
+        }
+        if ( $this->©env->supportsZipCompression() ) {
+            $compressRange[] = 2;
+        }
+
         $skroutzDefaults = array(
             'encryption.key'                             => 'jkiabOKBNJO89347KJBKJBasfd',
             'support.url'                                => 'https://github.com/panvagenas/skroutz-xml-feed/issues',
@@ -73,6 +84,8 @@ class options extends \xd_v141226_dev\options {
             'xml_generate_var_value'                     => '',
             // advanced options
             'show_advanced'                              => 0,
+            // compress options
+            'xml_compress'                               => $defaultCompress,
             /*********************
              * Products relative
              ********************/
@@ -130,22 +143,23 @@ class options extends \xd_v141226_dev\options {
                     'every30m',
                     'hourly',
                     'twicedaily',
-                    'daily'
-                )
+                    'daily',
+                ),
             ),
+            'xml_compress'           => array( 'string:in_array' => $compressRange ),
             'show_advanced'          => array( 'string:numeric >=' => 0, 'string:numeric <=' => 1 ),
             'products_include'       => array( 'array' ), // Not implemented yet
             'avail_inStock'          => array(
                 'string:numeric >=' => 0,
-                'string:numeric <=' => count( $this->availOptions ) - 1
+                'string:numeric <=' => count( $this->availOptions ) - 1,
             ),
             'avail_outOfStock'       => array(
                 'string:numeric >=' => 0,
-                'string:numeric <=' => count( $this->availOptions )
+                'string:numeric <=' => count( $this->availOptions ),
             ),
             'avail_backorders'       => array(
                 'string:numeric >=' => 0,
-                'string:numeric <=' => count( $this->availOptions )
+                'string:numeric <=' => count( $this->availOptions ),
             ),
             'ex_cats'                => array( 'array' ),
             'ex_tags'                => array( 'array' ),
@@ -181,7 +195,14 @@ class options extends \xd_v141226_dev\options {
      * @param array $new_options
      */
     public function ®update( $new_options = array() ) {
-        $bools = array( 'is_fashion_store', 'map_name_append_sku', 'map_color_use', 'map_size_use', 'show_advanced', 'map_category_tree' );
+        $bools = array(
+            'is_fashion_store',
+            'map_name_append_sku',
+            'map_color_use',
+            'map_size_use',
+            'show_advanced',
+            'map_category_tree',
+        );
         foreach ( $bools as $v ) {
             if ( ! isset( $new_options[ $v ] ) ) {
                 $new_options[ $v ] = 0;
@@ -189,8 +210,15 @@ class options extends \xd_v141226_dev\options {
         }
 
         // Delete old file if XML file path changed
-        if ( isset( $new_options['xml_location'] ) && ( $new_options['xml_location'] != $this->get( 'xml_location' ) || $new_options['xml_fileName'] != $this->get( 'xml_fileName' ) ) ) {
-            $this->©file->delete( $this->©xml->getFileLocation() );
+        if ( isset( $new_options['xml_location'] )
+             && ( $new_options['xml_location'] != $this->get( 'xml_location' )
+                  || $new_options['xml_fileName'] != $this->get( 'xml_fileName' ) )
+        ) {
+            if ( is_file( $this->©xml->getFileLocation() )
+                 && mime_content_type( $this->©xml->getFileLocation() ) == 'application/xml'
+            ) {
+                $this->©file->delete( $this->©xml->getFileLocation() );
+            }
         }
 
         parent::®update( $new_options );

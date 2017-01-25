@@ -15,6 +15,10 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class xml extends \xd_v141226_dev\xml {
+    const PRINT_XML = 0;
+    const PRINT_GZ = 1;
+    const PRINT_ZIP = 2;
+
 	/**
 	 * @var \SimpleXMLExtended
 	 */
@@ -278,6 +282,49 @@ class xml extends \xd_v141226_dev\xml {
 			}
 			$this->simpleXML->addChild( $this->createdAtName, date( 'Y-m-d H:i' ) );
 
+            $compression = $this->©option->get('xml_compress');
+
+            if($compression == 1 && $this->©env->supportsGzCompression()){
+                $path = $this->fileLocation.'.gz';
+                if ( is_file( $path ) ) {
+                    unlink( $path );
+                }
+                $contents = gzencode($this->simpleXML->asXML());
+                if(!$contents){
+                    $this->©error->forceDBLog(
+                        'error',
+                        [],
+                        'Failed to compress file'
+                    );
+                } else {
+                    if(!file_put_contents($path, $contents)){
+                        $this->©error->forceDBLog(
+                            'error',
+                            [],
+                            'Failed to save compressed file'
+                        );
+                    }
+                }
+            } elseif ($compression == 2 && $this->©env->supportsZipCompression()){
+                $path = $this->fileLocation.'.zip';
+                if ( is_file( $path ) ) {
+                    unlink( $path );
+                }
+                touch($path);
+
+                $za = new \ZipArchive();
+                if($za->open($path)){
+                    $za->addFromString($this->©option->get('xml_fileName'), $this->simpleXML->asXML());
+                    $za->close();
+                } else {
+                    $this->©error->forceDBLog(
+                        'error',
+                        [],
+                        'Failed to save compressed file'
+                    );
+                }
+            }
+
 			return $this->simpleXML->asXML( $this->fileLocation );
 		}
 
@@ -339,32 +386,65 @@ class xml extends \xd_v141226_dev\xml {
 		return false;
 	}
 
-	/**
-	 * Print SimpleXMLElement $this->simpleXML to screen
-	 *
-	 * @throws exception
-	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-	 * @since  141015
-	 */
-	public function printXML() {
-		if ( headers_sent() ) {
-			return;
-		}
+    /**
+     * Print SimpleXMLElement $this->simpleXML to screen
+     *
+     * @param int $printFormat
+     *
+     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+     * @since  141015
+     */
+    public function printXML($printFormat = self::PRINT_XML) {
+        if ( headers_sent() ) {
+            return;
+        }
 
-		if ( ! ( $this->simpleXML instanceof \SimpleXMLExtended ) ) {
-			$fileLocation = $this->getFileLocation();
-			if ( ! $this->existsAndReadable( $fileLocation ) ) {
-				return;
-			}
-			$this->simpleXML = simplexml_load_file( $fileLocation );
-		}
+        if ( ! ( $this->simpleXML instanceof \SimpleXMLExtended ) ) {
+            $fileLocation = $this->getFileLocation();
+            if ( ! $this->existsAndReadable( $fileLocation ) ) {
+                return;
+            }
+            $this->simpleXML = simplexml_load_file( $fileLocation );
+        }
 
-		header( "Content-Type:text/xml" );
+        $unlinkPath = false;
+        if ( $printFormat == self::PRINT_GZ && $this->©env->supportsGzCompression() ) {
+            $path = $this->getFileLocation() . '.gz';
 
-		echo $this->simpleXML->asXML();
+            if ( !$this->existsAndReadable( $path ) ) {
+                $path = tempnam(sys_get_temp_dir(), uniqid());
+                $file = fopen($path, 'w');
+                fwrite($file, gzencode($this->simpleXML->asXML()));
+                fclose($file);
+                $unlinkPath = true;
+            }
 
-		exit( 0 );
-	}
+            header('Content-Disposition: attachment; filename="'.$this->©option->get('xml_fileName').'.gz"');
+        } elseif ( $printFormat == self::PRINT_ZIP && $this->©env->supportsZipCompression() ) {
+            $path = $this->getFileLocation() . '.zip';
+
+            if ( !$this->existsAndReadable( $path ) ) {
+                $path = tempnam(sys_get_temp_dir(), uniqid());
+                $za = new \ZipArchive();
+                if($za->open($path)){
+                    $za->addFromString($this->©option->get('xml_fileName'), $this->simpleXML->asXML());
+                    $za->close();
+                }
+                $unlinkPath = true;
+            }
+
+            header('Content-Disposition: attachment; filename="'.$this->©option->get('xml_fileName').'.zip"');
+        } else {
+            header( "Content-Type:text/xml" );
+            $path = $this->getFileLocation();
+        }
+
+        header( "Content-Type:".mime_content_type($path)."" );
+        readfile( $path );
+        if($unlinkPath){
+            unlink($path);
+        }
+    }
 
 	/**
 	 * Checks if file exists and is readable
@@ -446,44 +526,4 @@ class xml extends \xd_v141226_dev\xml {
 
 		return 0;
 	}
-
-	/**
-	 * @return bool
-	 * @throws exception
-	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-	 * @since  141015
-	 */
-	protected function loadXML() {
-		/**
-		 * For now we write it from scratch EVERY TIME
-		 */
-		$this->fileLocation = $this->getFileLocation();
-
-//		if(file_exists($this->fileLocation)){
-//			$this->simpleXML = new \SimpleXMLExtended(simplexml_load_file($this->fileLocation)->asXML());
-//			return true;
-//		}
-
-		return false;
-
-		try {
-			$locate = $this->©dirs_files->locate( $fileLocation, get_home_path() );
-		} catch ( exception $e ) {
-			return false;
-		}
-
-		if ( ! empty( $locate ) && file_exists( $locate ) && is_readable( $locate ) ) {
-			$this->simpleXML = simplexml_load_file( $locate );
-			if ( $this->simpleXML !== false ) {
-				$this->fileLocation = $locate;
-
-				return true;
-			}
-		} else {
-			// Assuming ABSPATH is writable
-			$this->fileLocation = $this->getFileLocation;
-		}
-
-		return false;
-	}
-} 
+}
