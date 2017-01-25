@@ -6,15 +6,7 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-use Pan\MenuPages\Fields as Fields;
-use Pan\MenuPages\PageElements\Components as Components;
-use Pan\MenuPages\PageElements\Containers as Containers;
-use Pan\MenuPages\Pages\Page;
-use Pan\MenuPages\Pages\SubPage;
-use Pan\MenuPages\Scripts\Ifc\IfcScripts;
-use Pan\MenuPages\WpMenuPages;
 use Pan\XmlGenerator\Logger\Handlers\DBHandler;
-use Respect\Validation\Validator;
 
 class Initializer {
     protected $pluginFile;
@@ -30,12 +22,14 @@ class Initializer {
 
         add_action( 'init', [ $this, 'checkRequest' ] );
 //        add_action( 'admin_enqueue_scripts', [ $this, 'actionAdminEnqueueScripts' ], false, true );
-        add_action("MenuPages\\Scripts\\Script::printScripts@{$this->options->getOptionsBaseName()}", [ $this, 'actionAdminEnqueueScripts' ], false, true );
+        add_action("skroutz-xml-settings", [ $this, 'actionAdminEnqueueScripts' ], false, true );
         add_action( 'wp_ajax_skz_generate_now', [ new Ajax(), 'generateNow' ] );
 
         add_action( 'wp_loaded', array( $this, 'setupOptionsPage' ) );
 
         add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidget' ] );
+
+        add_action('admin_menu', [$this->options, 'addMenuPages']);
 
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
@@ -57,7 +51,7 @@ class Initializer {
         wp_enqueue_script(
             'skz_gen_now_js',
             plugins_url( 'assets/js/generate-now.min.js', $this->pluginFile ),
-            [ 'jquery', IfcScripts::CORE_JS_SLUG ],
+            [ 'jquery' ],
             false,
             true
         );
@@ -103,7 +97,7 @@ class Initializer {
     }
 
     public function setupOptionsPage() {
-        if ( ! is_admin() ) {
+        if ( ! is_admin() || 1) {
             return;
         }
         $wpMenuPages = new WpMenuPages( $this->pluginFile, $this->options );
