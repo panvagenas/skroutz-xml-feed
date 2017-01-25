@@ -33,6 +33,13 @@ class Initializer {
 
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
+
+        add_action( 'add_meta_boxes', function () {
+            add_meta_box( 'meta-box-id', __( 'My Meta Box', 'textdomain' ), function($post){
+                echo 'This should be inside the metabox!';
+                var_dump(get_defined_vars());
+            }, 'settings_page_skz__options-settings');
+        } );
     }
 
     public function addDashboardWidget() {
