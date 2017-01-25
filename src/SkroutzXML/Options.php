@@ -30,63 +30,66 @@ class Options extends \Pan\MenuPages\Options {
     /**
      * @var array Availability options for skroutz.gr
      */
-    public static $availOptions = array(
-        'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
-        'Παράδοση σε 1-3 ημέρες',
-        'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
-        'Παραλαβή από το κατάστημα ή Παράδοση, σε 4-10 ημέρες',
-        'Παράδοση σε 4-10 ημέρες',
-        'Κατόπιν παραγγελίας, παραλαβή ή παράδοση έως 30 ημέρες',
-    );
+    public static $availOptions
+        = array(
+            'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
+            'Παράδοση σε 1-3 ημέρες',
+            'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
+            'Παραλαβή από το κατάστημα ή Παράδοση, σε 4-10 ημέρες',
+            'Παράδοση σε 4-10 ημέρες',
+            'Κατόπιν παραγγελίας, παραλαβή ή παράδοση έως 30 ημέρες',
+        );
 
-    protected $fieldMap = [
-        'id'           => 'id',
-        'mpn'          => 'mpn',
-        'name'         => 'name',
-        'link'         => 'link',
-        'image'        => 'image',
-        'category'     => 'category',
-        'price'        => 'price_with_vat',
-        'inStock'      => 'instock',
-        'availability' => 'availability',
-        'manufacturer' => 'manufacturer',
-        'color'        => 'color',
-        'size'         => 'size',
-        'isbn'         => 'isbn',
-    ];
+    protected $fieldMap
+        = [
+            'id'           => 'id',
+            'mpn'          => 'mpn',
+            'name'         => 'name',
+            'link'         => 'link',
+            'image'        => 'image',
+            'category'     => 'category',
+            'price'        => 'price_with_vat',
+            'inStock'      => 'instock',
+            'availability' => 'availability',
+            'manufacturer' => 'manufacturer',
+            'color'        => 'color',
+            'size'         => 'size',
+            'isbn'         => 'isbn',
+        ];
 
-    protected $fieldLengths = [
-        'id'             => 200,
-        'name'           => 300,
-        'link'           => 1000,
-        'image'          => 400,
-        'category'       => 250,
-        'price' => 0,
-        'inStock'        => 0,
-        'availability'   => 60,
-        'manufacturer'   => 100,
-        'mpn'            => 80,
-        'isbn'           => 80,
-        'size'           => 500,
-        'color'          => 100,
-    ];
-    protected $requiredFields = [
-        'id',
-        'name',
-        'link',
-        'image',
-        'category',
-        'price',
-        'inStock',
-        'availability',
-        'manufacturer',
-        'mpn',
-    ];
+    protected $fieldLengths
+        = [
+            'id'           => 200,
+            'name'         => 300,
+            'link'         => 1000,
+            'image'        => 400,
+            'category'     => 250,
+            'price'        => 0,
+            'inStock'      => 0,
+            'availability' => 60,
+            'manufacturer' => 100,
+            'mpn'          => 80,
+            'isbn'         => 80,
+            'size'         => 500,
+            'color'        => 100,
+        ];
+    protected $requiredFields
+        = [
+            'id',
+            'name',
+            'link',
+            'image',
+            'category',
+            'price',
+            'inStock',
+            'availability',
+            'manufacturer',
+            'mpn',
+        ];
 
     public function __construct( $optionsBaseName, array $defaults ) {
         parent::__construct( $optionsBaseName, $defaults );
     }
-
 
     /**
      * @param string $optionsBaseName
@@ -95,7 +98,7 @@ class Options extends \Pan\MenuPages\Options {
      * @return $this
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
-    public static function getInstance($optionsBaseName = '', array $defaults = []) {
+    public static function getInstance( $optionsBaseName = '', array $defaults = [] ) {
         return parent::getInstance( self::OPTIONS_NAME, self::getDefaultsArray() );
     }
 
@@ -109,6 +112,7 @@ class Options extends \Pan\MenuPages\Options {
 
     public static function getDefaultsArray() {
         return [
+            'show_advanced'          => 0,
             'donate'                 => 1,
             /*********************
              * XML File relative
@@ -122,7 +126,7 @@ class Options extends \Pan\MenuPages\Options {
             // XML Generate Request Var
             'xml_generate_var'       => 'skroutz',
             // XML Generate Request Var Value
-            'xml_generate_var_value' => self::generatePassword(32),
+            'xml_generate_var_value' => self::generatePassword( 32 ),
             /*********************
              * Products relative
              ********************/
@@ -186,8 +190,8 @@ class Options extends \Pan\MenuPages\Options {
         return trailingslashit( ABSPATH ) . $this->getXmlRelLocationOption();
     }
 
-    public function getXmlRelLocationOption(){
-        return ($this->get( 'xml_location' ) ? trailingslashit( $this->get( 'xml_location' ) ) : '')
+    public function getXmlRelLocationOption() {
+        return ( $this->get( 'xml_location' ) ? trailingslashit( $this->get( 'xml_location' ) ) : '' )
                . $this->get( 'xml_fileName' );
     }
 
@@ -237,61 +241,130 @@ class Options extends \Pan\MenuPages\Options {
         return $this->requiredFields;
     }
 
-    public function getGenerateXmlUrl(){
+    public function getGenerateXmlUrl() {
         return home_url() . "?{$this->get('xml_generate_var')}={$this->get('xml_generate_var_value')}";
     }
 
-    public static function generatePassword( $length = 32) {
+    public static function generatePassword( $length = 32 ) {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
         $password = '';
-        for ( $i = 0; $i < $length; $i++ ) {
-            $password .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        for ( $i = 0; $i < $length; $i ++ ) {
+            $password .= substr( $chars, mt_rand( 0, strlen( $chars ) - 1 ), 1 );
         }
 
         return $password;
     }
 
-    public function addMenuPages(){
+    public function addMenuPages() {
         //create new top-level menu
         add_submenu_page( 'options-general.php',
                           'Skroutz XML Settings',
                           'Skroutz XML Settings',
                           'administrator',
-                          'skroutz-xml-settings',
+                          $this->optionsBaseName . '-settings',
                           [ $this, 'renderSettingsPage' ] );
 
         //call register settings function
-        add_action( 'admin_init', [$this, 'registerSettings'] );
-    }
-    public function registerSettings(){
-        register_setting( 'my-cool-plugin-settings-group', 'new_option_name' );
-        register_setting( 'my-cool-plugin-settings-group', 'some_other_option' );
-        register_setting( 'my-cool-plugin-settings-group', 'option_etc' );
+        add_action( 'admin_init', [ $this, 'registerSettings' ] );
     }
 
-    public function renderSettingsPage(){
+    public function registerSettings() {
+        register_setting( $this->optionsBaseName . '-settings-group',
+                          $this->optionsBaseName,
+                          [ $this, 'validateSettings' ] );
+    }
+
+    public function validateSettings( $value ) {
+        return $value;
+    }
+
+    public function renderSettingsPage() {
+        $availOptions = [];
+        foreach ( Options::$availOptions as $value => $label ) {
+            $availOptions[ $label ] = (string) $value;
+        }
+
+        $availOptionsDoNotInclude                   = $availOptions;
+        $availOptionsDoNotInclude['Do not Include'] = count( $availOptions );
+
+        $attrTaxonomies = [];
+        foreach ( wc_get_attribute_taxonomies() as $atrTax ) {
+            $attrTaxonomies[ $atrTax->attribute_label ] = $atrTax->attribute_id;
+        }
         ?>
         <div class="wrap">
-            <h1>Your Plugin Name</h1>
+            <h1>Skroutz XML Feed Settings</h1>
 
             <form method="post" action="options.php">
-                <?php settings_fields( 'my-cool-plugin-settings-group' ); ?>
-                <?php do_settings_sections( 'my-cool-plugin-settings-group' ); ?>
+                <?php settings_fields( $this->optionsBaseName . '-settings-group' ); ?>
+                <?php do_settings_sections( $this->optionsBaseName . '-settings-group' ); ?>
                 <table class="form-table">
                     <tr valign="top">
-                        <th scope="row">New Option Name</th>
-                        <td><input type="text" name="new_option_name" value="<?php echo esc_attr( get_option('new_option_name') ); ?>" /></td>
+                        <th scope="row"><label for="show_advanced">Show advanced options</label></th>
+                        <td>
+                            <input type="hidden"
+                                   name="<?php echo $this->getOptionInputName( 'show_advanced' ); ?>"
+                                   value="" />
+                            <input type="checkbox"
+                                   id="show_advanced"
+                                   name="<?php echo $this->getOptionInputName( 'show_advanced' ); ?>"
+                                <?php echo checked( 'on', $this->get( 'show_advanced' ) ); ?> />
+                        </td>
                     </tr>
 
                     <tr valign="top">
-                        <th scope="row">Some Other Option</th>
-                        <td><input type="text" name="some_other_option" value="<?php echo esc_attr( get_option('some_other_option') ); ?>" /></td>
+                        <th scope="row"><label for="xml_generate_var">XML Request Generate Variable</label></th>
+                        <td>
+                            <input type="text"
+                                   id="xml_generate_var"
+                                   name="<?php echo $this->getOptionInputName( 'xml_generate_var' ); ?>"
+                                   value="<?php echo esc_attr( $this->get( 'xml_generate_var' ) ); ?>" />
+                        </td>
                     </tr>
 
                     <tr valign="top">
-                        <th scope="row">Options, Etc.</th>
-                        <td><input type="text" name="option_etc" value="<?php echo esc_attr( get_option('option_etc') ); ?>" /></td>
+                        <th scope="row"><label for="xml_generate_var_value">XML Request Generate Variable Value</label></th>
+                        <td>
+                            <input type="text"
+                                   id="xml_generate_var_value"
+                                   name="<?php echo $this->getOptionInputName( 'xml_generate_var_value' ); ?>"
+                                   value="<?php echo esc_attr( $this->get( 'xml_generate_var_value' ) ); ?>" />
+                        </td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th scope="row"><label for="xml_fileName">XML Filename</label></th>
+                        <td>
+                            <input type="text"
+                                   id="xml_fileName"
+                                   name="<?php echo $this->getOptionInputName( 'xml_fileName' ); ?>"
+                                   value="<?php echo esc_attr( $this->get( 'xml_fileName' ) ); ?>" />
+                        </td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th scope="row"><label for="xml_location">XML File Location</label></th>
+                        <td>
+                            <input type="text"
+                                   id="xml_fileName"
+                                   name="<?php echo $this->getOptionInputName( 'xml_location' ); ?>"
+                                   value="<?php echo esc_attr( $this->get( 'xml_location' ) ); ?>" />
+                        </td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th scope="row"><label for="xml_interval">XML File Generation Interval</label></th>
+                        <td>
+                            <select type="text"
+                                   id="xml_interval"
+                                   name="<?php echo $this->getOptionInputName( 'xml_interval' ); ?>">
+                                <option value="daily" <?php echo selected('daily', $this->get( 'xml_interval' )); ?>>Daily</option>
+                                <option value="twicedaily" <?php echo selected('twicedaily', $this->get( 'xml_interval' )); ?>>Twice Daily</option>
+                                <option value="hourly" <?php echo selected('hourly', $this->get( 'xml_interval' )); ?>>Hourly</option>
+                                <option value="every30m" <?php echo selected('every30m', $this->get( 'xml_interval' )); ?>>Every Thirty Minutes</option>
+                            </select>
+                        </td>
                     </tr>
                 </table>
 
@@ -300,5 +373,9 @@ class Options extends \Pan\MenuPages\Options {
             </form>
         </div>
         <?php
+    }
+
+    protected function getOptionInputName( $optionName ) {
+        return "{$this->optionsBaseName}[{$optionName}]";
     }
 }
