@@ -33,8 +33,6 @@ use Pan\XmlGenerator\XML;
 class Skroutz {
     const DEV = false;
 
-    const VERSION = '151227';
-
     const DB_LOG_NAME = 'skz_gen_log';
 
     /**
