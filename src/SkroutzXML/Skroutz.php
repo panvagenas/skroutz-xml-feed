@@ -70,7 +70,7 @@ class Skroutz {
     }
 
     public function generateXml() {
-        $sTime = microtime( true );
+        $sTime = microtime( true )-1;
         ignore_user_abort( true );
 
         $env = new Env();

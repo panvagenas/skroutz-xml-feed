@@ -216,7 +216,7 @@ class XML {
                 'label' => 'Cached File Url',
             );
 
-            $info['size'] = array( 'value' => filesize( $fileLocation ), 'label' => 'Cached File Size' );
+            $info['size'] = array( 'value' => filesize( $fileLocation ).'B', 'label' => 'Cached File Size' );
 
             return $info;
         } else {

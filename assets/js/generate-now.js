@@ -17,8 +17,8 @@ jQuery(document).ready(function ($) {
 
         var $button = $(this);
 
-        var nonce = $('#nonce').val();
-        var action = 'skz_generate_now';
+        var nonce = $('#skz-gen-now-action').val();
+        var action = 'skz-gen-now-action';
 
         var data = {
             action: action,
@@ -34,10 +34,10 @@ jQuery(document).ready(function ($) {
                 if ($button.hasClass('disabled')) {
                     return false;
                 }
-                WpmControls.startLoading($button, true);
+                // TODO Add something to indicate that this is loading
             },
             complete: function () {
-                WpmControls.endLoading($button, true);
+                // TODO Add something to indicate that this is loading
             },
             success: function (responseJson) {
                 if (!responseJson.hasOwnProperty('data')) {

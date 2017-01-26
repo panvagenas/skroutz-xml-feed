@@ -11,6 +11,8 @@
 
 namespace Pan\SkroutzXML;
 
+use Pan\XmlGenerator\Logger\Handlers\DBHandler;
+
 if ( ! defined( 'WPINC' ) ) {
     die;
 }
@@ -97,7 +99,7 @@ class Options extends \Pan\MenuPages\Options {
      * @param string $optionsBaseName
      * @param array  $defaults
      *
-     * @return $this
+     * @return \Pan\MenuPages\Options|Options
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
     public static function getInstance( $optionsBaseName = '', array $defaults = [] ) {
@@ -277,10 +279,10 @@ class Options extends \Pan\MenuPages\Options {
                 postboxes.add_postbox_toggles( '<?php echo $this->pageHookSuffix; ?>' );
                 // display spinner
                 $('#fx-smb-form').submit( function(){
-                    $('#publishing-action .spinner').css('display','inline');
+                    $('#publishing-action').find('.spinner').css('display','inline');
                 });
                 // confirm before reset
-                $('#delete-action .submitdelete').on('click', function() {
+                $('#delete-action').find('.submitdelete').on('click', function() {
                     return confirm('Are you sure want to do this?');
                 });
             });
@@ -328,11 +330,53 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function infoBox(){
-        echo 'infoBox contents';
+        $skz      = new Skroutz();
+        $fileInfo = $skz->getXmlObj()->getFileInfo();
+
+        $genUrl = Options::getInstance()->getGenerateXmlUrl();
+
+        $content = '<div class="row">';
+        if ( empty( $fileInfo ) ) {
+            $content .= '<p class="alert alert-danger">
+                        File not generated yet. Please use the <i>Generate XML Now</i>
+                        button to generate a new XML file</p>';
+        } else {
+            $content .= '<div class="">';
+            foreach ( $fileInfo as $item ) {
+                $content .= '<span class="list-group-item">';
+                $content .= $item['label'] . ': </br><strong>' . $item['value'] . '</strong>';
+                $content .= '</span><hr>';
+            }
+            $content .= '</div>';
+
+            $content .= '<p><a class="btn btn-primary btn-sm" href="'
+                        . home_url( Options::getInstance()->getXmlRelLocationOption() )
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Cached File';
+            $content .= '</a></p><hr>';
+            $content .= '<p><a class="btn btn-primary btn-sm copy-gen-url pull-right" href="'
+                        . $genUrl
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Generate URL';
+            $content .= '</a></p>';
+        }
+        $content .= '</div>';
+
+        echo $content;
     }
 
-    public function genNowBox(){
-        echo 'genNowBox contents';
+    public function genNowBox() {
+        ?>
+        <p>
+            <button id="generate"
+                    title="Generate XML Now"
+                    class="button button-large button-controls gen-now-button widefat"
+                    data-target="#generateNowModal"
+                    data-toggle="xd-v141226-dev-modal">Generate XML Now
+            </button>
+        </p>
+        <?php
+        wp_nonce_field('skz-gen-now-action', 'skz-gen-now-action');
     }
 
     public function generalOptionsBox(){
@@ -347,6 +391,18 @@ class Options extends \Pan\MenuPages\Options {
         $attrTaxonomies = [];
         foreach ( wc_get_attribute_taxonomies() as $atrTax ) {
             $attrTaxonomies[ $atrTax->attribute_label ] = $atrTax->attribute_id;
+        }
+
+        $productCategories = get_categories( [ 'taxonomy' => 'product_cat', 'hide_empty' => 0 ] );
+        $categories = [];
+        foreach ( $productCategories as $productCategory ) {
+            $categories[] = [ 'label' => $productCategory->name, 'value' => (string) $productCategory->term_id ];
+        }
+
+        $productTags = get_terms( ['taxonomy' => 'product_tag', 'hide_empty' => 0] );
+        $tags = [];
+        foreach ( $productTags as $productTag ) {
+            $tags[] = [ 'label' => $productTag->name, 'value' => (string) $productTag->term_id ];
         }
         ?>
         <table class="form-table general-options">
@@ -412,6 +468,7 @@ class Options extends \Pan\MenuPages\Options {
                         <option value="twicedaily" <?php echo selected('twicedaily', $this->get( 'xml_interval' )); ?>>Twice Daily</option>
                         <option value="hourly" <?php echo selected('hourly', $this->get( 'xml_interval' )); ?>>Hourly</option>
                         <option value="every30m" <?php echo selected('every30m', $this->get( 'xml_interval' )); ?>>Every Thirty Minutes</option>
+                        <option value="0" <?php echo selected('0', $this->get( 'xml_interval' )); ?>>Disable caching of file (not recommended for stores with many products)</option>
                     </select>
                 </td>
             </tr>
@@ -569,7 +626,6 @@ class Options extends \Pan\MenuPages\Options {
                 'label' => 'Use Product Tags',
                 'value' => 'product_tag'
             );
-            global $wp_taxonomies;
 
             foreach ( $attrTaxonomies as $taxonomies ) {
                 $options[] = array(
@@ -960,7 +1016,7 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function logsBox(){
-        echo 'logsBox contents';
+        echo DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME);
     }
 
     public function renderSettingsPage() {

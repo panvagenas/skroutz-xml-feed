@@ -26,7 +26,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class Ajax {
     public function generateNow() {
-        check_ajax_referer( 'skz_generate_now', 'nonce' );
+        check_ajax_referer( 'skz-gen-now-action', 'nonce' );
 
         if ( ! is_super_admin() ) {
             wp_die('Not allowed');

@@ -47,6 +47,13 @@ class Logger {
         $this->logName = $logName;
     }
 
+    /**
+     * @param $logName
+     *
+     * @return $this
+     * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+     * @since  TODO ${VERSION}
+     */
     public static function getInstance($logName) {
         if ( ! isset( self::$instances[ $logName ] ) ) {
             self::$instances[ $logName ] = new static($logName);
