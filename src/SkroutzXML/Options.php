@@ -27,7 +27,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Options extends \Pan\MenuPages\Options {
-    const OPTIONS_NAME = 'skz__options';
+    const OPTIONS_NAME = 'skroutz__options';
     protected $pageHookSuffix;
     protected $pageId = 'skroutz-xml-settings';
 
@@ -255,8 +255,8 @@ class Options extends \Pan\MenuPages\Options {
     public function addMenuPages() {
         //create new top-level menu
         $this->pageHookSuffix = add_submenu_page( 'options-general.php',
-                                                  'Skroutz XML Settings',
-                                                  'Skroutz XML Settings',
+                                                  'Skroutz XML Feed Settings',
+                                                  'Skroutz XML Feed',
                                                   'administrator',
                           $this->optionsBaseName . '-settings',
                                                   [ $this, 'renderSettingsPage' ] );
@@ -272,21 +272,16 @@ class Options extends \Pan\MenuPages\Options {
     public function footerScripts(){
         ?>
         <script type="text/javascript">
-            //<![CDATA[
             jQuery(document).ready( function($) {
-                // toggle
                 $('.if-js-closed').removeClass('if-js-closed').addClass('closed');
                 postboxes.add_postbox_toggles( '<?php echo $this->pageHookSuffix; ?>' );
-                // display spinner
                 $('#fx-smb-form').submit( function(){
                     $('#publishing-action').find('.spinner').css('display','inline');
                 });
-                // confirm before reset
                 $('#delete-action').find('.submitdelete').on('click', function() {
-                    return confirm('Are you sure want to do this?');
+                    return confirm(/*'Are you sure want to do this?'*/'Sorry, not yet implemented');
                 });
             });
-            //]]>
         </script>
         <?php
     }
@@ -341,20 +336,18 @@ class Options extends \Pan\MenuPages\Options {
                         File not generated yet. Please use the <i>Generate XML Now</i>
                         button to generate a new XML file</p>';
         } else {
-            $content .= '<div class="">';
             foreach ( $fileInfo as $item ) {
                 $content .= '<span class="list-group-item">';
                 $content .= $item['label'] . ': </br><strong>' . $item['value'] . '</strong>';
                 $content .= '</span><hr>';
             }
-            $content .= '</div>';
 
-            $content .= '<p><a class="btn btn-primary btn-sm" href="'
+            $content .= '<p><a class="button button-primary button-sm action-button" href="'
                         . home_url( Options::getInstance()->getXmlRelLocationOption() )
                         . '" target="_blank" role="button">';
             $content .= 'Open Cached File';
             $content .= '</a></p><hr>';
-            $content .= '<p><a class="btn btn-primary btn-sm copy-gen-url pull-right" href="'
+            $content .= '<p><a class="button button-primary button-sm action-button" href="'
                         . $genUrl
                         . '" target="_blank" role="button">';
             $content .= 'Open Generate URL';
@@ -370,7 +363,7 @@ class Options extends \Pan\MenuPages\Options {
         <p>
             <button id="generate"
                     title="Generate XML Now"
-                    class="button button-large button-controls gen-now-button widefat"
+                    class="button button-hero button-controls gen-now-button widefat"
                     data-target="#generateNowModal"
                     data-toggle="xd-v141226-dev-modal">Generate XML Now
             </button>
@@ -404,8 +397,14 @@ class Options extends \Pan\MenuPages\Options {
         foreach ( $productTags as $productTag ) {
             $tags[] = [ 'label' => $productTag->name, 'value' => (string) $productTag->term_id ];
         }
+
+        $genUrl = Options::getInstance()->getGenerateXmlUrl();
         ?>
         <table class="form-table general-options">
+            <span class="list-group-item">Generate XML URL:
+                <strong><?php echo esc_html($genUrl); ?></strong>
+            </span>
+            <hr>
             <tr valign="top">
                 <th scope="row"><label for="show_advanced">Show advanced options</label></th>
                 <td>
@@ -604,7 +603,7 @@ class Options extends \Pan\MenuPages\Options {
         ?>
         <table class="form-table map-fields">
             <tr valign="top">
-                <th scope="row"><label for="map_id">Product Link</label></th>
+                <th scope="row"><label for="map_id">Product ID</label></th>
                 <td>
                     <select id="map_id"
                             name="<?php echo $this->getOptionInputName( 'map_id' ); ?>">

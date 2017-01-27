@@ -115,9 +115,10 @@ class Initializer {
             wp_enqueue_script( 'common' );
             wp_enqueue_script( 'wp-lists' );
             wp_enqueue_script( 'postbox' );
+
             wp_enqueue_script(
-                'skz_gen_now_js',
-                plugins_url( 'assets/js/generate-now.min.js', $this->pluginFile ),
+                'skz__js',
+                plugins_url( 'assets/js/scripts.min.js', $this->pluginFile ),
                 [ 'jquery' ],
                 false,
                 true
