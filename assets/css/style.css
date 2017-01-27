@@ -1,0 +1,57 @@
+#logs .inside .col-md-12 {
+    width: 100%;
+}
+
+#logs .inside .well {
+    background: lightgray;
+}
+
+#logs .inside .well .btn-group {
+    display: inline-block;
+    padding: 5px 10px;
+}
+
+#logs .inside .well .btn-group .btn-warning{
+    background-color: orange;
+}
+
+#logs .inside .well .btn-group .btn-danger{
+    background-color: #ff5656;
+}
+
+#logs .inside .well .btn-group .btn-info{
+    background-color: lightgreen;
+}
+
+#logs .inside .log-info {
+    background-color: lightgreen;
+}
+
+#logs .inside .alert {
+    margin-top: 3px;
+    padding: 8px;
+    position: relative;
+}
+
+#logs .inside .col-md-10 {
+    width: 80%;
+    display: inline-block;
+}
+
+#logs .inside .pull-right {
+    width: 10%;
+    display: inline-block;
+    font-size: 10px;
+}
+
+#logs .inside .log-info{
+    background-color:lightgreen;
+}
+
+#logs .inside .log-warning{
+    background-color:orange;
+}
+
+#logs .inside .log-error{
+    background-color:#ff5656;
+}

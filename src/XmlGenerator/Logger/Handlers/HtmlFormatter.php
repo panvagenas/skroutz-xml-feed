@@ -56,7 +56,7 @@ class HtmlFormatter extends MonologHtmlFormatter {
         if ( isset( $record['context'] ) && isset( $record['context']['ID'] ) ) {
             $editLink  = get_edit_post_link( $record['context']['ID'] );
             $viewLink  = get_permalink( $record['context']['ID'] );
-            $iconStyle = 'style="color: black; padding-right: 5px; font-size: 20px;"';
+            $iconStyle = '';//'style="color: black; padding-right: 5px; font-size: 20px;"';
 
             $output .= '<div class="pull-right col-md-1">';
             $output .= '<div class="row"><a href="' . $editLink . '" target="_blank" ' . $iconStyle

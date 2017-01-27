@@ -75,13 +75,13 @@ class DBHandler extends AbstractProcessingHandler {
             $logMarkup .= '<div class="well">';
             $logMarkup .= '<div class="btn-group btn-group-justified" role="group" aria-label="...">';
             $logMarkup .= '<div class="btn-group" role="group">';
-            $logMarkup .= '<button type="button" class="btn btn-info hide-log active" data-scope="log-info">Info</button>';
+            $logMarkup .= '<button type="button" class="btn btn-info hide-log active button button-info" data-scope="log-info">Info</button>';
             $logMarkup .= '</div>';
             $logMarkup .= '<div class="btn-group" role="group">';
-            $logMarkup .= '<button type="button" class="btn btn-warning hide-log active" data-scope="log-warning">Warning</button>';
+            $logMarkup .= '<button type="button" class="btn btn-warning hide-log active button button-warning" data-scope="log-warning">Warning</button>';
             $logMarkup .= '</div>';
             $logMarkup .= '<div class="btn-group" role="group">';
-            $logMarkup .= '<button type="button" class="btn btn-danger hide-log active" data-scope="log-error">Error</button>';
+            $logMarkup .= '<button type="button" class="btn btn-danger hide-log active button button-danger" data-scope="log-error">Error</button>';
             $logMarkup .= '</div>';
             $logMarkup .= '</div>';
             $logMarkup .= '</div>';

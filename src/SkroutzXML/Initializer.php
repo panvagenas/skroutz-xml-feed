@@ -122,6 +122,13 @@ class Initializer {
                 false,
                 true
             );
+
+            wp_enqueue_style(
+                'skz_gen_now_css',
+                plugins_url( 'assets/css/style.min.css', $this->pluginFile ),
+                [],
+                true
+            );
         }
     }
 
