@@ -85,6 +85,9 @@ class WooArrayGenerator {
 
         $memLimit = $mem - ( 10 * 1024 * 1024 );
 
+        $exCategories = $this->options->getExclCategories();
+        $exTags = $this->options->getExclTags();
+
         $return = [ ];
 
         foreach ( $this->getProductIds( $limit, $offset ) as $i => $pid ) {
@@ -102,19 +105,47 @@ class WooArrayGenerator {
 
             $genProduct = new Product( $product );
 
+            if ( $exCategories ) {
+                $pCats = get_the_terms( $product->id, 'product_cat' );
+                if ( $pCats ) {
+                    $pCats = wp_list_pluck( $pCats, 'term_id' );
+                    foreach ( $pCats as $pCat ) {
+                        if ( in_array( $pCat, $exCategories ) ) {
+                            continue 2;
+                        }
+                    }
+                }
+            }
+
+            if ( $exTags ) {
+                $pCats = get_the_terms( $product->id, 'product_tag' );
+                if ( $pCats ) {
+                    $pCats = wp_list_pluck( $pCats, 'term_id' );
+                    foreach ( $pCats as $pCat ) {
+                        if ( in_array( $pCat, $exTags ) ) {
+                            continue 2;
+                        }
+                    }
+                }
+            }
+
+
             $notAvailable = ! $this->options->getAvailability()[ $genProduct->getAvailability() ];
 
-            if ( ! $product->is_purchasable() || ! $product->is_visible() || $notAvailable ) {
-                $reason = array();
-                if ( ! $product->is_purchasable() ) {
-                    $reason[] = 'product is not purchasable';
-                }
-                if ( ! $product->is_visible() ) {
-                    $reason[] = 'product is not visible';
-                }
-                if ( $notAvailable ) {
-                    $reason[] = 'product is unavailable';
-                }
+            $reason = array();
+            if ( ! $product->is_purchasable() ) {
+                $reason[] = 'product is not purchasable';
+            }
+            if ( ! $product->is_visible() ) {
+                $reason[] = 'product is not visible';
+            }
+
+            if ( $notAvailable ) {
+                $reason[] = 'product is unavailable';
+            }
+
+            if ( $reason ) {
+
                 $msg = 'Product <strong>' . $product->get_formatted_name()
                        . '</strong> failed. Reason(s) is(are): ' . implode( ', ', $reason );
 

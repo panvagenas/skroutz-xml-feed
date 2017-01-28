@@ -153,6 +153,36 @@ class Skroutz {
             }
         }
 
+        $productAvailability = $array['availability'];
+
+        if ( $productAvailability === WooArrayGenerator::AVAIL_IN_STOCK ) {
+            if ( isset( Options::$availOptions[ $this->options->get( 'avail_inStock' ) ] ) ) {
+                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_inStock' ) ];
+            } else {
+                return [];
+            }
+        } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK ) {
+            if ( isset( Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ] ) ) {
+                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ];
+            } else {
+                return [];
+            }
+        } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS ) {
+            if ( isset( Options::$availOptions[ $this->options->get( 'avail_backorders' ) ] ) ) {
+                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_backorders' ) ];
+            } else {
+                return [];
+            }
+        } else {
+            $this->logger->addError(
+                'Product <strong>' . $array['name']
+                . '</strong> not included in XML file due to an incorrect availability',
+                $array
+            );
+
+            return [];
+        }
+
         return $array;
     }
 

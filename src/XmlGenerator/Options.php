@@ -27,6 +27,9 @@ class Options {
     protected $fashionStore = false;
     protected $bookStore = false;
 
+    protected $exclCategories = [];
+    protected $exclTags = [];
+
     protected $inStock_Y = 'Y';
     protected $inStock_N = 'N';
 
@@ -502,5 +505,19 @@ class Options {
         $this->availability = $availability;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExclCategories() {
+        return $this->exclCategories;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExclTags() {
+        return $this->exclTags;
     }
 }

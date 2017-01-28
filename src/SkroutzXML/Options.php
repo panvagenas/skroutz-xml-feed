@@ -190,6 +190,8 @@ class Options extends \Pan\MenuPages\Options {
             'mapIsbn'          => $this->get( 'map_isbn' ),
             'fashionStore'     => $this->get( 'is_fashion_store' ),
             'bookStore'        => $this->get( 'is_book_store' ),
+            'exclCategories'   => $this->get( 'ex_cats' ),
+            'exclTags'         => $this->get( 'ex_tags' ),
         ];
     }
 
@@ -297,6 +299,7 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function validateSettings( $value ) {
+        // FIXME Validate settings
         return $value;
     }
 
