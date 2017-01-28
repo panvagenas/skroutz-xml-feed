@@ -116,7 +116,6 @@ class Options extends \Pan\MenuPages\Options {
 
     public static function getDefaultsArray() {
         return [
-            'show_advanced'          => 0,
             'donate'                 => 1,
             /*********************
              * XML File relative
@@ -408,18 +407,6 @@ class Options extends \Pan\MenuPages\Options {
                 <strong><?php echo esc_html($genUrl); ?></strong>
             </span>
             <hr>
-            <tr valign="top">
-                <th scope="row"><label for="show_advanced">Show advanced options</label></th>
-                <td>
-                    <input type="hidden"
-                           name="<?php echo $this->getOptionInputName( 'show_advanced' ); ?>"
-                           value="" />
-                    <input type="checkbox"
-                           id="show_advanced"
-                           name="<?php echo $this->getOptionInputName( 'show_advanced' ); ?>"
-                        <?php echo checked( 'on', $this->get( 'show_advanced' ) ); ?> />
-                </td>
-            </tr>
 
             <tr valign="top">
                 <th scope="row"><label for="xml_generate_var">XML Request Generate Variable</label></th>
