@@ -230,4 +230,12 @@ class Product {
 
         return 0;
     }
+
+    public function hasWeight(){
+        return $this->product->has_weight();
+    }
+
+    public function getWeight(){
+        return wc_get_weight( $this->product->get_weight(), 'g' );
+    }
 }

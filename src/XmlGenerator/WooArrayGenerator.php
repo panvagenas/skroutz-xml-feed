@@ -257,6 +257,10 @@ class WooArrayGenerator {
             }
         }
 
+        if ( $product->hasWeight() ) {
+            $out['weight'] = $product->getWeight();
+        }
+
         return call_user_func( $this->prodArrayValidator, $out );
     }
 

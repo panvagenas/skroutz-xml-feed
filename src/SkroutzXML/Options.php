@@ -38,7 +38,7 @@ class Options extends \Pan\MenuPages\Options {
      */
     public static $availOptions
         = array(
-            'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες ',
+            'Άμεση παραλαβή / Παράδοση σε 1-3 ημέρες',
             'Παράδοση σε 1-3 ημέρες',
             'Παραλαβή από το κατάστημα ή Παράδοση, σε 1-3 ημέρες',
             'Παραλαβή από το κατάστημα ή Παράδοση, σε 4-10 ημέρες',
@@ -61,6 +61,7 @@ class Options extends \Pan\MenuPages\Options {
             'color'        => 'color',
             'size'         => 'size',
             'isbn'         => 'isbn',
+            'weight'       => 'weight'
         ];
 
     protected $fieldLengths
@@ -78,6 +79,7 @@ class Options extends \Pan\MenuPages\Options {
             'isbn'         => 80,
             'size'         => 500,
             'color'        => 100,
+            'weight'       => 0,
         ];
     protected $requiredFields
         = [
