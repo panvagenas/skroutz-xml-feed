@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -26,7 +26,7 @@ use Pan\XmlGenerator\XML;
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -254,7 +254,7 @@ class Skroutz {
     /**
      * @return bool
      * @static * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public static function hasBrandsPlugin() {
         return ( in_array( 'woocommerce-brands/woocommerce-brands.php',
@@ -270,7 +270,7 @@ class Skroutz {
      *
      * @return bool
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     private static function isPluginActiveForNetwork( $plugin ) {
         if ( ! is_multisite() ) {
@@ -288,7 +288,7 @@ class Skroutz {
     /**
      * @return false|null|object
      * @static * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public static function getBrandsPluginTaxonomy() {
         if ( self::hasBrandsPlugin() ) {

@@ -14,7 +14,7 @@ use Monolog\Logger;
  *
  * @package WPluginCore003\Logs\Handlers
  * @author  Panagiotis Vagenas <pan.vagenas@gmail.com>
- * @since   0.0.2
+ * @since   170126
  */
 class DBHandler extends AbstractProcessingHandler {
     /**
@@ -44,7 +44,7 @@ class DBHandler extends AbstractProcessingHandler {
      * @param array $record
      *
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  0.0.2
+     * @since  170126
      */
     protected function write( array $record ) {
         /* @var \DateTime $datetime */

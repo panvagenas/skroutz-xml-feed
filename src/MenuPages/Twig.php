@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-11-20
- * @since     1.0.0
+ * @since     170126
  * @package   Pan\MenuPages\Templates
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -17,7 +17,7 @@ namespace Pan\MenuPages;
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-11-20
- * @since     1.0.0
+ * @since     170126
  * @package   Pan\MenuPages\Templates
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -81,7 +81,7 @@ class Twig {
      * @return \Twig_Environment
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Twig::$twigEnvironment
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getTwigEnvironment() {
@@ -92,7 +92,7 @@ class Twig {
      * @return \Twig_Loader_Filesystem
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Twig::$twigLoader
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getTwigLoader() {
@@ -103,7 +103,7 @@ class Twig {
      * @return string
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Twig::$defaultPaths
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getDefaultPaths() {
@@ -114,7 +114,7 @@ class Twig {
      * @return string
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Twig::$cachePath
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getCachePath() {

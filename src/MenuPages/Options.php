@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-11-20
- * @since     1.0.0
+ * @since     170126
  * @package   Pan\MenuPages
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -17,7 +17,7 @@ namespace Pan\MenuPages;
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-11-20
- * @since     1.0.0
+ * @since     170126
  * @package   Pan\MenuPages
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -62,7 +62,7 @@ class Options {
      * @param array  $defaults        Default values for all options, see {@link Options::$defaults}
      *
      * @throws \InvalidArgumentException If $optionsBaseName isn't a string or is empty
-     * @since  1.0.0
+     * @since  170126
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
     protected function __construct( $optionsBaseName, array $defaults ) {
@@ -98,7 +98,7 @@ class Options {
      * @return $this
      * @see    Options::__construct
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public static function getInstance( $optionsBaseName, array $defaults = [ ] ) {
         static $instance = [ ];
@@ -114,7 +114,7 @@ class Options {
      *
      * @return bool
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     protected function save() {
         /**
@@ -122,7 +122,7 @@ class Options {
          *
          * @param array $options Options to be saved
          *
-         * @since 1.0.0
+         * @since 170126
          */
         $this->options = apply_filters( "MenuPages\\Options::save@{$this->optionsBaseName}", $this->options );
 
@@ -137,7 +137,7 @@ class Options {
      * @return mixed
      * @throws \ErrorException
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public function get( $name ) {
         if ( $this->exists( $name ) ) {
@@ -146,7 +146,7 @@ class Options {
              *
              * @param mixed $optionName The value to be returned by Options obj
              *
-             * @since 1.0.0
+             * @since 170126
              */
             return apply_filters( "MenuPages\\Options::get@{$this->optionsBaseName}", $this->options[ $name ] );
         }
@@ -160,7 +160,7 @@ class Options {
      *
      * @return bool
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public function exists( $name ) {
         /**
@@ -168,7 +168,7 @@ class Options {
          *
          * @param bool $optionExists True if exists, false otherwise
          *
-         * @since 1.0.0
+         * @since 170126
          */
         return apply_filters( "MenuPages\\Options::exists@{$this->optionsBaseName}", isset( $this->options[ $name ] ) );
     }
@@ -182,7 +182,7 @@ class Options {
      * @return bool The result of {@link Options::save()}
      * @throws \ErrorException If the option don't exist
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public function set( $name, $value ) {
         if ( $this->exists( $name ) ) {
@@ -200,7 +200,7 @@ class Options {
      *
      * @return bool The result of {@link Options::save()}
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public function setArray( array $newOptions ) {
         foreach ( $newOptions as $name => $value ) {
@@ -233,7 +233,7 @@ class Options {
      * @return mixed
      * @throws \ErrorException If the option don't exist
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  1.0.0
+     * @since  170126
      */
     public function def( $name ) {
         if ( $this->exists( $name ) ) {
@@ -246,7 +246,7 @@ class Options {
      * @return array
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Options::$defaults
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getDefaults() {
@@ -257,7 +257,7 @@ class Options {
      * @return array
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Options::$options
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getOptions() {
@@ -268,7 +268,7 @@ class Options {
      * @return string
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @see    Options::$optionsBaseName
-     * @since  1.0.0
+     * @since  170126
      * @codeCoverageIgnore
      */
     public function getOptionsBaseName() {

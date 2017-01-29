@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -20,7 +20,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -36,7 +36,7 @@ class Product {
      *
      * @param \WC_Product $product
      *
-     * @since  TODO ${VERSION}
+     * @since  170126
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      */
     public function __construct( \WC_Product $product ) {
@@ -49,7 +49,7 @@ class Product {
      *
      * @return array
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public function getAttrNamesFromIds( array $getFromAttrIds ) {
         if ( ! $this->isProductVariable() ) {
@@ -162,7 +162,7 @@ class Product {
      *
      * @return string
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public function getPrice( $withTax = true ) {
         if ( $salePrice = $this->product->get_sale_price() ) {
@@ -204,7 +204,7 @@ class Product {
      * @return int The status as explained in method description
      *
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public function getAvailability() {
         $stockStatusInStock = $this->product->stock_status === 'instock';

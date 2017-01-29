@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -23,7 +23,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */

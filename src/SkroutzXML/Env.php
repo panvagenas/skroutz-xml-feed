@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -20,14 +20,14 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\SkroutzXML
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class Env {
     /**
      * @static * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public static function maximize_time_memory_limits() {
         $timeLimitSet = set_time_limit(0);
@@ -68,7 +68,7 @@ class Env {
      *
      * @return string
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public function bytes_abbr( $bytes, $precision = 2 ) {
         $precision = ( $precision >= 0 ) ? $precision : 2;

@@ -39,8 +39,24 @@ along with this program.  If not, see [http://www.gnu.org/licenses/](http://www.
 
 ## Changelog
 
-#### 150825
+#### 170126
 
+* Added weight field
+* Removed WS FW
+
+#### 160904
+
+* Added product exclusion by category
+* Added product exclusion by tag
+* Tested on WordPress 4.6, WooCommerce 2.6 and PHP 7
+
+#### 151127
+
+* Fix: Attributes with Greek slug won't appear in XML
+* Tweak: Support for larger product image sizes
+* Tweak: You can now include category full path (experimental, need feedback)
+* Tweak: Better message handling during XML generation
+* Tweak: Filters in XML generation log panel
 
 #### 150804
 

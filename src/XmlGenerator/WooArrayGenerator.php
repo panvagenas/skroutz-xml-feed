@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -22,7 +22,7 @@ use Pan\XmlGenerator\Logger\Logger;
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -150,7 +150,7 @@ class WooArrayGenerator {
                        . '</strong> failed. Reason(s) is(are): ' . implode( ', ', $reason );
 
                 $logData = array(
-                    'id'             => $product->id,
+                    'ID'             => $product->id,
                     'SKU'            => $product->get_sku(),
                     'is_purchasable' => $product->is_purchasable(),
                     'is_visible'     => $product->is_visible(),
@@ -270,7 +270,7 @@ class WooArrayGenerator {
      *
      * @return bool
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     protected function getMemInM( $mem ) {
         if ( is_numeric( $mem ) ) {

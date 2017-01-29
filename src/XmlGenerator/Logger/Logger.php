@@ -4,7 +4,7 @@
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator\Logger
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -23,7 +23,7 @@ use Pan\XmlGenerator\Logger\Handlers\DBHandler;
  *
  * @author    Panagiotis Vagenas <pan.vagenas@gmail.com>
  * @date      2015-12-27
- * @since     TODO ${VERSION}
+ * @since     170126
  * @package   Pan\XmlGenerator\Logger
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
@@ -52,7 +52,7 @@ class Logger {
      *
      * @return $this
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
-     * @since  TODO ${VERSION}
+     * @since  170126
      */
     public static function getInstance($logName) {
         if ( ! isset( self::$instances[ $logName ] ) ) {
