@@ -6173,8 +6173,8 @@
 
 jQuery( document ).ready(
     function ( $ ) {
-        $( "#general_options" ).find( "select" ).select2();
-        $( "#map_options" ).find( "select" ).select2();
+        $( "#general_options" ).find( "select[multiple]" ).select2();
+        $( "#map_options" ).find( "select[multiple]" ).select2();
 
         function updateLogMarkUp( newMarkUp ) {
             var $logTab = $( '#log-container' );
@@ -6209,10 +6209,12 @@ jQuery( document ).ready(
                             if ( $button.hasClass( 'disabled' ) ) {
                                 return false;
                             }
-                            // TODO Add something to indicate that this is loading
+                            $button.find('i.fa').fadeIn();
+                            $button.addClass('disabled');
                         },
                         complete: function () {
-                            // TODO Add something to indicate that this is loading
+                            $button.find('i.fa').fadeOut();
+                            $button.removeClass('disabled');
                         },
                         success: function ( responseJson ) {
                             if ( ! responseJson.hasOwnProperty( 'data' ) ) {
@@ -6258,5 +6260,14 @@ jQuery( document ).ready(
         }
 
         bindHideButtons();
+
+        $('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+        postboxes.add_postbox_toggles( SKZ.pageHookSuffix );
+        $('#fx-smb-form').submit( function(){
+            $('#publishing-action').find('.spinner').css('display','inline');
+        });
+        $('#delete-action').find('.submitdelete').on('click', function() {
+            return confirm(/*'Are you sure want to do this?'*/'Sorry, not yet implemented');
+        });
     }
 );

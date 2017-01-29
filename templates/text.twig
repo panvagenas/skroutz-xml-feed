@@ -1,0 +1,11 @@
+<tr valign="top">
+    <th scope="row">
+        <label for="{{ id | e('html_attr') }}">{{ label }}</label>
+    </th>
+    <td>
+        <input type="text"
+               id="{{ id | e('html_attr') }}"
+               name="{{ name | e('html_attr') }}"
+               value="{{ value | e('html_attr') }}" />
+    </td>
+</tr>

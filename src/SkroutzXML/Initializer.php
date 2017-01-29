@@ -124,6 +124,8 @@ class Initializer {
                 true
             );
 
+            wp_localize_script('skz__js', 'SKZ', ['pageHookSuffix' => $this->options->getPageHookSuffix()]);
+
             wp_enqueue_style(
                 'skz_gen_now_css',
                 plugins_url( 'assets/css/style.min.css', $this->pluginFile ),

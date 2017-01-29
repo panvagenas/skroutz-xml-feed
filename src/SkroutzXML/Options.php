@@ -11,6 +11,7 @@
 
 namespace Pan\SkroutzXML;
 
+use Pan\MenuPages\Twig;
 use Pan\XmlGenerator\Logger\Handlers\DBHandler;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -28,6 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class Options extends \Pan\MenuPages\Options {
     const OPTIONS_NAME = 'skroutz__options';
+    protected $twig;
     protected $pageHookSuffix;
     protected $pageId = 'skroutz-xml-settings';
 
@@ -271,11 +273,12 @@ class Options extends \Pan\MenuPages\Options {
      * TODO Move this to JS file
      */
     public function footerScripts(){
+        return;
         ?>
         <script type="text/javascript">
             jQuery(document).ready( function($) {
                 $('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-                postboxes.add_postbox_toggles( '<?php echo $this->pageHookSuffix; ?>' );
+                postboxes.add_postbox_toggles( '<?php echo esc_js($this->pageHookSuffix); ?>' );
                 $('#fx-smb-form').submit( function(){
                     $('#publishing-action').find('.spinner').css('display','inline');
                 });
@@ -367,7 +370,9 @@ class Options extends \Pan\MenuPages\Options {
                     title="Generate XML Now"
                     class="button button-hero button-controls gen-now-button widefat"
                     data-target="#generateNowModal"
-                    data-toggle="xd-v141226-dev-modal">Generate XML Now
+                    data-toggle="xd-v141226-dev-modal">
+                <i class="fa fa-cog fa-spin fa-fw" style=" display: none;"></i>
+                Generate XML Now
             </button>
         </p>
         <?php
@@ -377,27 +382,27 @@ class Options extends \Pan\MenuPages\Options {
     public function generalOptionsBox(){
         $availOptions = [];
         foreach ( Options::$availOptions as $value => $label ) {
-            $availOptions[ $label ] = (string) $value;
+            $availOptions[ (string) $value ] = $label;
         }
 
         $availOptionsDoNotInclude                   = $availOptions;
-        $availOptionsDoNotInclude['Do not Include'] = count( $availOptions );
+        $availOptionsDoNotInclude[] = 'Do not Include';
 
         $attrTaxonomies = [];
         foreach ( wc_get_attribute_taxonomies() as $atrTax ) {
-            $attrTaxonomies[ $atrTax->attribute_label ] = $atrTax->attribute_id;
+            $attrTaxonomies[ $atrTax->attribute_id ] = $atrTax->attribute_label;
         }
 
         $productCategories = get_categories( [ 'taxonomy' => 'product_cat', 'hide_empty' => 0 ] );
         $categories = [];
         foreach ( $productCategories as $productCategory ) {
-            $categories[] = [ 'label' => $productCategory->name, 'value' => (string) $productCategory->term_id ];
+            $categories[(string)$productCategory->term_id] = $productCategory->name;
         }
 
         $productTags = get_terms( ['taxonomy' => 'product_tag', 'hide_empty' => 0] );
         $tags = [];
         foreach ( $productTags as $productTag ) {
-            $tags[] = [ 'label' => $productTag->name, 'value' => (string) $productTag->term_id ];
+            $tags[(string)$productTag->term_id] = $productTag->name;
         }
 
         $genUrl = Options::getInstance()->getGenerateXmlUrl();
@@ -408,169 +413,125 @@ class Options extends \Pan\MenuPages\Options {
             </span>
             <hr>
 
-            <tr valign="top">
-                <th scope="row"><label for="xml_generate_var">XML Request Generate Variable</label></th>
-                <td>
-                    <input type="text"
-                           id="xml_generate_var"
-                           name="<?php echo $this->getOptionInputName( 'xml_generate_var' ); ?>"
-                           value="<?php echo esc_attr( $this->get( 'xml_generate_var' ) ); ?>" />
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="xml_generate_var_value">XML Request Generate Variable Value</label></th>
-                <td>
-                    <input type="text"
-                           id="xml_generate_var_value"
-                           name="<?php echo $this->getOptionInputName( 'xml_generate_var_value' ); ?>"
-                           value="<?php echo esc_attr( $this->get( 'xml_generate_var_value' ) ); ?>" />
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="xml_fileName">XML Filename</label></th>
-                <td>
-                    <input type="text"
-                           id="xml_fileName"
-                           name="<?php echo $this->getOptionInputName( 'xml_fileName' ); ?>"
-                           value="<?php echo esc_attr( $this->get( 'xml_fileName' ) ); ?>" />
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="xml_location">XML File Location</label></th>
-                <td>
-                    <input type="text"
-                           id="xml_fileName"
-                           name="<?php echo $this->getOptionInputName( 'xml_location' ); ?>"
-                           value="<?php echo esc_attr( $this->get( 'xml_location' ) ); ?>" />
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="xml_interval">XML File Generation Interval</label></th>
-                <td>
-                    <select id="xml_interval"
-                            name="<?php echo $this->getOptionInputName( 'xml_interval' ); ?>">
-                        <option value="daily" <?php echo selected('daily', $this->get( 'xml_interval' )); ?>>Daily</option>
-                        <option value="twicedaily" <?php echo selected('twicedaily', $this->get( 'xml_interval' )); ?>>Twice Daily</option>
-                        <option value="hourly" <?php echo selected('hourly', $this->get( 'xml_interval' )); ?>>Hourly</option>
-                        <option value="every30m" <?php echo selected('every30m', $this->get( 'xml_interval' )); ?>>Every Thirty Minutes</option>
-                        <option value="0" <?php echo selected('0', $this->get( 'xml_interval' )); ?>>Disable caching of file (not recommended for stores with many products)</option>
-                    </select>
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="avail_inStock">Product availability when item is in stock</label></th>
-                <td>
-                    <select id="avail_inStock"
-                            name="<?php echo $this->getOptionInputName( 'avail_inStock' ); ?>">
-                        <?php foreach ( $availOptions as $label => $value ) {
-                            ?>
-                            <option
-                                value="<?php echo $value; ?>"
-                                <?php echo selected($value, $this->get( 'avail_inStock' )); ?>
-                            ><?php echo $label; ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="avail_outOfStock">Product availability when item is out of stock</label></th>
-                <td>
-                    <select id="avail_outOfStock"
-                            name="<?php echo $this->getOptionInputName( 'avail_outOfStock' ); ?>">
-                        <?php foreach ( $availOptionsDoNotInclude as $label => $value ) {
-                            ?>
-                            <option
-                                value="<?php echo $value; ?>"
-                                <?php echo selected($value, $this->get( 'avail_outOfStock' )); ?>
-                            ><?php echo $label; ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row"><label for="avail_backorders">Product availability when item is out of stock and backorders are allowed</label></th>
-                <td>
-                    <select id="avail_backorders"
-                            name="<?php echo $this->getOptionInputName( 'avail_backorders' ); ?>">
-                        <?php foreach ( $availOptionsDoNotInclude as $label => $value ) {
-                            ?>
-                            <option
-                                value="<?php echo $value; ?>"
-                                <?php echo selected($value, $this->get( 'avail_backorders' )); ?>
-                            ><?php echo $label; ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
             <?php
+
+            echo $this->getTwig()->loadAndRender(
+                'text',
+                [
+                    'id' => 'xml_generate_var',
+                    'name' => $this->getOptionInputName( 'xml_generate_var' ),
+                    'value' => $this->get( 'xml_generate_var' ),
+                    'label' => 'XML Request Generate Variable',
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'text',
+                [
+                    'id' => 'xml_generate_var_value',
+                    'name' => $this->getOptionInputName( 'xml_generate_var_value' ),
+                    'value' => $this->get( 'xml_generate_var_value' ),
+                    'label' => 'XML Request Generate Variable Value',
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'text',
+                [
+                    'id' => 'xml_fileName',
+                    'name' => $this->getOptionInputName( 'xml_fileName' ),
+                    'value' => $this->get( 'xml_fileName' ),
+                    'label' => 'XML Filename',
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'text',
+                [
+                    'id' => 'xml_location',
+                    'name' => $this->getOptionInputName( 'xml_location' ),
+                    'value' => $this->get( 'xml_location' ),
+                    'label' => 'XML File Location',
+                ]
+            );
+
+            $intervalOptions = [
+                'daily' => 'Daily',
+                'twicedaily' => 'Twice Daily',
+                'hourly' => 'Hourly',
+                'every30m' => 'Every Thirty Minutes',
+                '0' => 'Disable caching of file (not recommended for stores with many products)',
+            ];
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'xml_interval',
+                    'name' => $this->getOptionInputName( 'xml_interval' ),
+                    'label' => 'XML File Generation Interval',
+                    'options' => $intervalOptions,
+                    'selected' => $this->get( 'xml_interval' ),
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'avail_inStock',
+                    'name' => $this->getOptionInputName( 'avail_inStock' ),
+                    'label' => 'Product availability when item is in stock',
+                    'options' => $availOptions,
+                    'selected' => $this->get( 'avail_inStock' ),
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'avail_outOfStock',
+                    'name' => $this->getOptionInputName( 'avail_outOfStock' ),
+                    'label' => 'Product availability when item is out of stock',
+                    'options' => $availOptionsDoNotInclude,
+                    'selected' => $this->get( 'avail_outOfStock' ),
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'avail_backorders',
+                    'name' => $this->getOptionInputName( 'avail_backorders' ),
+                    'label' => 'Product availability when item is out of stock and backorders are allowed',
+                    'options' => $availOptionsDoNotInclude,
+                    'selected' => $this->get( 'avail_backorders' ),
+                ]
+            );
+
             if($categories){
-                ?>
-                <tr valign="top">
-                    <th scope="row"><label for="ex_cats">
-                            Exclude products from certain categories
-                            <br>(if a product has any of these categories then it will not be included in the XML)
-                        </label></th>
-                    <td>
-                        <input type="hidden" name="<?php echo $this->getOptionInputName( 'ex_cats' ); ?>" value="">
-                        <select multiple
-                                id="ex_cats"
-                                name="<?php echo $this->getOptionInputName( 'ex_cats' ); ?>">
-                            <?php foreach ( $categories as $category ) {
-                                ?>
-                                <option
-                                    value="<?php echo $category['value']; ?>"
-                                    <?php echo selected($category['value'], $this->get( 'ex_cats' )); ?>
-                                ><?php echo $category['label']; ?></option>
-                                <?php
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <?php
+                echo $this->getTwig()->loadAndRender(
+                    'select',
+                    [
+                        'id' => 'ex_cats',
+                        'name' => $this->getOptionInputName( 'ex_cats' ),
+                        'label' => 'Exclude products from certain categories (if a product has any of these categories then it will not be included in the XML)',
+                        'options' => $categories,
+                        'selected' => $this->get( 'ex_cats' ),
+                        'multiple' => true,
+                    ]
+                );
             }
-            ?>
 
-            <?php
             if($tags){
-                ?>
-                <tr valign="top">
-                    <th scope="row"><label for="ex_tags">
-                            Exclude products from certain tags
-                            <br>(if a product has any of these tags then it will not be included in the XML)
-                        </label></th>
-                    <td>
-                        <input type="hidden" name="<?php echo $this->getOptionInputName( 'ex_tags' ); ?>" value="">
-                        <select multiple
-                                id="ex_tags"
-                                name="<?php echo $this->getOptionInputName( 'ex_tags' ); ?>">
-                            <?php foreach ( $tags as $tag ) {
-                                ?>
-                                <option
-                                    value="<?php echo $tag['value']; ?>"
-                                    <?php echo selected($tag['value'], $this->get( 'ex_tags' )); ?>
-                                ><?php echo $tag['label']; ?></option>
-                                <?php
-                            }
-                            ?>
-                        </select>
-                    </td>
-                </tr>
-                <?php
+                echo $this->getTwig()->loadAndRender(
+                    'select',
+                    [
+                        'id' => 'ex_tags',
+                        'name' => $this->getOptionInputName( 'ex_tags' ),
+                        'label' => 'Exclude products from certain tags (if a product has any of these tags then it will not be included in the XML)',
+                        'options' => $tags,
+                        'selected' => $this->get( 'ex_tags' ),
+                        'multiple' => true,
+                    ]
+                );
             }
             ?>
         </table>
@@ -606,400 +567,222 @@ class Options extends \Pan\MenuPages\Options {
             <?php
             $options = array();
 
-            $options[] = array(
-                'label' => 'Use Product Categories',
-                'value' => 'product_cat'
-            );
-
-            $options[] = array(
-                'label' => 'Use Product Tags',
-                'value' => 'product_tag'
-            );
+            $options['product_cat'] = 'Use Product Categories';
+            $options['product_tag'] = 'Use Product Tags';
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
             }
 
             if ( Skroutz::hasBrandsPlugin() && ( $brandsTax = Skroutz::getBrandsPluginTaxonomy() ) ) {
-                $options[] = array(
-                    'label' => 'Use WooCommerce Brands Plugin',
-                    'value' => $brandsTax->name
-                );
+                $options[$brandsTax->name] = 'Use WooCommerce Brands Plugin';
             }
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_id">Product Manufacturer Field</label></th>
-                <td>
-                    <select id="map_id"
-                            name="<?php echo $this->getOptionInputName( 'map_id' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_id' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
 
-            <?php
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_id',
+                    'name' => $this->getOptionInputName( 'map_id' ),
+                    'label' => 'Product Manufacturer Field',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_id' ),
+                ]
+            );
+
             $options = array();
 
-            $options[] = array(
-                'label' => 'Use Product SKU',
-                'value' => '0'
-            );
+            $options['0'] = 'Use Product SKU';
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
             }
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_mpn">Product Manufacturer SKU</label></th>
-                <td>
-                    <select id="map_mpn"
-                            name="<?php echo $this->getOptionInputName( 'map_mpn' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_mpn' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
 
-            <?php
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_mpn',
+                    'name' => $this->getOptionInputName( 'map_mpn' ),
+                    'label' => 'Product Manufacturer SKU',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_mpn' ),
+                ]
+            );
+
             $options = array();
 
-            $options[] = array(
-                'label' => 'Use Product Name',
-                'value' => '0'
-            );
+            $options['0'] = 'Use Product Name';
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
             }
 
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_name">Product Name</label></th>
-                <td>
-                    <select id="map_name"
-                            name="<?php echo $this->getOptionInputName( 'map_name' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_name' )); ?>>
-                                <?php echo $option['label']; ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row">
-                    <label for="map_name_append_sku">
-                        If you check this the product SKU will be appended to product name.
-                        If no SKU is set then product ID will be used
-                    </label>
-                </th>
-                <td>
-                    <input type="hidden"
-                           name="<?php echo $this->getOptionInputName( 'map_name_append_sku' ); ?>"
-                           value="" />
-                    <input type="checkbox"
-                           id="map_name_append_sku"
-                           name="<?php echo $this->getOptionInputName( 'map_name_append_sku' ); ?>"
-                        <?php echo checked( 'on', $this->get( 'map_name_append_sku' ) ); ?> />
-                </td>
-            </tr>
-
-            <?php
-            $options = array(
-                array(
-                    'label' => 'Thumbnail',
-                    'value' => '0'
-                ),
-                array(
-                    'label' => 'Medium',
-                    'value' => '1'
-                ),
-                array(
-                    'label' => 'Large',
-                    'value' => '2'
-                ),
-                array(
-                    'label' => 'Full',
-                    'value' => '3'
-                )
-            );
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_image">Product Image</label></th>
-                <td>
-                    <select id="map_image"
-                            name="<?php echo $this->getOptionInputName( 'map_image' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_image' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <?php
-            $options = array();
-
-            $options[] = array(
-                'label' => 'Use Product Permalink',
-                'value' => '0'
-            );
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_link">Product Link</label></th>
-                <td>
-                    <select id="map_link"
-                            name="<?php echo $this->getOptionInputName( 'map_link' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_link' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <?php
-            $options = array(
-                array(
-                    'label' => 'Regular Price',
-                    'value' => '0'
-                ),
-                array(
-                    'label' => 'Sales Price',
-                    'value' => '1'
-                ),
-                array(
-                    'label' => 'Price Without Tax',
-                    'value' => '2'
-                )
-            );
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_price_with_vat">Product Price</label></th>
-                <td>
-                    <select id="map_price_with_vat"
-                            name="<?php echo $this->getOptionInputName( 'map_price_with_vat' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_price_with_vat' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <?php
-            $options = array();
-
-            $options[] = array(
-                'label' => 'Categories',
-                'value' => 'product_cat'
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_name',
+                    'name' => $this->getOptionInputName( 'map_name' ),
+                    'label' => 'Product Name',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_name' ),
+                ]
             );
 
-            $options[] = array(
-                'label' => 'Tags',
-                'value' => 'product_tag'
+            echo $this->getTwig()->loadAndRender(
+                'checkbox',
+                [
+                    'id' => 'map_name_append_sku',
+                    'name' => $this->getOptionInputName( 'map_name_append_sku' ),
+                    'label' => 'If you check this the product SKU will be appended to product name. If no SKU is set then product ID will be used.',
+                    'checked' => checked( '1', $this->get( 'map_name_append_sku' ), false ),
+                ]
             );
+
+            $options = [
+                '0' => 'Thumbnail',
+                '1' => 'Medium',
+                '2' => 'Large',
+                '3' => 'Full',
+            ];
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_image',
+                    'name' => $this->getOptionInputName( 'map_image' ),
+                    'label' => 'Product Image',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_image' ),
+                ]
+            );
+
+            $options = [
+                '0' => 'Use Product Permalink'
+            ];
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_link',
+                    'name' => $this->getOptionInputName( 'map_link' ),
+                    'label' => 'Product Link',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_link' ),
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_price_with_vat',
+                    'name' => $this->getOptionInputName( 'map_price_with_vat' ),
+                    'label' => 'Product Price',
+                    'options' => [
+                        '0' => 'Regular Price',
+                        '1' => 'Sales Price',
+                        '2' => 'Price Without Tax',
+                    ],
+                    'selected' => $this->get( 'map_price_with_vat' ),
+                ]
+            );
+
+            $options = [
+                'product_cat' => 'Categories',
+                'product_tag' => 'Tags',
+            ];
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
             }
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_category">Product Categories</label></th>
-                <td>
-                    <select id="map_category"
-                            name="<?php echo $this->getOptionInputName( 'map_category' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_category' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
 
-            <tr valign="top">
-                <th scope="row">
-                    <label for="map_category_tree">
-                        Include full path to product category
-                    </label>
-                </th>
-                <td>
-                    <input type="hidden"
-                           name="<?php echo $this->getOptionInputName( 'map_category_tree' ); ?>"
-                           value="" />
-                    <input type="checkbox"
-                           id="map_category_tree"
-                           name="<?php echo $this->getOptionInputName( 'map_category_tree' ); ?>"
-                        <?php echo checked( 'on', $this->get( 'map_category_tree' ) ); ?> />
-                </td>
-            </tr>
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_category',
+                    'name' => $this->getOptionInputName( 'map_category' ),
+                    'label' => 'Product Categories',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_category' ),
+                ]
+            );
 
-            <tr valign="top">
-                <th scope="row">
-                    <label for="is_fashion_store">
-                        This Store Contains Fashion Products
-                    </label>
-                </th>
-                <td>
-                    <input type="hidden"
-                           name="<?php echo $this->getOptionInputName( 'is_fashion_store' ); ?>"
-                           value="" />
-                    <input type="checkbox"
-                           id="is_fashion_store"
-                           name="<?php echo $this->getOptionInputName( 'is_fashion_store' ); ?>"
-                        <?php echo checked( 'on', $this->get( 'is_fashion_store' ) ); ?> />
-                </td>
-            </tr>
+            echo $this->getTwig()->loadAndRender(
+                'checkbox',
+                [
+                    'id' => 'map_category_tree',
+                    'name' => $this->getOptionInputName( 'map_category_tree' ),
+                    'label' => 'Include full path to product category',
+                    'checked' => checked( '1', $this->get( 'map_category_tree' ), false ),
+                ]
+            );
 
-            <?php
+            echo $this->getTwig()->loadAndRender(
+                'checkbox',
+                [
+                    'id' => 'is_fashion_store',
+                    'name' => $this->getOptionInputName( 'is_fashion_store' ),
+                    'label' => 'This Store Contains Fashion Products',
+                    'checked' => checked( '1', $this->get( 'is_fashion_store' ), false ),
+                ]
+            );
+
             $options = array();
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
             }
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_size">Product Sizes</label></th>
-                <td>
-                    <select multiple
-                            id="map_size"
-                            name="<?php echo $this->getOptionInputName( 'map_size' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_size' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
 
-            <tr valign="top">
-                <th scope="row"><label for="map_color">Product Colors</label></th>
-                <td>
-                    <select multiple
-                            id="map_color"
-                            name="<?php echo $this->getOptionInputName( 'map_color' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_color' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
-
-            <tr valign="top">
-                <th scope="row">
-                    <label for="is_book_store">
-                        This is a Bookstore
-                    </label>
-                </th>
-                <td>
-                    <input type="hidden"
-                           name="<?php echo $this->getOptionInputName( 'is_book_store' ); ?>"
-                           value="" />
-                    <input type="checkbox"
-                           id="is_book_store"
-                           name="<?php echo $this->getOptionInputName( 'is_book_store' ); ?>"
-                        <?php echo checked( 'on', $this->get( 'is_book_store' ) ); ?> />
-                </td>
-            </tr>
-
-            <?php
-            $options = array();
-
-            $options[] = array(
-                'label' => 'Use Product SKU',
-                'value' => '0'
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_size',
+                    'name' => $this->getOptionInputName( 'map_size' ),
+                    'label' => 'Product Sizes',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_size' ),
+                    'multiple' => true,
+                ]
             );
 
-            foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[] = array(
-                    'label' => $taxonomies->attribute_label,
-                    'value' => $taxonomies->attribute_id
-                );
-            }
-            ?>
-            <tr valign="top">
-                <th scope="row"><label for="map_isbn">ISBN</label></th>
-                <td>
-                    <select id="map_isbn"
-                            name="<?php echo $this->getOptionInputName( 'map_isbn' ); ?>">
-                        <?php
-                        foreach ($options as $option){
-                            ?>
-                            <option value="<?php echo esc_attr($option['value']); ?>"
-                                <?php echo selected($option['value'], $this->get( 'map_isbn' )); ?>>
-                                <?php echo esc_html($option['label']); ?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </td>
-            </tr>
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_color',
+                    'name' => $this->getOptionInputName( 'map_color' ),
+                    'label' => 'Product Colors',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_color' ),
+                    'multiple' => true,
+                ]
+            );
 
+            echo $this->getTwig()->loadAndRender(
+                'checkbox',
+                [
+                    'id' => 'is_book_store',
+                    'name' => $this->getOptionInputName( 'is_book_store' ),
+                    'label' => 'This is a Bookstore',
+                    'checked' => checked( '1', $this->get( 'is_book_store' ), false ),
+                ]
+            );
+
+            $options = [
+                '0' => 'Use Product SKU',
+            ];
+
+            foreach ( $attrTaxonomies as $taxonomies ) {
+                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+            }
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id' => 'map_isbn',
+                    'name' => $this->getOptionInputName( 'map_isbn' ),
+                    'label' => 'ISBN',
+                    'options' => $options,
+                    'selected' => $this->get( 'map_isbn' ),
+                ]
+            );
+            ?>
         </table>
         <?php
     }
@@ -1061,5 +844,13 @@ class Options extends \Pan\MenuPages\Options {
         }
 
         return $password;
+    }
+
+    protected function getTwig(){
+        if(!$this->twig){
+            $this->twig = new Twig(dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'templates');
+        }
+
+        return $this->twig;
     }
 }

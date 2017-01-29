@@ -1,0 +1,15 @@
+<tr valign="top">
+    <th scope="row">
+        <label for="{{ id | e('html_attr') }}">{{ label }}</label>
+    </th>
+    <td>
+        <input type="hidden"
+               name="{{ name | e('html_attr') }}"
+               value="0" />
+        <input type="checkbox"
+               value="1"
+               {% if checked %}checked="checked"{% endif %}
+               id="{{ id | e('html_attr') }}"
+               name="{{ name | e('html_attr') }}" />
+    </td>
+</tr>

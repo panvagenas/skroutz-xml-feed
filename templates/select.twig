@@ -1,0 +1,22 @@
+<tr valign="top">
+    <th scope="row">
+        <label for="{{ id | e('html_attr') }}">{{ label }}</label>
+    </th>
+    <td>
+        <select
+            id="{{ id | e('html_attr') }}"
+            name="{{ name | e('html_attr') }}{% if multiple is defined and multiple %}[]{% endif %}"
+            {% if multiple is defined and multiple %} multiple {% endif %}>
+
+            {% for v, n in options %}
+                <option value="{{ v | e('html_attr') }}"
+                    {% if selected is iterable %}
+                        {% if v in selected %}selected="selected"{% endif %}
+                    {% else %}
+                        {% if v == selected %}selected="selected"{% endif %}
+                    {% endif %}
+                >{{ n | e }}</option>
+            {% endfor %}
+        </select>
+    </td>
+</tr>
