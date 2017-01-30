@@ -60,10 +60,9 @@ class DBHandler extends AbstractProcessingHandler {
     }
 
     public function clear() {
-        $this->logs = [ ];
+        $this->logs = [];
         update_option( $this->logName, $this->logs );
     }
-
 
     public static function getLogMarkUp( $logName ) {
         $logs = self::getDbLog( $logName );
@@ -98,6 +97,6 @@ class DBHandler extends AbstractProcessingHandler {
     }
 
     public static function getDbLog( $logName ) {
-        return get_option( $logName, [ ] );
+        return get_option( $logName, [] );
     }
 }

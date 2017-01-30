@@ -29,16 +29,16 @@ class Ajax {
         check_ajax_referer( 'skz-gen-now-action', 'nonce' );
 
         if ( ! is_super_admin() ) {
-            wp_die('Not allowed');
+            wp_die( 'Not allowed' );
         }
 
         $skroutz  = new Skroutz();
         $included = $skroutz->generateXml();
 
         $included['msg'] = 'Generation is complete. A total of '
-               . $included['totalSuccess']
-               . ' items were included in XML, please see the generation log for more details.';
+                           . $included['totalSuccess']
+                           . ' items were included in XML, please see the generation log for more details.';
 
-        wp_send_json_success($included);
+        wp_send_json_success( $included );
     }
 }

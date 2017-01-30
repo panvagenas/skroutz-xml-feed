@@ -33,15 +33,16 @@ class Options {
     protected $inStock_Y = 'Y';
     protected $inStock_N = 'N';
 
-    protected $availability = [
-        WooArrayGenerator::AVAIL_OUT_OF_STOCK,
-        WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS,
-        WooArrayGenerator::AVAIL_IN_STOCK,
-    ];
+    protected $availability
+        = [
+            WooArrayGenerator::AVAIL_OUT_OF_STOCK,
+            WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS,
+            WooArrayGenerator::AVAIL_IN_STOCK,
+        ];
 
-    public function __construct(array $options = []) {
+    public function __construct( array $options = [] ) {
         foreach ( $options as $name => $value ) {
-            if(property_exists($this, $name)){
+            if ( property_exists( $this, $name ) ) {
                 $this->{$name} = $value;
             }
         }

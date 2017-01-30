@@ -30,7 +30,7 @@ class Env {
      * @since  170126
      */
     public static function maximize_time_memory_limits() {
-        $timeLimitSet = set_time_limit(0);
+        $timeLimitSet = set_time_limit( 0 );
 
         $limit = WP_MAX_MEMORY_LIMIT;
 
@@ -40,7 +40,7 @@ class Env {
 
         ini_set( 'memory_limit', $limit );
 
-        return ini_get( 'memory_limit' ) == $limit && $timeLimitSet && ini_get('max_execution_time') === '0';
+        return ini_get( 'memory_limit' ) == $limit && $timeLimitSet && ini_get( 'max_execution_time' ) === '0';
     }
 
     /**

@@ -42,8 +42,8 @@ class Logger {
      */
     protected $logFilePath;
 
-    protected function __construct($logName) {
-        $this->logger = new \Monolog\Logger( $logName );
+    protected function __construct( $logName ) {
+        $this->logger  = new \Monolog\Logger( $logName );
         $this->logName = $logName;
     }
 
@@ -54,9 +54,9 @@ class Logger {
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @since  170126
      */
-    public static function getInstance($logName) {
+    public static function getInstance( $logName ) {
         if ( ! isset( self::$instances[ $logName ] ) ) {
-            self::$instances[ $logName ] = new static($logName);
+            self::$instances[ $logName ] = new static( $logName );
         }
 
         return self::$instances[ $logName ];

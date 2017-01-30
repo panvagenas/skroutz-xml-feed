@@ -33,7 +33,7 @@ class Twig {
     /**
      * @var string
      */
-    protected $defaultPaths = [ ];
+    protected $defaultPaths = [];
     /**
      * @var string
      */
@@ -50,7 +50,7 @@ class Twig {
             $this->cachePath = trailingslashit( $sysTmpDir ) . 'twig/cache';
         }
 
-        $twigOptions = [ ];
+        $twigOptions = [];
 
         if ( $this->cachePath ) {
             $twigOptions['cache'] = $this->cachePath;
@@ -70,11 +70,12 @@ class Twig {
         }
     }
 
-    public function loadAndRender($template, $vars){
-        if(!preg_match('/\.twig$/', $template)){
+    public function loadAndRender( $template, $vars ) {
+        if ( ! preg_match( '/\.twig$/', $template ) ) {
             $template .= '.twig';
         }
-        return $this->twigEnvironment->render($template, $vars);
+
+        return $this->twigEnvironment->render( $template, $vars );
     }
 
     /**

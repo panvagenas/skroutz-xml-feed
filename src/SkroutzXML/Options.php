@@ -61,8 +61,16 @@ class Options extends \Pan\MenuPages\Options {
             'color'        => 'color',
             'size'         => 'size',
             'isbn'         => 'isbn',
-            'weight'       => 'weight'
+            'weight'       => 'weight',
         ];
+
+    protected $intervalOptions = [
+        'daily'      => 'Daily',
+        'twicedaily' => 'Twice Daily',
+        'hourly'     => 'Hourly',
+        'every30m'   => 'Every Thirty Minutes',
+        'disable'    => 'Disable caching of file (not recommended for stores with many products)',
+    ];
 
     protected $fieldLengths
         = [
@@ -137,8 +145,6 @@ class Options extends \Pan\MenuPages\Options {
             /*********************
              * Products relative
              ********************/
-            // Include products
-            'products_include'       => [],
             // Availability when products in stock
             'avail_inStock'          => 0,
             // Availability when products out stock
@@ -162,9 +168,7 @@ class Options extends \Pan\MenuPages\Options {
             'map_manufacturer'       => 'product_cat',
             'map_mpn'                => 0,
             'map_size'               => array(),
-            'map_size_use'           => 0, // TODO Deprecated since 151228
             'map_color'              => array(),
-            'map_color_use'          => 0, // TODO Deprecated since 151228
             /***********************************************
              * Fashion store
              ***********************************************/
@@ -263,36 +267,14 @@ class Options extends \Pan\MenuPages\Options {
                                                   'Skroutz XML Feed Settings',
                                                   'Skroutz XML Feed',
                                                   'administrator',
-                          $this->optionsBaseName . '-settings',
+                                                  $this->optionsBaseName . '-settings',
                                                   [ $this, 'renderSettingsPage' ] );
 
         //call register settings function
         add_action( 'admin_init', [ $this, 'registerSettings' ] );
-        add_action( "admin_footer-{$this->pageHookSuffix}", [$this, 'footerScripts'] );
     }
 
-    /**
-     * TODO Move this to JS file
-     */
-    public function footerScripts(){
-        return;
-        ?>
-        <script type="text/javascript">
-            jQuery(document).ready( function($) {
-                $('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-                postboxes.add_postbox_toggles( '<?php echo esc_js($this->pageHookSuffix); ?>' );
-                $('#fx-smb-form').submit( function(){
-                    $('#publishing-action').find('.spinner').css('display','inline');
-                });
-                $('#delete-action').find('.submitdelete').on('click', function() {
-                    return confirm(/*'Are you sure want to do this?'*/'Sorry, not yet implemented');
-                });
-            });
-        </script>
-        <?php
-    }
-
-    public function getPageId(){
+    public function getPageId() {
         return $this->pageId;
     }
 
@@ -302,12 +284,135 @@ class Options extends \Pan\MenuPages\Options {
                           [ $this, 'validateSettings' ] );
     }
 
-    public function validateSettings( $value ) {
-        // FIXME Validate settings
-        return $value;
+    public function validateSettings( $newSettings ) {
+        // TODO Some error messages
+
+        $newSettings = array_intersect_key($newSettings, $this->getDefaults());
+        $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
+
+        $xml_location = realpath(trailingslashit(ABSPATH).$newSettings['xml_location']);
+        if(!$xml_location || strpos($xml_location, untrailingslashit(ABSPATH)) !== 0){
+            unset($newSettings['xml_location']);
+        } else {
+            $newSettings['xml_location'] = preg_replace('/^'.preg_quote(untrailingslashit(ABSPATH), '/').'/', '', $xml_location);
+        }
+
+        $newSettings['xml_fileName'] = basename($newSettings['xml_fileName']);
+        if(!$newSettings['xml_fileName'] || !preg_match('/\.xml$/i', $newSettings['xml_fileName'])){
+            unset($newSettings['xml_fileName']);
+        }
+
+        $newSettings['xml_interval'] = (string)$newSettings['xml_interval'];
+        if(!array_key_exists($newSettings['xml_interval'], $this->intervalOptions)){
+            unset($newSettings['xml_interval']);
+        }
+
+        $newSettings['xml_generate_var'] = (string) $newSettings['xml_generate_var'];
+        if(!$newSettings['xml_generate_var']){
+            unset($newSettings['xml_generate_var']);
+        }
+
+        $newSettings['xml_generate_var_value'] = (string)$newSettings['xml_generate_var_value'];
+        if(!$newSettings['xml_generate_var_value']){
+            unset($newSettings['xml_generate_var_value']);
+        }
+
+        $newSettings['avail_inStock'] = (string)$newSettings['avail_inStock'];
+        if(!array_key_exists($newSettings['avail_inStock'], self::$availOptions)){
+            unset($newSettings['avail_inStock']);
+        }
+
+        $newSettings['avail_outOfStock'] = (string)$newSettings['avail_outOfStock'];
+        if(!is_numeric($newSettings['avail_outOfStock']) || $newSettings['avail_outOfStock'] < 0 || $newSettings['avail_outOfStock'] > count(self::$availOptions)){
+            unset($newSettings['avail_outOfStock']);
+        }
+
+        $newSettings['avail_backorders'] = (string)$newSettings['avail_backorders'];
+        if(!is_numeric($newSettings['avail_backorders']) || $newSettings['avail_backorders'] < 0 || $newSettings['avail_backorders'] > count(self::$availOptions)){
+            unset($newSettings['avail_backorders']);
+        }
+
+        $newSettings['ex_cats'] = (array)$newSettings['ex_cats'];
+        array_walk($newSettings['ex_cats'], 'strval');
+
+        $newSettings['ex_tags'] = (array)$newSettings['ex_tags'];
+        array_walk($newSettings['ex_tags'], 'strval');
+
+        $newSettings['map_id'] = (int)$newSettings['map_id'];
+        if($newSettings['map_id'] < 0){
+            unset($newSettings['map_id']);
+        }
+
+        $newSettings['map_name'] = (int)$newSettings['map_name'];
+        if($newSettings['map_name'] < 0){
+            unset($newSettings['map_name']);
+        }
+
+        $newSettings['map_name_append_sku'] = (int)$newSettings['map_name_append_sku'];
+        if($newSettings['map_name_append_sku'] < 0 || $newSettings['map_name_append_sku'] > 1){
+            unset($newSettings['map_name_append_sku']);
+        }
+
+        $newSettings['map_link'] = (int)$newSettings['map_link'];
+        if($newSettings['map_link'] < 0){
+            unset($newSettings['map_link']);
+        }
+
+        $newSettings['map_image'] = (int)$newSettings['map_image'];
+        if($newSettings['map_image'] < 0){
+            unset($newSettings['map_image']);
+        }
+
+        $newSettings['map_category'] = (string)$newSettings['map_category'];
+        if(!$newSettings['map_category']){
+            unset($newSettings['map_category']);
+        }
+
+        $newSettings['map_category_tree'] = (int)$newSettings['map_category_tree'];
+        if($newSettings['map_category_tree'] < 0 || $newSettings['map_category_tree'] > 1){
+            unset($newSettings['map_category_tree']);
+        }
+
+        $newSettings['map_price_with_vat'] = (int)$newSettings['map_price_with_vat'];
+        if($newSettings['map_price_with_vat'] < 0){
+            unset($newSettings['map_price_with_vat']);
+        }
+
+        $newSettings['map_manufacturer'] = (string)$newSettings['map_manufacturer'];
+        if(!$newSettings['map_manufacturer']){
+            unset($newSettings['map_manufacturer']);
+        }
+
+        $newSettings['map_mpn'] = (int)$newSettings['map_mpn'];
+        if($newSettings['map_mpn'] < 0){
+            unset($newSettings['map_mpn']);
+        }
+
+        $newSettings['map_size'] = (array)$newSettings['map_size'];
+        array_walk($newSettings['map_size'], 'strval');
+
+        $newSettings['map_color'] = (array)$newSettings['map_color'];
+        array_walk($newSettings['map_color'], 'strval');
+
+        $newSettings['is_fashion_store'] = (int)$newSettings['is_fashion_store'];
+        if($newSettings['is_fashion_store'] < 0 || $newSettings['is_fashion_store'] > 1){
+            unset($newSettings['is_fashion_store']);
+        }
+
+        $newSettings['is_book_store'] = (int)$newSettings['is_book_store'];
+        if($newSettings['is_book_store'] < 0 || $newSettings['is_book_store'] > 1){
+            unset($newSettings['is_book_store']);
+        }
+
+        $newSettings['map_isbn'] = (array)$newSettings['map_isbn'];
+        array_walk($newSettings['map_isbn'], 'strval');
+
+        $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
+
+        return $newSettings;
     }
 
-    public function saveBox(){
+    public function saveBox() {
         ?>
         <div id="submitpost" class="submitbox">
 
@@ -319,7 +424,7 @@ class Options extends \Pan\MenuPages\Options {
 
                 <div id="publishing-action">
                     <span class="spinner"></span>
-                    <?php submit_button( esc_attr( 'Save' ), 'primary', 'submit', false );?>
+                    <?php submit_button( esc_attr( 'Save' ), 'primary', 'submit', false ); ?>
                 </div>
 
                 <div class="clear"></div>
@@ -331,7 +436,7 @@ class Options extends \Pan\MenuPages\Options {
         <?php
     }
 
-    public function infoBox(){
+    public function infoBox() {
         $skz      = new Skroutz();
         $fileInfo = $skz->getXmlObj()->getFileInfo();
 
@@ -339,7 +444,8 @@ class Options extends \Pan\MenuPages\Options {
 
         $content = '<div class="row">';
         if ( empty( $fileInfo ) ) {
-            $content .= '<p class="alert alert-danger">
+            $content
+                .= '<p class="alert alert-danger">
                         File not generated yet. Please use the <i>Generate XML Now</i>
                         button to generate a new XML file</p>';
         } else {
@@ -378,16 +484,16 @@ class Options extends \Pan\MenuPages\Options {
             </button>
         </p>
         <?php
-        wp_nonce_field('skz-gen-now-action', 'skz-gen-now-action');
+        wp_nonce_field( 'skz-gen-now-action', 'skz-gen-now-action' );
     }
 
-    public function generalOptionsBox(){
+    public function generalOptionsBox() {
         $availOptions = [];
         foreach ( Options::$availOptions as $value => $label ) {
             $availOptions[ (string) $value ] = $label;
         }
 
-        $availOptionsDoNotInclude                   = $availOptions;
+        $availOptionsDoNotInclude   = $availOptions;
         $availOptionsDoNotInclude[] = 'Do not Include';
 
         $attrTaxonomies = [];
@@ -396,22 +502,22 @@ class Options extends \Pan\MenuPages\Options {
         }
 
         $productCategories = get_categories( [ 'taxonomy' => 'product_cat', 'hide_empty' => 0 ] );
-        $categories = [];
+        $categories        = [];
         foreach ( $productCategories as $productCategory ) {
-            $categories[(string)$productCategory->term_id] = $productCategory->name;
+            $categories[ (string) $productCategory->term_id ] = $productCategory->name;
         }
 
-        $productTags = get_terms( ['taxonomy' => 'product_tag', 'hide_empty' => 0] );
-        $tags = [];
+        $productTags = get_terms( [ 'taxonomy' => 'product_tag', 'hide_empty' => 0 ] );
+        $tags        = [];
         foreach ( $productTags as $productTag ) {
-            $tags[(string)$productTag->term_id] = $productTag->name;
+            $tags[ (string) $productTag->term_id ] = $productTag->name;
         }
 
         $genUrl = Options::getInstance()->getGenerateXmlUrl();
         ?>
         <table class="form-table general-options">
             <span class="list-group-item">Generate XML URL:
-                <strong><?php echo esc_html($genUrl); ?></strong>
+                <strong><?php echo esc_html( $genUrl ); ?></strong>
             </span>
             <hr>
 
@@ -420,8 +526,8 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'text',
                 [
-                    'id' => 'xml_generate_var',
-                    'name' => $this->getOptionInputName( 'xml_generate_var' ),
+                    'id'    => 'xml_generate_var',
+                    'name'  => $this->getOptionInputName( 'xml_generate_var' ),
                     'value' => $this->get( 'xml_generate_var' ),
                     'label' => 'XML Request Generate Variable',
                 ]
@@ -430,8 +536,8 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'text',
                 [
-                    'id' => 'xml_generate_var_value',
-                    'name' => $this->getOptionInputName( 'xml_generate_var_value' ),
+                    'id'    => 'xml_generate_var_value',
+                    'name'  => $this->getOptionInputName( 'xml_generate_var_value' ),
                     'value' => $this->get( 'xml_generate_var_value' ),
                     'label' => 'XML Request Generate Variable Value',
                 ]
@@ -440,8 +546,8 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'text',
                 [
-                    'id' => 'xml_fileName',
-                    'name' => $this->getOptionInputName( 'xml_fileName' ),
+                    'id'    => 'xml_fileName',
+                    'name'  => $this->getOptionInputName( 'xml_fileName' ),
                     'value' => $this->get( 'xml_fileName' ),
                     'label' => 'XML Filename',
                 ]
@@ -450,27 +556,20 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'text',
                 [
-                    'id' => 'xml_location',
-                    'name' => $this->getOptionInputName( 'xml_location' ),
+                    'id'    => 'xml_location',
+                    'name'  => $this->getOptionInputName( 'xml_location' ),
                     'value' => $this->get( 'xml_location' ),
                     'label' => 'XML File Location',
                 ]
             );
 
-            $intervalOptions = [
-                'daily' => 'Daily',
-                'twicedaily' => 'Twice Daily',
-                'hourly' => 'Hourly',
-                'every30m' => 'Every Thirty Minutes',
-                '0' => 'Disable caching of file (not recommended for stores with many products)',
-            ];
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'xml_interval',
-                    'name' => $this->getOptionInputName( 'xml_interval' ),
-                    'label' => 'XML File Generation Interval',
-                    'options' => $intervalOptions,
+                    'id'       => 'xml_interval',
+                    'name'     => $this->getOptionInputName( 'xml_interval' ),
+                    'label'    => 'XML File Generation Interval',
+                    'options'  => $this->intervalOptions,
                     'selected' => $this->get( 'xml_interval' ),
                 ]
             );
@@ -478,10 +577,10 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'avail_inStock',
-                    'name' => $this->getOptionInputName( 'avail_inStock' ),
-                    'label' => 'Product availability when item is in stock',
-                    'options' => $availOptions,
+                    'id'       => 'avail_inStock',
+                    'name'     => $this->getOptionInputName( 'avail_inStock' ),
+                    'label'    => 'Product availability when item is in stock',
+                    'options'  => $availOptions,
                     'selected' => $this->get( 'avail_inStock' ),
                 ]
             );
@@ -489,10 +588,10 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'avail_outOfStock',
-                    'name' => $this->getOptionInputName( 'avail_outOfStock' ),
-                    'label' => 'Product availability when item is out of stock',
-                    'options' => $availOptionsDoNotInclude,
+                    'id'       => 'avail_outOfStock',
+                    'name'     => $this->getOptionInputName( 'avail_outOfStock' ),
+                    'label'    => 'Product availability when item is out of stock',
+                    'options'  => $availOptionsDoNotInclude,
                     'selected' => $this->get( 'avail_outOfStock' ),
                 ]
             );
@@ -500,36 +599,36 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'avail_backorders',
-                    'name' => $this->getOptionInputName( 'avail_backorders' ),
-                    'label' => 'Product availability when item is out of stock and backorders are allowed',
-                    'options' => $availOptionsDoNotInclude,
+                    'id'       => 'avail_backorders',
+                    'name'     => $this->getOptionInputName( 'avail_backorders' ),
+                    'label'    => 'Product availability when item is out of stock and backorders are allowed',
+                    'options'  => $availOptionsDoNotInclude,
                     'selected' => $this->get( 'avail_backorders' ),
                 ]
             );
 
-            if($categories){
+            if ( $categories ) {
                 echo $this->getTwig()->loadAndRender(
                     'select',
                     [
-                        'id' => 'ex_cats',
-                        'name' => $this->getOptionInputName( 'ex_cats' ),
-                        'label' => 'Exclude products from certain categories (if a product has any of these categories then it will not be included in the XML)',
-                        'options' => $categories,
+                        'id'       => 'ex_cats',
+                        'name'     => $this->getOptionInputName( 'ex_cats' ),
+                        'label'    => 'Exclude products from certain categories (if a product has any of these categories then it will not be included in the XML)',
+                        'options'  => $categories,
                         'selected' => $this->get( 'ex_cats' ),
                         'multiple' => true,
                     ]
                 );
             }
 
-            if($tags){
+            if ( $tags ) {
                 echo $this->getTwig()->loadAndRender(
                     'select',
                     [
-                        'id' => 'ex_tags',
-                        'name' => $this->getOptionInputName( 'ex_tags' ),
-                        'label' => 'Exclude products from certain tags (if a product has any of these tags then it will not be included in the XML)',
-                        'options' => $tags,
+                        'id'       => 'ex_tags',
+                        'name'     => $this->getOptionInputName( 'ex_tags' ),
+                        'label'    => 'Exclude products from certain tags (if a product has any of these tags then it will not be included in the XML)',
+                        'options'  => $tags,
                         'selected' => $this->get( 'ex_tags' ),
                         'multiple' => true,
                     ]
@@ -540,15 +639,15 @@ class Options extends \Pan\MenuPages\Options {
         <?php
     }
 
-    public function mapOptionsBox(){
+    public function mapOptionsBox() {
         $productCategories = get_categories( [ 'taxonomy' => 'product_cat', 'hide_empty' => 0 ] );
-        $categories = [];
+        $categories        = [];
         foreach ( $productCategories as $productCategory ) {
             $categories[] = [ 'label' => $productCategory->name, 'value' => (string) $productCategory->term_id ];
         }
 
-        $productTags = get_terms( ['taxonomy' => 'product_tag', 'hide_empty' => 0] );
-        $tags = [];
+        $productTags = get_terms( [ 'taxonomy' => 'product_tag', 'hide_empty' => 0 ] );
+        $tags        = [];
         foreach ( $productTags as $productTag ) {
             $tags[] = [ 'label' => $productTag->name, 'value' => (string) $productTag->term_id ];
         }
@@ -560,8 +659,9 @@ class Options extends \Pan\MenuPages\Options {
                 <td>
                     <select id="map_id"
                             name="<?php echo $this->getOptionInputName( 'map_id' ); ?>">
-                        <option value="0" <?php echo selected('0', $this->get( 'map_id' )); ?>>Use Product SKU</option>
-                        <option value="1" <?php echo selected('1', $this->get( 'map_id' )); ?>>Use Product ID</option>
+                        <option value="0" <?php echo selected( '0', $this->get( 'map_id' ) ); ?>>Use Product SKU
+                        </option>
+                        <option value="1" <?php echo selected( '1', $this->get( 'map_id' ) ); ?>>Use Product ID</option>
                     </select>
                 </td>
             </tr>
@@ -573,21 +673,21 @@ class Options extends \Pan\MenuPages\Options {
             $options['product_tag'] = 'Use Product Tags';
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             if ( Skroutz::hasBrandsPlugin() && ( $brandsTax = Skroutz::getBrandsPluginTaxonomy() ) ) {
-                $options[$brandsTax->name] = 'Use WooCommerce Brands Plugin';
+                $options[ $brandsTax->name ] = 'Use WooCommerce Brands Plugin';
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_id',
-                    'name' => $this->getOptionInputName( 'map_id' ),
-                    'label' => 'Product Manufacturer Field',
-                    'options' => $options,
-                    'selected' => $this->get( 'map_id' ),
+                    'id'       => 'map_manufacturer',
+                    'name'     => $this->getOptionInputName( 'map_manufacturer' ),
+                    'label'    => 'Product Manufacturer Field',
+                    'options'  => $options,
+                    'selected' => $this->get( 'map_manufacturer' ),
                 ]
             );
 
@@ -595,16 +695,16 @@ class Options extends \Pan\MenuPages\Options {
 
             $options['0'] = 'Use Product SKU';
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_mpn',
-                    'name' => $this->getOptionInputName( 'map_mpn' ),
-                    'label' => 'Product Manufacturer SKU',
-                    'options' => $options,
+                    'id'       => 'map_mpn',
+                    'name'     => $this->getOptionInputName( 'map_mpn' ),
+                    'label'    => 'Product Manufacturer SKU',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_mpn' ),
                 ]
             );
@@ -614,16 +714,16 @@ class Options extends \Pan\MenuPages\Options {
             $options['0'] = 'Use Product Name';
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_name',
-                    'name' => $this->getOptionInputName( 'map_name' ),
-                    'label' => 'Product Name',
-                    'options' => $options,
+                    'id'       => 'map_name',
+                    'name'     => $this->getOptionInputName( 'map_name' ),
+                    'label'    => 'Product Name',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_name' ),
                 ]
             );
@@ -631,9 +731,9 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'checkbox',
                 [
-                    'id' => 'map_name_append_sku',
-                    'name' => $this->getOptionInputName( 'map_name_append_sku' ),
-                    'label' => 'If you check this the product SKU will be appended to product name. If no SKU is set then product ID will be used.',
+                    'id'      => 'map_name_append_sku',
+                    'name'    => $this->getOptionInputName( 'map_name_append_sku' ),
+                    'label'   => 'If you check this the product SKU will be appended to product name. If no SKU is set then product ID will be used.',
                     'checked' => checked( '1', $this->get( 'map_name_append_sku' ), false ),
                 ]
             );
@@ -648,25 +748,25 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_image',
-                    'name' => $this->getOptionInputName( 'map_image' ),
-                    'label' => 'Product Image',
-                    'options' => $options,
+                    'id'       => 'map_image',
+                    'name'     => $this->getOptionInputName( 'map_image' ),
+                    'label'    => 'Product Image',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_image' ),
                 ]
             );
 
             $options = [
-                '0' => 'Use Product Permalink'
+                '0' => 'Use Product Permalink',
             ];
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_link',
-                    'name' => $this->getOptionInputName( 'map_link' ),
-                    'label' => 'Product Link',
-                    'options' => $options,
+                    'id'       => 'map_link',
+                    'name'     => $this->getOptionInputName( 'map_link' ),
+                    'label'    => 'Product Link',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_link' ),
                 ]
             );
@@ -674,10 +774,10 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_price_with_vat',
-                    'name' => $this->getOptionInputName( 'map_price_with_vat' ),
-                    'label' => 'Product Price',
-                    'options' => [
+                    'id'       => 'map_price_with_vat',
+                    'name'     => $this->getOptionInputName( 'map_price_with_vat' ),
+                    'label'    => 'Product Price',
+                    'options'  => [
                         '0' => 'Regular Price',
                         '1' => 'Sales Price',
                         '2' => 'Price Without Tax',
@@ -692,16 +792,16 @@ class Options extends \Pan\MenuPages\Options {
             ];
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_category',
-                    'name' => $this->getOptionInputName( 'map_category' ),
-                    'label' => 'Product Categories',
-                    'options' => $options,
+                    'id'       => 'map_category',
+                    'name'     => $this->getOptionInputName( 'map_category' ),
+                    'label'    => 'Product Categories',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_category' ),
                 ]
             );
@@ -709,9 +809,9 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'checkbox',
                 [
-                    'id' => 'map_category_tree',
-                    'name' => $this->getOptionInputName( 'map_category_tree' ),
-                    'label' => 'Include full path to product category',
+                    'id'      => 'map_category_tree',
+                    'name'    => $this->getOptionInputName( 'map_category_tree' ),
+                    'label'   => 'Include full path to product category',
                     'checked' => checked( '1', $this->get( 'map_category_tree' ), false ),
                 ]
             );
@@ -719,9 +819,9 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'checkbox',
                 [
-                    'id' => 'is_fashion_store',
-                    'name' => $this->getOptionInputName( 'is_fashion_store' ),
-                    'label' => 'This Store Contains Fashion Products',
+                    'id'      => 'is_fashion_store',
+                    'name'    => $this->getOptionInputName( 'is_fashion_store' ),
+                    'label'   => 'This Store Contains Fashion Products',
                     'checked' => checked( '1', $this->get( 'is_fashion_store' ), false ),
                 ]
             );
@@ -729,16 +829,16 @@ class Options extends \Pan\MenuPages\Options {
             $options = array();
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_size',
-                    'name' => $this->getOptionInputName( 'map_size' ),
-                    'label' => 'Product Sizes',
-                    'options' => $options,
+                    'id'       => 'map_size',
+                    'name'     => $this->getOptionInputName( 'map_size' ),
+                    'label'    => 'Product Sizes',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_size' ),
                     'multiple' => true,
                 ]
@@ -747,10 +847,10 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_color',
-                    'name' => $this->getOptionInputName( 'map_color' ),
-                    'label' => 'Product Colors',
-                    'options' => $options,
+                    'id'       => 'map_color',
+                    'name'     => $this->getOptionInputName( 'map_color' ),
+                    'label'    => 'Product Colors',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_color' ),
                     'multiple' => true,
                 ]
@@ -759,9 +859,9 @@ class Options extends \Pan\MenuPages\Options {
             echo $this->getTwig()->loadAndRender(
                 'checkbox',
                 [
-                    'id' => 'is_book_store',
-                    'name' => $this->getOptionInputName( 'is_book_store' ),
-                    'label' => 'This is a Bookstore',
+                    'id'      => 'is_book_store',
+                    'name'    => $this->getOptionInputName( 'is_book_store' ),
+                    'label'   => 'This is a Bookstore',
                     'checked' => checked( '1', $this->get( 'is_book_store' ), false ),
                 ]
             );
@@ -771,16 +871,16 @@ class Options extends \Pan\MenuPages\Options {
             ];
 
             foreach ( $attrTaxonomies as $taxonomies ) {
-                $options[$taxonomies->attribute_id] = $taxonomies->attribute_label;
+                $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
             }
 
             echo $this->getTwig()->loadAndRender(
                 'select',
                 [
-                    'id' => 'map_isbn',
-                    'name' => $this->getOptionInputName( 'map_isbn' ),
-                    'label' => 'ISBN',
-                    'options' => $options,
+                    'id'       => 'map_isbn',
+                    'name'     => $this->getOptionInputName( 'map_isbn' ),
+                    'label'    => 'ISBN',
+                    'options'  => $options,
                     'selected' => $this->get( 'map_isbn' ),
                 ]
             );
@@ -789,8 +889,8 @@ class Options extends \Pan\MenuPages\Options {
         <?php
     }
 
-    public function logsBox(){
-        echo DBHandler::getLogMarkUp(Skroutz::DB_LOG_NAME);
+    public function logsBox() {
+        echo DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME );
     }
 
     public function renderSettingsPage() {
@@ -811,7 +911,9 @@ class Options extends \Pan\MenuPages\Options {
                     <?php settings_fields( $this->optionsBaseName . '-settings-group' ); ?>
                     <?php do_settings_sections( $this->optionsBaseName . '-settings-group' ); ?>
                     <div id="poststuff">
-                        <div id="post-body" class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1' : '2'; ?>">
+                        <div id="post-body"
+                             class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1'
+                                 : '2'; ?>">
                             <div id="postbox-container-1" class="postbox-container">
                                 <?php do_meta_boxes( $hook_suffix, 'side', null ); ?>
                             </div>
@@ -828,7 +930,7 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     protected function getOptionInputName( $optionName ) {
-        return esc_attr("{$this->optionsBaseName}[{$optionName}]");
+        return esc_attr( "{$this->optionsBaseName}[{$optionName}]" );
     }
 
     /**
@@ -837,6 +939,7 @@ class Options extends \Pan\MenuPages\Options {
     public function getPageHookSuffix() {
         return $this->pageHookSuffix;
     }
+
     public static function generatePassword( $length = 32 ) {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -848,9 +951,9 @@ class Options extends \Pan\MenuPages\Options {
         return $password;
     }
 
-    protected function getTwig(){
-        if(!$this->twig){
-            $this->twig = new Twig(dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR.'templates');
+    protected function getTwig() {
+        if ( ! $this->twig ) {
+            $this->twig = new Twig( dirname( dirname( dirname( __FILE__ ) ) ) . DIRECTORY_SEPARATOR . 'templates' );
         }
 
         return $this->twig;

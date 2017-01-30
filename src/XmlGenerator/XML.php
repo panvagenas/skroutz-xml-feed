@@ -56,9 +56,9 @@ class XML {
      */
     protected $productElemName = 'product';
 
-    protected $fieldLengths = [ ];
-    protected $requiredFields = [ ];
-    protected $fieldMap = [ ];
+    protected $fieldLengths = [];
+    protected $requiredFields = [];
+    protected $fieldMap = [];
 
     public function __construct(
         $fileLocation,
@@ -75,7 +75,7 @@ class XML {
     }
 
     public function parseArray( array $array, array $fieldMap ) {
-        $this->fieldMap       = $fieldMap;
+        $this->fieldMap = $fieldMap;
 
         // init simple xml if is not initialized already
         if ( ! $this->simpleXML ) {
@@ -116,6 +116,10 @@ class XML {
             $product = $products->addChild( $this->productElemName );
 
             foreach ( $p as $key => $value ) {
+                if ( ! isset( $this->fieldMap[ $key ] ) ) {
+                    continue;
+                }
+
                 if ( $this->isValidXmlName( $value ) ) {
                     $product->addChild( $this->fieldMap[ $key ], $value );
                 } else {
@@ -131,14 +135,16 @@ class XML {
     }
 
     protected function isValidXmlName( $name ) {
-        $getIniDisplayErrors = ini_get('display_errors');
-        ini_set('display_errors', 0);
+        $getIniDisplayErrors = ini_get( 'display_errors' );
+        ini_set( 'display_errors', 0 );
         try {
             new \DOMElement( $name );
-            ini_set('display_errors', $getIniDisplayErrors);
+            ini_set( 'display_errors', $getIniDisplayErrors );
+
             return true;
-        } catch ( \DOMException $e ) {
-            ini_set('display_errors', $getIniDisplayErrors);
+        } catch( \DOMException $e ) {
+            ini_set( 'display_errors', $getIniDisplayErrors );
+
             return false;
         }
     }
@@ -216,7 +222,7 @@ class XML {
                 'label' => 'Cached File Url',
             );
 
-            $info['size'] = array( 'value' => filesize( $fileLocation ).'B', 'label' => 'Cached File Size' );
+            $info['size'] = array( 'value' => filesize( $fileLocation ) . 'B', 'label' => 'Cached File Size' );
 
             return $info;
         } else {

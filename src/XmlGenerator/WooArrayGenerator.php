@@ -51,10 +51,10 @@ class WooArrayGenerator {
      */
     protected $options;
 
-    public function __construct( array $options = [ ], callable $prodArrayValidator, $logName ) {
+    public function __construct( array $options = [], callable $prodArrayValidator, $logName ) {
         $this->options            = new Options( $options );
         $this->prodArrayValidator = $prodArrayValidator;
-        $this->logger             = Logger::getInstance($logName);
+        $this->logger             = Logger::getInstance( $logName );
     }
 
     public function getOptions() {
@@ -65,7 +65,8 @@ class WooArrayGenerator {
         global $wpdb;
 
         /** @noinspection SqlResolve */
-        $sql = "SELECT ID
+        $sql
+            = "SELECT ID
                 FROM {$wpdb->posts}
                 WHERE post_type = 'product' AND post_status = 'publish'
                 ORDER BY ID DESC";
@@ -86,9 +87,9 @@ class WooArrayGenerator {
         $memLimit = $mem - ( 10 * 1024 * 1024 );
 
         $exCategories = $this->options->getExclCategories();
-        $exTags = $this->options->getExclTags();
+        $exTags       = $this->options->getExclTags();
 
-        $return = [ ];
+        $return = [];
 
         foreach ( $this->getProductIds( $limit, $offset ) as $i => $pid ) {
 
@@ -263,7 +264,6 @@ class WooArrayGenerator {
 
         return call_user_func( $this->prodArrayValidator, $out );
     }
-
 
     /**
      * @param $mem

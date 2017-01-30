@@ -68,7 +68,7 @@ class Skroutz {
     }
 
     public function generateXml() {
-        $sTime = microtime( true )-1;
+        $sTime = microtime( true ) - 1;
         ignore_user_abort( true );
 
         $env = new Env();
@@ -125,7 +125,7 @@ class Skroutz {
     }
 
     public function validateProductArray( array $array ) {
-        $failed = [ ];
+        $failed = [];
         foreach ( $this->options->getRequiredFields() as $fieldName ) {
             if ( ! isset( $array[ $fieldName ] ) || empty( $array[ $fieldName ] ) ) {
                 $failed[] = $fieldName;
@@ -144,7 +144,7 @@ class Skroutz {
                 $array
             );
 
-            return [ ];
+            return [];
         }
 
         foreach ( $array as $k => $v ) {
@@ -200,10 +200,6 @@ class Skroutz {
         return mb_substr( (string) $value, 0, $fieldLengths[ $fieldName ] );
     }
 
-    protected function parseStoreLog( array $log ) {
-        // TODO Implement
-    }
-
     public function generateAndPrint() {
         if ( $this->haveToGenerate() ) {
             $this->generateXml();
@@ -233,7 +229,7 @@ class Skroutz {
             if ( isset( $schedules[ $xmlInterval ] ) ) {
                 $xmlInterval = $schedules[ $xmlInterval ]['interval'];
             } else {
-
+                $xmlInterval = 0;
             }
         }
 
@@ -258,7 +254,7 @@ class Skroutz {
      */
     public static function hasBrandsPlugin() {
         return ( in_array( 'woocommerce-brands/woocommerce-brands.php',
-                (array) get_option( 'active_plugins', array() ) )
+                           (array) get_option( 'active_plugins', array() ) )
                  || self::isPluginActiveForNetwork( 'woocommerce-brands/woocommerce-brands.php' ) )
                && taxonomy_exists( 'product_brand' );
     }

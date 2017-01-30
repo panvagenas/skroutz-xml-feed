@@ -28,13 +28,14 @@ class WcHelper {
     protected static $wcTaxonomiesById = [];
 
     public function getTaxonomyById( $taxonomyId ) {
-        if(isset(self::$wcTaxonomiesById[$taxonomyId])){
-            return self::$wcTaxonomiesById[$taxonomyId];
+        if ( isset( self::$wcTaxonomiesById[ $taxonomyId ] ) ) {
+            return self::$wcTaxonomiesById[ $taxonomyId ];
         }
 
         foreach ( wc_get_attribute_taxonomies() as $taxonomy ) {
             if ( $taxonomyId == $taxonomy->attribute_id ) {
-                self::$wcTaxonomiesById[$taxonomyId] = $taxonomy;
+                self::$wcTaxonomiesById[ $taxonomyId ] = $taxonomy;
+
                 return $taxonomy;
             }
         }
@@ -42,14 +43,15 @@ class WcHelper {
         return null;
     }
 
-    public function getAttributeNameFromId($attrId) {
-        if(isset(self::$wcTaxonomiesById[$attrId])){
-            return trim(self::$wcTaxonomiesById[$attrId]->attribute_name);
+    public function getAttributeNameFromId( $attrId ) {
+        if ( isset( self::$wcTaxonomiesById[ $attrId ] ) ) {
+            return trim( self::$wcTaxonomiesById[ $attrId ]->attribute_name );
         }
 
         foreach ( wc_get_attribute_taxonomies() as $taxonomy ) {
             if ( $taxonomy->attribute_id == $attrId ) {
-                self::$wcTaxonomiesById[$attrId] = $taxonomy;
+                self::$wcTaxonomiesById[ $attrId ] = $taxonomy;
+
                 return trim( $taxonomy->attribute_name );
             }
         }

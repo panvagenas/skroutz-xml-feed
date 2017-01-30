@@ -74,7 +74,7 @@ class Options {
         $this->defaults        = $defaults;
 
         if ( ! ( isset( $this->defaults[ self::PAGE_OPT ] ) && is_array( $this->defaults[ self::PAGE_OPT ] ) ) ) {
-            $this->defaults[ self::PAGE_OPT ] = [ ];
+            $this->defaults[ self::PAGE_OPT ] = [];
         }
 
         $options = get_option( $this->optionsBaseName );
@@ -100,8 +100,8 @@ class Options {
      * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
      * @since  170126
      */
-    public static function getInstance( $optionsBaseName, array $defaults = [ ] ) {
-        static $instance = [ ];
+    public static function getInstance( $optionsBaseName, array $defaults = [] ) {
+        static $instance = [];
         if ( ! isset( $instance[ $optionsBaseName ] ) ) {
             $instance[ $optionsBaseName ] = new static( $optionsBaseName, $defaults );
         }
@@ -214,12 +214,13 @@ class Options {
         return $this->save();
     }
 
-    public function addOptions($data){
+    public function addOptions( $data ) {
         foreach ( $data as $key => $defaultValue ) {
-            if(!isset($this->options[$key])){
-                $this->options[$key] = $defaultValue;
-            }if(!isset($this->defaults[$key])){
-                $this->defaults[$key] = $defaultValue;
+            if ( ! isset( $this->options[ $key ] ) ) {
+                $this->options[ $key ] = $defaultValue;
+            }
+            if ( ! isset( $this->defaults[ $key ] ) ) {
+                $this->defaults[ $key ] = $defaultValue;
             }
         }
         $this->save();

@@ -126,8 +126,8 @@ class Product {
                     }
 
                     $taxAncestorsTree = $this->wcHelper->taxonomyAncestorsTree( $term->term_id,
-                        $taxonomy,
-                        $parentsSep );
+                                                                                $taxonomy,
+                                                                                $parentsSep );
 
                     if ( $taxAncestorsTree && ! is_wp_error( $taxAncestorsTree ) ) {
                         $name = $taxAncestorsTree;
@@ -231,11 +231,11 @@ class Product {
         return 0;
     }
 
-    public function hasWeight(){
+    public function hasWeight() {
         return $this->product->has_weight();
     }
 
-    public function getWeight(){
+    public function getWeight() {
         return wc_get_weight( $this->product->get_weight(), 'g' );
     }
 }
