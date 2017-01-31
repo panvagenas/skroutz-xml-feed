@@ -418,10 +418,13 @@ class Options extends \Pan\MenuPages\Options {
 
             <div>
 
+                <?php
+                /*
                 <div id="delete-action">
                     <a href="#" class="submitdelete deletion">Reset Settings</a>
                 </div>
-
+                */
+                ?>
                 <div id="publishing-action">
                     <span class="spinner"></span>
                     <?php submit_button( esc_attr( 'Save' ), 'primary', 'submit', false ); ?>
