@@ -23,34 +23,33 @@ class Initializer {
 
         add_action( 'wp_ajax_skz-gen-now-action', [ new Ajax(), 'generateNow' ] );
 
-        add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidget' ] );
+//        add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidget' ] );
 
-        add_action( 'admin_menu', [ $this->options, 'addMenuPages' ] );
+        add_action('admin_menu', [$this->options, 'addMenuPages']);
 
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
 
-        add_filter( 'screen_layout_columns', [ $this, 'screenLayoutColumnHook' ], 10, 2 );
+        add_filter( 'screen_layout_columns', [$this, 'screenLayoutColumnHook'], 10, 2 );
 
-        add_action( 'add_meta_boxes', [ $this, 'addMetaboxesHook' ] );
+        add_action( 'add_meta_boxes', [$this, 'addMetaboxesHook'] );
     }
 
-    public function screenLayoutColumnHook( $columns, $screen ) {
+    public function screenLayoutColumnHook($columns, $screen){
         $page_hook_id = $this->options->getPageId();
-        if ( $screen == $page_hook_id ) {
-            $columns[ $page_hook_id ] = 2;
+        if ( $screen == $page_hook_id ){
+            $columns[$page_hook_id] = 2;
         }
-
         return $columns;
     }
 
-    public function addMetaboxesHook() {
+    public function addMetaboxesHook(){
         $page_hook_id = $this->options->getPageHookSuffix();
 
         add_meta_box(
             'save_box',
             'Save Options',
-            [ $this->options, 'saveBox' ],
+            [$this->options, 'saveBox'],
             $page_hook_id,
             'side',
             'high'
@@ -59,7 +58,7 @@ class Initializer {
         add_meta_box(
             'info_box',
             'Info',
-            [ $this->options, 'infoBox' ],
+            [$this->options, 'infoBox'],
             $page_hook_id,
             'side',
             'high'
@@ -68,7 +67,7 @@ class Initializer {
         add_meta_box(
             'gen_now',
             'Generate Now',
-            [ $this->options, 'genNowBox' ],
+            [$this->options, 'genNowBox'],
             $page_hook_id,
             'side'
         );
@@ -76,7 +75,7 @@ class Initializer {
         add_meta_box(
             'general_options',
             'General Options',
-            [ $this->options, 'generalOptionsBox' ],
+            [$this->options, 'generalOptionsBox'],
             $page_hook_id,
             'main'
         );
@@ -84,7 +83,7 @@ class Initializer {
         add_meta_box(
             'map_options',
             'Map Fields',
-            [ $this->options, 'mapOptionsBox' ],
+            [$this->options, 'mapOptionsBox'],
             $page_hook_id,
             'main'
         );
@@ -92,7 +91,7 @@ class Initializer {
         add_meta_box(
             'logs',
             'Last Generation XML Log',
-            [ $this->options, 'logsBox' ],
+            [$this->options, 'logsBox'],
             $page_hook_id,
             'main'
         );
@@ -102,30 +101,43 @@ class Initializer {
         wp_add_dashboard_widget(
             'skz-xml-info',
             'Skroutz XML',
-            [ $this, 'dashboardWidgetMarkUp' ]
+            function(){}
         );
     }
 
-    public function dashboardWidgetMarkUp() {
-        echo __METHOD__;
-    }
-
-    public function actionAdminEnqueueScripts( $hook_suffix ) {
+    public function actionAdminEnqueueScripts($hook_suffix) {
         $page_hook_id = $this->options->getPageHookSuffix();
-        if ( $hook_suffix == $page_hook_id ) {
+        if ( $hook_suffix == $page_hook_id ){
             wp_enqueue_script( 'common' );
             wp_enqueue_script( 'wp-lists' );
             wp_enqueue_script( 'postbox' );
 
             wp_enqueue_script(
-                'skz__js',
-                plugins_url( 'assets/js/scripts.min.js', $this->pluginFile ),
+                'skz_vendor_js',
+                plugins_url( 'assets/js/vendor.min.js', $this->pluginFile ),
                 [ 'jquery' ],
                 false,
                 true
             );
 
-            wp_localize_script( 'skz__js', 'SKZ', [ 'pageHookSuffix' => $this->options->getPageHookSuffix() ] );
+            wp_localize_script('skz__js', 'SKZ', ['pageHookSuffix' => $this->options->getPageHookSuffix()]);
+
+            wp_enqueue_style(
+                'skz_vendor_css',
+                plugins_url( 'assets/css/vendor.min.css', $this->pluginFile ),
+                [],
+                true
+            );
+
+            wp_enqueue_script(
+                'skz__js',
+                plugins_url( 'assets/js/scripts.min.js', $this->pluginFile ),
+                [ 'jquery', 'skz_vendor_js' ],
+                false,
+                true
+            );
+
+            wp_localize_script('skz__js', 'SKZ', ['pageHookSuffix' => $this->options->getPageHookSuffix()]);
 
             wp_enqueue_style(
                 'skz_gen_now_css',
@@ -174,42 +186,5 @@ class Initializer {
         delete_option( Skroutz::DB_LOG_NAME );
 
         return true;
-    }
-
-    public static function getFileInfoMarkUp() {
-        $skz      = new Skroutz();
-        $fileInfo = $skz->getXmlObj()->getFileInfo();
-
-        $genUrl = Options::getInstance()->getGenerateXmlUrl();
-
-        $content = '<div class="row">';
-        if ( empty( $fileInfo ) ) {
-            $content
-                .= '<p class="alert alert-danger">
-                        File not generated yet. Please use the <i>Generate XML Now</i>
-                        button to generate a new XML file</p>';
-        } else {
-            $content .= '<ul class="list-group">';
-            foreach ( $fileInfo as $item ) {
-                $content .= '<li class="list-group-item">';
-                $content .= $item['label'] . ': <strong>' . $item['value'] . '</strong>';
-                $content .= '</li>';
-            }
-            $content .= '</ul>';
-
-            $content .= '<a class="btn btn-primary btn-sm" href="'
-                        . home_url( Options::getInstance()->getXmlRelLocationOption() )
-                        . '" target="_blank" role="button">';
-            $content .= 'Open Cached File';
-            $content .= '</a>';
-            $content .= '<a class="btn btn-primary btn-sm copy-gen-url pull-right" href="'
-                        . $genUrl
-                        . '" target="_blank" role="button">';
-            $content .= 'Open Generate URL';
-            $content .= '</a>';
-        }
-        $content .= '</div>';
-
-        return $content;
     }
 }

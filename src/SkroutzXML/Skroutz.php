@@ -97,7 +97,7 @@ class Skroutz {
 			Mem details: ' . $env->memory_details() );
 
         $res['logMarkUp']  = DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME );
-        $res['infoMarkUp'] = Initializer::getFileInfoMarkUp();
+        $res['infoMarkUp'] = $this->getFileInfoMarkUp();
 
         return $res;
     }
@@ -292,5 +292,43 @@ class Skroutz {
         }
 
         return null;
+    }
+
+
+
+
+    public function getFileInfoMarkUp() {
+        $fileInfo = $this->getXmlObj()->getFileInfo();
+
+        $genUrl = Options::getInstance()->getGenerateXmlUrl();
+
+        $content = '<div class="row">';
+        if ( empty( $fileInfo ) ) {
+            $content .= '<p class="alert alert-danger">
+                        File not generated yet. Please use the <i>Generate XML Now</i>
+                        button to generate a new XML file</p>';
+        } else {
+            $content .= '<ul class="list-group">';
+            foreach ( $fileInfo as $item ) {
+                $content .= '<li class="list-group-item">';
+                $content .= $item['label'] . ': <strong>' . $item['value'] . '</strong>';
+                $content .= '</li>';
+            }
+            $content .= '</ul>';
+
+            $content .= '<a class="btn btn-primary btn-sm" href="'
+                        . home_url( Options::getInstance()->getXmlRelLocationOption() )
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Cached File';
+            $content .= '</a>';
+            $content .= '<a class="btn btn-primary btn-sm copy-gen-url pull-right" href="'
+                        . $genUrl
+                        . '" target="_blank" role="button">';
+            $content .= 'Open Generate URL';
+            $content .= '</a>';
+        }
+        $content .= '</div>';
+
+        return $content;
     }
 }
