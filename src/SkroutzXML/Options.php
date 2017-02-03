@@ -127,6 +127,11 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public static function getDefaultsArray() {
+        $defaultCompress = 0;
+        if ( Env::supportsGzCompression() ) {
+            $defaultCompress = 1;
+        }
+
         return [
             'donate'                 => 1,
             /*********************
@@ -154,6 +159,8 @@ class Options extends \Pan\MenuPages\Options {
             // Exclude products
             'ex_cats'                => [],
             'ex_tags'                => [],
+            // compress options
+            'xml_compress'                               => $defaultCompress,
             /*********************
              * Custom fields
              ********************/
@@ -290,8 +297,12 @@ class Options extends \Pan\MenuPages\Options {
         $newSettings = array_intersect_key($newSettings, $this->getDefaults());
         $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
 
+        $errors = false;
+
         $xml_location = realpath(trailingslashit(ABSPATH).$newSettings['xml_location']);
         if(!$xml_location || strpos($xml_location, untrailingslashit(ABSPATH)) !== 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'XML File Location must be an existing directory under webroot', 'error');
+            $errors = true;
             unset($newSettings['xml_location']);
         } else {
             $newSettings['xml_location'] = preg_replace('/^'.preg_quote(untrailingslashit(ABSPATH), '/').'/', '', $xml_location);
@@ -299,36 +310,50 @@ class Options extends \Pan\MenuPages\Options {
 
         $newSettings['xml_fileName'] = basename($newSettings['xml_fileName']);
         if(!$newSettings['xml_fileName'] || !preg_match('/\.xml$/i', $newSettings['xml_fileName'])){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'XML Filename must have the <code>.xml</code> extension', 'error');
+            $errors = true;
             unset($newSettings['xml_fileName']);
         }
 
         $newSettings['xml_interval'] = (string)$newSettings['xml_interval'];
         if(!array_key_exists($newSettings['xml_interval'], $this->intervalOptions)){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML File Generation Interval</em> option value', 'error');
+            $errors = true;
             unset($newSettings['xml_interval']);
         }
 
-        $newSettings['xml_generate_var'] = (string) $newSettings['xml_generate_var'];
-        if(!$newSettings['xml_generate_var']){
+        $newSettings['xml_generate_var'] = trim((string) $newSettings['xml_generate_var']);
+        if(!$newSettings['xml_generate_var'] || !preg_match('/^\w+$/i', $newSettings['xml_generate_var'])){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML Request Generate Variable</em> option value', 'error');
+            $errors = true;
             unset($newSettings['xml_generate_var']);
         }
 
-        $newSettings['xml_generate_var_value'] = (string)$newSettings['xml_generate_var_value'];
-        if(!$newSettings['xml_generate_var_value']){
+        $newSettings['xml_generate_var_value'] = trim((string)$newSettings['xml_generate_var_value']);
+        if(!$newSettings['xml_generate_var_value'] || !preg_match('/^\w+$/i', $newSettings['xml_generate_var_value'])){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML Request Generate Variable Value</em> option value', 'error');
+            $errors = true;
             unset($newSettings['xml_generate_var_value']);
         }
 
         $newSettings['avail_inStock'] = (string)$newSettings['avail_inStock'];
         if(!array_key_exists($newSettings['avail_inStock'], self::$availOptions)){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is in stock</em> option value', 'error');
+            $errors = true;
             unset($newSettings['avail_inStock']);
         }
 
         $newSettings['avail_outOfStock'] = (string)$newSettings['avail_outOfStock'];
         if(!is_numeric($newSettings['avail_outOfStock']) || $newSettings['avail_outOfStock'] < 0 || $newSettings['avail_outOfStock'] > count(self::$availOptions)){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is out of stock</em> option value', 'error');
+            $errors = true;
             unset($newSettings['avail_outOfStock']);
         }
 
         $newSettings['avail_backorders'] = (string)$newSettings['avail_backorders'];
         if(!is_numeric($newSettings['avail_backorders']) || $newSettings['avail_backorders'] < 0 || $newSettings['avail_backorders'] > count(self::$availOptions)){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is out of stock and backorders are allowed</em> option value', 'error');
+            $errors = true;
             unset($newSettings['avail_backorders']);
         }
 
@@ -340,51 +365,71 @@ class Options extends \Pan\MenuPages\Options {
 
         $newSettings['map_id'] = (int)$newSettings['map_id'];
         if($newSettings['map_id'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product ID</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_id']);
         }
 
         $newSettings['map_name'] = (int)$newSettings['map_name'];
         if($newSettings['map_name'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Name</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_name']);
         }
 
         $newSettings['map_name_append_sku'] = (int)$newSettings['map_name_append_sku'];
         if($newSettings['map_name_append_sku'] < 0 || $newSettings['map_name_append_sku'] > 1){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>map_name_append_sku</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_name_append_sku']);
         }
 
         $newSettings['map_link'] = (int)$newSettings['map_link'];
         if($newSettings['map_link'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Link</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_link']);
         }
 
         $newSettings['map_image'] = (int)$newSettings['map_image'];
         if($newSettings['map_image'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Image</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_image']);
         }
 
         $newSettings['map_category'] = (string)$newSettings['map_category'];
         if(!$newSettings['map_category']){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Categories</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_category']);
         }
 
         $newSettings['map_category_tree'] = (int)$newSettings['map_category_tree'];
         if($newSettings['map_category_tree'] < 0 || $newSettings['map_category_tree'] > 1){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Include full path to product category</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_category_tree']);
         }
 
         $newSettings['map_price_with_vat'] = (int)$newSettings['map_price_with_vat'];
         if($newSettings['map_price_with_vat'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Price</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_price_with_vat']);
         }
 
         $newSettings['map_manufacturer'] = (string)$newSettings['map_manufacturer'];
         if(!$newSettings['map_manufacturer']){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Manufacturer Field</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_manufacturer']);
         }
 
         $newSettings['map_mpn'] = (int)$newSettings['map_mpn'];
         if($newSettings['map_mpn'] < 0){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Manufacturer SKU</em> option value', 'error');
+            $errors = true;
             unset($newSettings['map_mpn']);
         }
 
@@ -396,11 +441,15 @@ class Options extends \Pan\MenuPages\Options {
 
         $newSettings['is_fashion_store'] = (int)$newSettings['is_fashion_store'];
         if($newSettings['is_fashion_store'] < 0 || $newSettings['is_fashion_store'] > 1){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>is_fashion_store</em> option value', 'error');
+            $errors = true;
             unset($newSettings['is_fashion_store']);
         }
 
         $newSettings['is_book_store'] = (int)$newSettings['is_book_store'];
         if($newSettings['is_book_store'] < 0 || $newSettings['is_book_store'] > 1){
+            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>is_book_store</em> option value', 'error');
+            $errors = true;
             unset($newSettings['is_book_store']);
         }
 
@@ -408,6 +457,21 @@ class Options extends \Pan\MenuPages\Options {
         array_walk($newSettings['map_isbn'], 'strval');
 
         $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
+
+        $compressRange = [ 0 ];
+        if ( Env::supportsGzCompression() ) {
+            $compressRange[] = 1;
+        }
+
+        if(!in_array($newSettings['xml_compress'], $compressRange)){
+            unset($newSettings['xml_compress']);
+        }
+
+        if($errors){
+            add_settings_error($this->optionsBaseName, 'settings_updated', 'Not all settings updated, check notices for errors', 'error');
+        } else {
+            add_settings_error($this->optionsBaseName, 'settings_updated', 'Settings updated', 'updated');
+        }
 
         return $newSettings;
     }
@@ -553,6 +617,16 @@ class Options extends \Pan\MenuPages\Options {
                     'name'  => $this->getOptionInputName( 'xml_fileName' ),
                     'value' => $this->get( 'xml_fileName' ),
                     'label' => 'XML Filename',
+                ]
+            );
+
+            echo $this->getTwig()->loadAndRender(
+                'checkbox',
+                [
+                    'id'      => 'xml_compress',
+                    'name'    => $this->getOptionInputName( 'xml_compress' ),
+                    'label'   => 'Enable XML compression',
+                    'checked' => checked( '1', $this->get( 'xml_compress' ), false ),
                 ]
             );
 

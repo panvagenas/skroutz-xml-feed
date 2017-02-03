@@ -90,4 +90,8 @@ class Env {
 
         return $abbr_bytes . ' ' . $abbr;
     }
+
+    public static function supportsGzCompression(){
+        return extension_loaded('zlib');
+    }
 }

@@ -205,7 +205,13 @@ class Skroutz {
             $this->generateXml();
         }
 
-        $this->getXmlObj()->printXML();
+        $compression = $this->options->get( 'xml_compress' );
+        if ( $compression == 1 && Env::supportsGzCompression() ) {
+            $this->getXmlObj()->printXML(XML::PRINT_GZ);
+        } else {
+            $this->getXmlObj()->printXML(XML::PRINT_XML);
+        }
+
         exit( 0 );
     }
 

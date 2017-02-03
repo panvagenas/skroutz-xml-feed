@@ -25,6 +25,8 @@ if ( ! defined( 'WPINC' ) ) {
  * @copyright Copyright (c) 2015 Panagiotis Vagenas
  */
 class XML {
+    const PRINT_XML = 0;
+    const PRINT_GZ = 1;
     /**
      * @var SimpleXMLExtended
      */
@@ -149,7 +151,7 @@ class XML {
         }
     }
 
-    public function saveXML() {
+    public function saveXML($saveFormat = self::PRINT_XML) {
         if ( ! ( $this->simpleXML instanceof SimpleXMLExtended ) ) {
             return false;
         }
@@ -161,18 +163,27 @@ class XML {
         if ( $this->simpleXML && ! empty( $this->fileLocation )
              && ( is_writable( $this->fileLocation ) || is_writable( $dir ) )
         ) {
-            if ( is_file( $this->fileLocation ) ) {
-                unlink( $this->fileLocation );
-            }
             $this->simpleXML->addChild( $this->createdAtName, date( 'Y-m-d H:i' ) );
 
-            return $this->simpleXML->asXML( $this->fileLocation );
+            if($saveFormat === self::PRINT_XML) {
+                if ( is_file( $this->fileLocation ) ) {
+                    unlink( $this->fileLocation );
+                }
+
+                return $this->simpleXML->asXML( $this->fileLocation );
+            } elseif ($saveFormat === self::PRINT_GZ){
+                $filePath = $this->fileLocation.'.gz';
+                if ( is_file( $filePath ) ) {
+                    unlink( $filePath );
+                }
+                return file_put_contents($filePath, gzencode($this->simpleXML->asXML()));
+            }
         }
 
         return false;
     }
 
-    public function printXML() {
+    public function printXML( $printFormat = self::PRINT_XML ) {
         if ( headers_sent() ) {
             return;
         }
@@ -185,9 +196,16 @@ class XML {
             $this->simpleXML = simplexml_load_file( $fileLocation );
         }
 
-        header( "Content-Type:text/xml" );
+        if ( $printFormat == self::PRINT_GZ ) {
+            $content = gzencode( $this->simpleXML->asXML() );
+            header( "Content-Type: application/x-gzip; charset=binary" );
+            header( 'Content-Disposition: attachment; filename="skroutz.xml.gz"' );
+        } else {
+            header( "Content-Type:text/xml" );
+            $content = $this->simpleXML->asXML();
+        }
 
-        echo $this->simpleXML->asXML();
+        echo $content;
 
         exit( 0 );
     }
