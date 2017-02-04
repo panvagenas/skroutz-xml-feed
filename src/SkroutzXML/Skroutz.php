@@ -96,6 +96,10 @@ class Skroutz {
             . '</strong><br>Time taken: ' . $this->timeAbbreviation( floor( microtime( true ) - $sTime ) ) . '<br>
 			Mem details: ' . $env->memory_details() );
 
+        if($this->options->get('xml_compress')){
+            $this->getXmlObj()->saveXML(XML::PRINT_GZ);
+        }
+
         $res['logMarkUp']  = DBHandler::getLogMarkUp( Skroutz::DB_LOG_NAME );
         $res['infoMarkUp'] = $this->getFileInfoMarkUp();
 

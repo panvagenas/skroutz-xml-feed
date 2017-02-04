@@ -453,8 +453,7 @@ class Options extends \Pan\MenuPages\Options {
             unset($newSettings['is_book_store']);
         }
 
-        $newSettings['map_isbn'] = (array)$newSettings['map_isbn'];
-        array_walk($newSettings['map_isbn'], 'strval');
+        $newSettings['map_isbn'] = (string)$newSettings['map_isbn'];
 
         $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
 
