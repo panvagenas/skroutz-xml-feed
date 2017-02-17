@@ -6,9 +6,10 @@
 
 #### Features
 
+* Exclude products by category or tag
 * Supports fashion products (shoes, clothes etc)
 * Supports bookstores (ISBN field)
-* Fully customizable
+* XML compression
 
 #### Requirements:
 
@@ -41,11 +42,11 @@ along with this program.  If not, see [http://www.gnu.org/licenses/](http://www.
 
 #### 170126
 
+* Added file compression (GZ)
 * Added weight field
 * Removed WS FW
 
 #### 160904
-
 * Added product exclusion by category
 * Added product exclusion by tag
 * Tested on WordPress 4.6, WooCommerce 2.6 and PHP 7

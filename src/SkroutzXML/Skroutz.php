@@ -248,9 +248,9 @@ class Skroutz {
             strtotime( $xmlInfo[ $this->xmlObj->createdAtName ]['value'] )
             : 0;
 
-        $nextCreationTime = ( (int) $xmlInterval * 60 * 60 ) + (int) $createdTime;
+        $nextCreationTime = ( (int) $xmlInterval ) + (int) $createdTime;
 
-        return time() > $nextCreationTime;
+        return time() >= $nextCreationTime;
     }
 
     public function getXmlObj() {
