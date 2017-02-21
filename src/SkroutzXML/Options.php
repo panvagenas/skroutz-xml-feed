@@ -29,6 +29,8 @@ if ( ! defined( 'WPINC' ) ) {
  */
 class Options extends \Pan\MenuPages\Options {
     const OPTIONS_NAME = 'skroutz__options';
+    const PRODUCT_AVAIL_META_KEY = 'skroutz_product_availability';
+    const PRODUCT_AVAIL_USE_GLOBAL = 'use_global';
     protected $twig;
     protected $pageHookSuffix;
     protected $pageId = 'skroutz-xml-settings';
@@ -64,13 +66,14 @@ class Options extends \Pan\MenuPages\Options {
             'weight'       => 'weight',
         ];
 
-    protected $intervalOptions = [
-        'daily'      => 'Daily',
-        'twicedaily' => 'Twice Daily',
-        'hourly'     => 'Hourly',
-        'every30m'   => 'Every Thirty Minutes',
-        'disable'    => 'Disable caching of file (not recommended for stores with many products)',
-    ];
+    protected $intervalOptions
+        = [
+            'daily'      => 'Daily',
+            'twicedaily' => 'Twice Daily',
+            'hourly'     => 'Hourly',
+            'every30m'   => 'Every Thirty Minutes',
+            'disable'    => 'Disable caching of file (not recommended for stores with many products)',
+        ];
 
     protected $fieldLengths
         = [
@@ -160,7 +163,7 @@ class Options extends \Pan\MenuPages\Options {
             'ex_cats'                => [],
             'ex_tags'                => [],
             // compress options
-            'xml_compress'                               => $defaultCompress,
+            'xml_compress'           => $defaultCompress,
             /*********************
              * Custom fields
              ********************/
@@ -292,184 +295,254 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function validateSettings( $newSettings ) {
-        // TODO Some error messages
-
-        $newSettings = array_intersect_key($newSettings, $this->getDefaults());
-        $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
+        $newSettings = array_intersect_key( $newSettings, $this->getDefaults() );
+        $newSettings = array_merge( $this->getDefaults(), $this->getOptions(), $newSettings );
 
         $errors = false;
 
-        $xml_location = realpath(trailingslashit(ABSPATH).$newSettings['xml_location']);
-        if(!$xml_location || strpos($xml_location, untrailingslashit(ABSPATH)) !== 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'XML File Location must be an existing directory under webroot', 'error');
+        $xml_location = realpath( trailingslashit( ABSPATH ) . $newSettings['xml_location'] );
+        if ( ! $xml_location || strpos( $xml_location, untrailingslashit( ABSPATH ) ) !== 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'XML File Location must be an existing directory under webroot',
+                                'error' );
             $errors = true;
-            unset($newSettings['xml_location']);
+            unset( $newSettings['xml_location'] );
         } else {
-            $newSettings['xml_location'] = preg_replace('/^'.preg_quote(untrailingslashit(ABSPATH), '/').'/', '', $xml_location);
+            $newSettings['xml_location'] = preg_replace( '/^' . preg_quote( untrailingslashit( ABSPATH ), '/' ) . '/',
+                                                         '',
+                                                         $xml_location );
         }
 
-        $newSettings['xml_fileName'] = basename($newSettings['xml_fileName']);
-        if(!$newSettings['xml_fileName'] || !preg_match('/\.xml$/i', $newSettings['xml_fileName'])){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'XML Filename must have the <code>.xml</code> extension', 'error');
+        $newSettings['xml_fileName'] = basename( $newSettings['xml_fileName'] );
+        if ( ! $newSettings['xml_fileName'] || ! preg_match( '/\.xml$/i', $newSettings['xml_fileName'] ) ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'XML Filename must have the <code>.xml</code> extension',
+                                'error' );
             $errors = true;
-            unset($newSettings['xml_fileName']);
+            unset( $newSettings['xml_fileName'] );
         }
 
-        $newSettings['xml_interval'] = (string)$newSettings['xml_interval'];
-        if(!array_key_exists($newSettings['xml_interval'], $this->intervalOptions)){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML File Generation Interval</em> option value', 'error');
+        $newSettings['xml_interval'] = (string) $newSettings['xml_interval'];
+        if ( ! array_key_exists( $newSettings['xml_interval'], $this->intervalOptions ) ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>XML File Generation Interval</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['xml_interval']);
+            unset( $newSettings['xml_interval'] );
         }
 
-        $newSettings['xml_generate_var'] = trim((string) $newSettings['xml_generate_var']);
-        if(!$newSettings['xml_generate_var'] || !preg_match('/^\w+$/i', $newSettings['xml_generate_var'])){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML Request Generate Variable</em> option value', 'error');
+        $newSettings['xml_generate_var'] = trim( (string) $newSettings['xml_generate_var'] );
+        if ( ! $newSettings['xml_generate_var'] || ! preg_match( '/^\w+$/i', $newSettings['xml_generate_var'] ) ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>XML Request Generate Variable</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['xml_generate_var']);
+            unset( $newSettings['xml_generate_var'] );
         }
 
-        $newSettings['xml_generate_var_value'] = trim((string)$newSettings['xml_generate_var_value']);
-        if(!$newSettings['xml_generate_var_value'] || !preg_match('/^\w+$/i', $newSettings['xml_generate_var_value'])){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>XML Request Generate Variable Value</em> option value', 'error');
+        $newSettings['xml_generate_var_value'] = trim( (string) $newSettings['xml_generate_var_value'] );
+        if ( ! $newSettings['xml_generate_var_value']
+             || ! preg_match( '/^\w+$/i',
+                              $newSettings['xml_generate_var_value'] )
+        ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>XML Request Generate Variable Value</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['xml_generate_var_value']);
+            unset( $newSettings['xml_generate_var_value'] );
         }
 
-        $newSettings['avail_inStock'] = (string)$newSettings['avail_inStock'];
-        if(!array_key_exists($newSettings['avail_inStock'], self::$availOptions)){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is in stock</em> option value', 'error');
+        $newSettings['avail_inStock'] = (string) $newSettings['avail_inStock'];
+        if ( ! array_key_exists( $newSettings['avail_inStock'], self::$availOptions ) ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product availability when item is in stock</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['avail_inStock']);
+            unset( $newSettings['avail_inStock'] );
         }
 
-        $newSettings['avail_outOfStock'] = (string)$newSettings['avail_outOfStock'];
-        if(!is_numeric($newSettings['avail_outOfStock']) || $newSettings['avail_outOfStock'] < 0 || $newSettings['avail_outOfStock'] > count(self::$availOptions)){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is out of stock</em> option value', 'error');
+        $newSettings['avail_outOfStock'] = (string) $newSettings['avail_outOfStock'];
+        if ( ! is_numeric( $newSettings['avail_outOfStock'] ) || $newSettings['avail_outOfStock'] < 0
+             || $newSettings['avail_outOfStock'] > count( self::$availOptions )
+        ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product availability when item is out of stock</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['avail_outOfStock']);
+            unset( $newSettings['avail_outOfStock'] );
         }
 
-        $newSettings['avail_backorders'] = (string)$newSettings['avail_backorders'];
-        if(!is_numeric($newSettings['avail_backorders']) || $newSettings['avail_backorders'] < 0 || $newSettings['avail_backorders'] > count(self::$availOptions)){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product availability when item is out of stock and backorders are allowed</em> option value', 'error');
+        $newSettings['avail_backorders'] = (string) $newSettings['avail_backorders'];
+        if ( ! is_numeric( $newSettings['avail_backorders'] ) || $newSettings['avail_backorders'] < 0
+             || $newSettings['avail_backorders'] > count( self::$availOptions )
+        ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product availability when item is out of stock and backorders are allowed</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['avail_backorders']);
+            unset( $newSettings['avail_backorders'] );
         }
 
-        $newSettings['ex_cats'] = (array)$newSettings['ex_cats'];
-        array_walk($newSettings['ex_cats'], 'strval');
+        $newSettings['ex_cats'] = (array) $newSettings['ex_cats'];
+        array_walk( $newSettings['ex_cats'], 'strval' );
 
-        $newSettings['ex_tags'] = (array)$newSettings['ex_tags'];
-        array_walk($newSettings['ex_tags'], 'strval');
+        $newSettings['ex_tags'] = (array) $newSettings['ex_tags'];
+        array_walk( $newSettings['ex_tags'], 'strval' );
 
-        $newSettings['map_id'] = (int)$newSettings['map_id'];
-        if($newSettings['map_id'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product ID</em> option value', 'error');
+        $newSettings['map_id'] = (int) $newSettings['map_id'];
+        if ( $newSettings['map_id'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product ID</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_id']);
+            unset( $newSettings['map_id'] );
         }
 
-        $newSettings['map_name'] = (int)$newSettings['map_name'];
-        if($newSettings['map_name'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Name</em> option value', 'error');
+        $newSettings['map_name'] = (int) $newSettings['map_name'];
+        if ( $newSettings['map_name'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Name</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_name']);
+            unset( $newSettings['map_name'] );
         }
 
-        $newSettings['map_name_append_sku'] = (int)$newSettings['map_name_append_sku'];
-        if($newSettings['map_name_append_sku'] < 0 || $newSettings['map_name_append_sku'] > 1){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>map_name_append_sku</em> option value', 'error');
+        $newSettings['map_name_append_sku'] = (int) $newSettings['map_name_append_sku'];
+        if ( $newSettings['map_name_append_sku'] < 0 || $newSettings['map_name_append_sku'] > 1 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>map_name_append_sku</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_name_append_sku']);
+            unset( $newSettings['map_name_append_sku'] );
         }
 
-        $newSettings['map_link'] = (int)$newSettings['map_link'];
-        if($newSettings['map_link'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Link</em> option value', 'error');
+        $newSettings['map_link'] = (int) $newSettings['map_link'];
+        if ( $newSettings['map_link'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Link</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_link']);
+            unset( $newSettings['map_link'] );
         }
 
-        $newSettings['map_image'] = (int)$newSettings['map_image'];
-        if($newSettings['map_image'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Image</em> option value', 'error');
+        $newSettings['map_image'] = (int) $newSettings['map_image'];
+        if ( $newSettings['map_image'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Image</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_image']);
+            unset( $newSettings['map_image'] );
         }
 
-        $newSettings['map_category'] = (string)$newSettings['map_category'];
-        if(!$newSettings['map_category']){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Categories</em> option value', 'error');
+        $newSettings['map_category'] = (string) $newSettings['map_category'];
+        if ( ! $newSettings['map_category'] ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Categories</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_category']);
+            unset( $newSettings['map_category'] );
         }
 
-        $newSettings['map_category_tree'] = (int)$newSettings['map_category_tree'];
-        if($newSettings['map_category_tree'] < 0 || $newSettings['map_category_tree'] > 1){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Include full path to product category</em> option value', 'error');
+        $newSettings['map_category_tree'] = (int) $newSettings['map_category_tree'];
+        if ( $newSettings['map_category_tree'] < 0 || $newSettings['map_category_tree'] > 1 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Include full path to product category</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_category_tree']);
+            unset( $newSettings['map_category_tree'] );
         }
 
-        $newSettings['map_price_with_vat'] = (int)$newSettings['map_price_with_vat'];
-        if($newSettings['map_price_with_vat'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Price</em> option value', 'error');
+        $newSettings['map_price_with_vat'] = (int) $newSettings['map_price_with_vat'];
+        if ( $newSettings['map_price_with_vat'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Price</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_price_with_vat']);
+            unset( $newSettings['map_price_with_vat'] );
         }
 
-        $newSettings['map_manufacturer'] = (string)$newSettings['map_manufacturer'];
-        if(!$newSettings['map_manufacturer']){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Manufacturer Field</em> option value', 'error');
+        $newSettings['map_manufacturer'] = (string) $newSettings['map_manufacturer'];
+        if ( ! $newSettings['map_manufacturer'] ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Manufacturer Field</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_manufacturer']);
+            unset( $newSettings['map_manufacturer'] );
         }
 
-        $newSettings['map_mpn'] = (int)$newSettings['map_mpn'];
-        if($newSettings['map_mpn'] < 0){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>Product Manufacturer SKU</em> option value', 'error');
+        $newSettings['map_mpn'] = (int) $newSettings['map_mpn'];
+        if ( $newSettings['map_mpn'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>Product Manufacturer SKU</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['map_mpn']);
+            unset( $newSettings['map_mpn'] );
         }
 
-        $newSettings['map_size'] = (array)$newSettings['map_size'];
-        array_walk($newSettings['map_size'], 'strval');
+        $newSettings['map_size'] = (array) $newSettings['map_size'];
+        array_walk( $newSettings['map_size'], 'strval' );
 
-        $newSettings['map_color'] = (array)$newSettings['map_color'];
-        array_walk($newSettings['map_color'], 'strval');
+        $newSettings['map_color'] = (array) $newSettings['map_color'];
+        array_walk( $newSettings['map_color'], 'strval' );
 
-        $newSettings['is_fashion_store'] = (int)$newSettings['is_fashion_store'];
-        if($newSettings['is_fashion_store'] < 0 || $newSettings['is_fashion_store'] > 1){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>is_fashion_store</em> option value', 'error');
+        $newSettings['is_fashion_store'] = (int) $newSettings['is_fashion_store'];
+        if ( $newSettings['is_fashion_store'] < 0 || $newSettings['is_fashion_store'] > 1 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>is_fashion_store</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['is_fashion_store']);
+            unset( $newSettings['is_fashion_store'] );
         }
 
-        $newSettings['is_book_store'] = (int)$newSettings['is_book_store'];
-        if($newSettings['is_book_store'] < 0 || $newSettings['is_book_store'] > 1){
-            add_settings_error($this->optionsBaseName, 'settings_error', 'Invalid <em>is_book_store</em> option value', 'error');
+        $newSettings['is_book_store'] = (int) $newSettings['is_book_store'];
+        if ( $newSettings['is_book_store'] < 0 || $newSettings['is_book_store'] > 1 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>is_book_store</em> option value',
+                                'error' );
             $errors = true;
-            unset($newSettings['is_book_store']);
+            unset( $newSettings['is_book_store'] );
         }
 
-        $newSettings['map_isbn'] = (string)$newSettings['map_isbn'];
+        $newSettings['map_isbn'] = (string) $newSettings['map_isbn'];
 
-        $newSettings = array_merge($this->getDefaults(), $this->getOptions(), $newSettings);
+        $newSettings = array_merge( $this->getDefaults(), $this->getOptions(), $newSettings );
 
         $compressRange = [ 0 ];
         if ( Env::supportsGzCompression() ) {
             $compressRange[] = 1;
         }
 
-        if(!in_array($newSettings['xml_compress'], $compressRange)){
-            unset($newSettings['xml_compress']);
+        if ( ! in_array( $newSettings['xml_compress'], $compressRange ) ) {
+            unset( $newSettings['xml_compress'] );
         }
 
-        if($errors){
-            add_settings_error($this->optionsBaseName, 'settings_updated', 'Not all settings updated, check notices for errors', 'error');
+        if ( $errors ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_updated',
+                                'Not all settings updated, check notices for errors',
+                                'error' );
         } else {
-            add_settings_error($this->optionsBaseName, 'settings_updated', 'Settings updated', 'updated');
+            add_settings_error( $this->optionsBaseName, 'settings_updated', 'Settings updated', 'updated' );
         }
 
         return $newSettings;
@@ -1007,6 +1080,62 @@ class Options extends \Pan\MenuPages\Options {
 
     protected function getOptionInputName( $optionName ) {
         return esc_attr( "{$this->optionsBaseName}[{$optionName}]" );
+    }
+
+    public function productAvailabilityBox() {
+        global $post;
+        if ( ! ( $post instanceof \WP_Post ) || ! $post->ID ) {
+            return;
+        }
+
+        $availOptionsDoNotInclude = [
+            self::PRODUCT_AVAIL_USE_GLOBAL => 'Use global settings',
+        ];
+        foreach ( Options::$availOptions as $value => $label ) {
+            $availOptionsDoNotInclude[ (string) ( $value + 1 ) ] = $label;
+        }
+        $availOptionsDoNotInclude[] = 'Do not Include';
+
+        $metaValue = get_post_meta( $post->ID, self::PRODUCT_AVAIL_META_KEY, true );
+        if ( ! $metaValue || ! array_key_exists( $metaValue, $availOptionsDoNotInclude ) ) {
+            $metaValue = 'use_global';
+        }
+
+        echo $this->getTwig()->loadAndRender(
+            'select',
+            [
+                'id'       => 'skroutz_product_availability',
+                'name'     => 'skroutz_product_availability',
+                'label'    => '',
+                'options'  => $availOptionsDoNotInclude,
+                'selected' => $metaValue,
+            ]
+        );
+    }
+
+    public function saveProductAvailability( $post_id ) {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return;
+        }
+
+        if ( $_POST[ self::PRODUCT_AVAIL_META_KEY ] == self::PRODUCT_AVAIL_USE_GLOBAL ) {
+            delete_post_meta( $post_id, self::PRODUCT_AVAIL_META_KEY );
+
+            return;
+        }
+
+        if ( ! isset( $_POST[ self::PRODUCT_AVAIL_META_KEY ] ) || ! is_numeric( $_POST[ self::PRODUCT_AVAIL_META_KEY ] )
+             || $_POST[ self::PRODUCT_AVAIL_META_KEY ] < 0
+             || $_POST[ self::PRODUCT_AVAIL_META_KEY ] > count( self::$availOptions )+1
+        ) {
+            return;
+        }
+
+        update_post_meta( $post_id, self::PRODUCT_AVAIL_META_KEY, (int) $_POST[ self::PRODUCT_AVAIL_META_KEY ] );
     }
 
     /**

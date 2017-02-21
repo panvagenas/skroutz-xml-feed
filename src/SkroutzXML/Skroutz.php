@@ -129,6 +129,7 @@ class Skroutz {
     }
 
     public function validateProductArray( array $array ) {
+        $pId = (int)$array['ID'];
         $failed = [];
         foreach ( $this->options->getRequiredFields() as $fieldName ) {
             if ( ! isset( $array[ $fieldName ] ) || empty( $array[ $fieldName ] ) ) {
@@ -157,34 +158,50 @@ class Skroutz {
             }
         }
 
-        $productAvailability = $array['availability'];
+        $productAvailabilityMetaValue = get_post_meta($pId, Options::PRODUCT_AVAIL_META_KEY, true);
 
-        if ( $productAvailability === WooArrayGenerator::AVAIL_IN_STOCK ) {
-            if ( isset( Options::$availOptions[ $this->options->get( 'avail_inStock' ) ] ) ) {
-                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_inStock' ) ];
-            } else {
+        if(is_numeric($productAvailabilityMetaValue)){
+            $productAvailabilityMetaValue = ((int)$productAvailabilityMetaValue)-1;
+
+            if ( !isset( Options::$availOptions[ $productAvailabilityMetaValue ] ) ) {
                 return [];
             }
-        } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK ) {
-            if ( isset( Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ] ) ) {
-                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ];
-            } else {
+
+            if($productAvailabilityMetaValue == count(Options::$availOptions)){
                 return [];
             }
-        } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS ) {
-            if ( isset( Options::$availOptions[ $this->options->get( 'avail_backorders' ) ] ) ) {
-                $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_backorders' ) ];
-            } else {
-                return [];
-            }
+
+            $array['availability'] = Options::$availOptions[ $productAvailabilityMetaValue ];
         } else {
-            $this->logger->addError(
-                'Product <strong>' . $array['name']
-                . '</strong> not included in XML file due to an incorrect availability',
-                $array
-            );
+            $productAvailability = $array['availability'];
 
-            return [];
+            if ( $productAvailability === WooArrayGenerator::AVAIL_IN_STOCK ) {
+                if ( isset( Options::$availOptions[ $this->options->get( 'avail_inStock' ) ] ) ) {
+                    $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_inStock' ) ];
+                } else {
+                    return [];
+                }
+            } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK ) {
+                if ( isset( Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ] ) ) {
+                    $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_outOfStock' ) ];
+                } else {
+                    return [];
+                }
+            } elseif ( $productAvailability === WooArrayGenerator::AVAIL_OUT_OF_STOCK_BACKORDERS ) {
+                if ( isset( Options::$availOptions[ $this->options->get( 'avail_backorders' ) ] ) ) {
+                    $array['availability'] = Options::$availOptions[ $this->options->get( 'avail_backorders' ) ];
+                } else {
+                    return [];
+                }
+            } else {
+                $this->logger->addError(
+                    'Product <strong>' . $array['name']
+                    . '</strong> not included in XML file due to an incorrect availability',
+                    $array
+                );
+
+                return [];
+            }
         }
 
         return $array;

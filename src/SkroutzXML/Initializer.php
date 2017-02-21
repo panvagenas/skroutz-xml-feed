@@ -26,6 +26,7 @@ class Initializer {
 //        add_action( 'wp_dashboard_setup', [ $this, 'addDashboardWidget' ] );
 
         add_action( 'admin_menu', [ $this->options, 'addMenuPages' ] );
+        add_action( 'save_post_product', [ $this->options, 'saveProductAvailability' ] );
 
         register_activation_hook( $this->pluginFile, [ $this, 'activation' ] );
         register_uninstall_hook( $this->pluginFile, [ '\\Pan\\SkroutzXML\\Initializer', 'uninstall' ] );
@@ -50,6 +51,14 @@ class Initializer {
         if(!$page_hook_id){
             return;
         }
+
+        add_meta_box(
+            'skroutz_availability_box',
+            'Skroutz.gr Availability',
+            [ $this->options, 'productAvailabilityBox' ],
+            'product',
+            'side'
+        );
 
         add_meta_box(
             'save_box',
