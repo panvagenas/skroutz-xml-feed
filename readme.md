@@ -42,6 +42,7 @@ along with this program.  If not, see [http://www.gnu.org/licenses/](http://www.
 
 #### 170126
 
+* Added functionality to define product availability per product
 * Added file compression (GZ)
 * Added weight field
 * Removed WS FW

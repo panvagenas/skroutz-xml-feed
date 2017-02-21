@@ -18,6 +18,8 @@ Generate an XML according to skroutz.gr XML feed specs
 #### Features
 
 * Exclude products by category or tag
+* Exclude specific products
+* Define availability per product
 * Supports fashion products (shoes, clothes etc)
 * Supports bookstores (ISBN field)
 * XML compression
@@ -42,6 +44,7 @@ Please consult WordPress plugin [installation guide](https://codex.wordpress.org
 
 #### 170126
 
+* Added functionality to define product availability per product
 * Added file compression (GZ)
 * Added weight field
 * Removed WS FW
