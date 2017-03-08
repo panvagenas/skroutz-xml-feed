@@ -165,10 +165,6 @@ class Product {
      * @since  170126
      */
     public function getPrice( $withTax = true ) {
-        if ( $salePrice = $this->product->get_sale_price() ) {
-            return $salePrice;
-        }
-
         return $withTax ? $this->product->get_price_including_tax() : $this->product->get_price_excluding_tax();
     }
 

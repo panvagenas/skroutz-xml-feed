@@ -174,7 +174,7 @@ class Options extends \Pan\MenuPages\Options {
             'map_image'              => '3', // TODO Need translation for the new version
             'map_category'           => 'product_cat',
             'map_category_tree'      => 0,
-            'map_price_with_vat'     => 1,
+            'map_price_with_vat'     => 0,
             'map_manufacturer'       => 'product_cat',
             'map_mpn'                => 0,
             'map_size'               => array(),
@@ -928,7 +928,6 @@ class Options extends \Pan\MenuPages\Options {
                     'label'    => 'Product Price',
                     'options'  => [
                         '0' => 'Regular Price',
-                        '1' => 'Sales Price',
                         '2' => 'Price Without Tax',
                     ],
                     'selected' => $this->get( 'map_price_with_vat' ),
