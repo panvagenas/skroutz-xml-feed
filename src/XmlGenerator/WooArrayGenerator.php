@@ -107,7 +107,7 @@ class WooArrayGenerator {
             $genProduct = new Product( $product );
 
             if ( $exCategories ) {
-                $pCats = get_the_terms( $product->id, 'product_cat' );
+                $pCats = get_the_terms( $product->get_id(), 'product_cat' );
                 if ( $pCats ) {
                     $pCats = wp_list_pluck( $pCats, 'term_id' );
                     foreach ( $pCats as $pCat ) {
@@ -119,7 +119,7 @@ class WooArrayGenerator {
             }
 
             if ( $exTags ) {
-                $pCats = get_the_terms( $product->id, 'product_tag' );
+                $pCats = get_the_terms( $product->get_id(), 'product_tag' );
                 if ( $pCats ) {
                     $pCats = wp_list_pluck( $pCats, 'term_id' );
                     foreach ( $pCats as $pCat ) {
@@ -151,7 +151,7 @@ class WooArrayGenerator {
                        . '</strong> failed. Reason(s) is(are): ' . implode( ', ', $reason );
 
                 $logData = array(
-                    'ID'             => $product->id,
+                    'ID'             => $product->get_id(),
                     'SKU'            => $product->get_sku(),
                     'is_purchasable' => $product->is_purchasable(),
                     'is_visible'     => $product->is_visible(),

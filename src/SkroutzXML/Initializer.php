@@ -165,7 +165,6 @@ class Initializer {
     public function checkRequest() {
         $generateVar    = $this->options->get( 'xml_generate_var' );
         $generateVarVal = $this->options->get( 'xml_generate_var_value' );
-
         if ( isset( $_REQUEST[ $generateVar ] ) && $_REQUEST[ $generateVar ] === $generateVarVal ) {
             add_action( 'wp_loaded', [ new Skroutz(), 'generateAndPrint' ], PHP_INT_MAX );
         }

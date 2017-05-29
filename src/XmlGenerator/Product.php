@@ -107,7 +107,7 @@ class Product {
     }
 
     public function getTaxonomyTermNames( $taxonomy, $includeParents = false, $parentsSep = ' > ' ) {
-        $terms = get_the_terms( $this->product->id, $taxonomy );
+        $terms = get_the_terms( $this->product->get_id(), $taxonomy );
         $out   = array();
 
         if ( is_array( $terms ) ) {
@@ -165,7 +165,7 @@ class Product {
      * @since  170126
      */
     public function getPrice( $withTax = true ) {
-        return $withTax ? $this->product->get_price_including_tax() : $this->product->get_price_excluding_tax();
+        return $withTax ? wc_get_price_including_tax($this->product) : wc_get_price_excluding_tax($this->product);
     }
 
     public function getImageLink( $size = 'full' ) {
@@ -175,7 +175,7 @@ class Product {
     }
 
     public function getId() {
-        return $this->product->id;
+        return $this->product->get_id();
     }
 
     public function getSku() {
@@ -203,7 +203,7 @@ class Product {
      * @since  170126
      */
     public function getAvailability() {
-        $stockStatusInStock = $this->product->stock_status === 'instock';
+        $stockStatusInStock = $this->product->is_in_stock();
         $manageStock        = $this->product->managing_stock();
         $backOrdersAllowed  = $this->product->backorders_allowed();
         $hasQuantity        = $this->product->get_stock_quantity() > 0;
