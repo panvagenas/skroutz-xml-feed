@@ -9,6 +9,7 @@ if ( ! defined( 'WPINC' ) ) {
 class Options {
     protected $mapId = 0;
     protected $mapMpn = 0;
+    protected $mapEan = 0;
     protected $mapName = 0;
     protected $mapNameAppendSku = 0;
     protected $mapImage = 'full';
@@ -29,6 +30,8 @@ class Options {
 
     protected $exclCategories = [];
     protected $exclTags = [];
+
+    protected $inclCategories = [];
 
     protected $inStock_Y = 'Y';
     protected $inStock_N = 'N';
@@ -521,4 +524,26 @@ class Options {
     public function getExclTags() {
         return $this->exclTags;
     }
+
+	/**
+	 * @return array
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @see Options::$inclCategories
+	 * @since TODO ${VERSION}
+	 * @codeCoverageIgnore
+	 */
+	public function getInclCategories() {
+		return $this->inclCategories;
+	}
+
+	/**
+	 * @return int
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @see Options::$mapEan
+	 * @since TODO ${VERSION}
+	 * @codeCoverageIgnore
+	 */
+	public function getMapEan() {
+		return $this->mapEan;
+	}
 }

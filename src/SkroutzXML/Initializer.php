@@ -166,6 +166,10 @@ class Initializer {
         $generateVar    = $this->options->get( 'xml_generate_var' );
         $generateVarVal = $this->options->get( 'xml_generate_var_value' );
         if ( isset( $_REQUEST[ $generateVar ] ) && $_REQUEST[ $generateVar ] === $generateVarVal ) {
+	        wp_suspend_cache_addition(true);
+	        wp_suspend_cache_invalidation(true);
+	        wp_defer_term_counting(true);
+
             add_action( 'wp_loaded', [ new Skroutz(), 'generateAndPrint' ], PHP_INT_MAX );
         }
     }

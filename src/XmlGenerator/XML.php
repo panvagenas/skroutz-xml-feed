@@ -137,6 +137,10 @@ class XML {
     }
 
     protected function isValidXmlName( $name ) {
+    	if(is_numeric($name)){
+    		return true;
+	    }
+
         $getIniDisplayErrors = ini_get( 'display_errors' );
         ini_set( 'display_errors', 0 );
         try {

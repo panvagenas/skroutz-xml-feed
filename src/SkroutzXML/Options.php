@@ -64,6 +64,7 @@ class Options extends \Pan\MenuPages\Options {
             'size'         => 'size',
             'isbn'         => 'isbn',
             'weight'       => 'weight',
+			'ean'          => 'ean',
         ];
 
     protected $intervalOptions
@@ -91,6 +92,7 @@ class Options extends \Pan\MenuPages\Options {
             'size'         => 500,
             'color'        => 100,
             'weight'       => 0,
+			'ean'          => 13,
         ];
     protected $requiredFields
         = [
@@ -162,6 +164,8 @@ class Options extends \Pan\MenuPages\Options {
             // Exclude products
             'ex_cats'                => [],
             'ex_tags'                => [],
+			// Include products
+			'in_cats'                => [],
             // compress options
             'xml_compress'           => $defaultCompress,
             /*********************
@@ -174,9 +178,10 @@ class Options extends \Pan\MenuPages\Options {
             'map_image'              => '3', // TODO Need translation for the new version
             'map_category'           => 'product_cat',
             'map_category_tree'      => 0,
-            'map_price_with_vat'     => 0,
+			'map_price_with_vat'     => 1,
             'map_manufacturer'       => 'product_cat',
             'map_mpn'                => 0,
+            'map_ean'                => 0,
             'map_size'               => array(),
             'map_color'              => array(),
             /***********************************************
@@ -195,6 +200,7 @@ class Options extends \Pan\MenuPages\Options {
         return [
             'mapId'            => $this->get( 'map_id' ),
             'mapMpn'           => $this->get( 'map_mpn' ),
+            'mapEan'           => $this->get( 'map_ean' ),
             'mapName'          => $this->get( 'map_name' ),
             'mapNameAppendSku' => $this->get( 'map_name_append_sku' ),
             'mapImage'         => $this->get( 'map_image' ),
@@ -208,6 +214,7 @@ class Options extends \Pan\MenuPages\Options {
             'fashionStore'     => $this->get( 'is_fashion_store' ),
             'bookStore'        => $this->get( 'is_book_store' ),
             'exclCategories'   => $this->get( 'ex_cats' ),
+			'inclCategories'   => $this->get( 'in_cats' ),
             'exclTags'         => $this->get( 'ex_tags' ),
         ];
     }
@@ -295,7 +302,11 @@ class Options extends \Pan\MenuPages\Options {
     }
 
     public function validateSettings( $newSettings ) {
-        $newSettings = array_intersect_key( $newSettings, $this->getDefaults() );
+		foreach ( $this->getDefaults() as $index => $default ) {
+            if(!isset($newSettings[$index])){
+                $newSettings[$index] = $default;
+            }
+		}
         $newSettings = array_merge( $this->getDefaults(), $this->getOptions(), $newSettings );
 
         $errors = false;
@@ -392,10 +403,13 @@ class Options extends \Pan\MenuPages\Options {
         }
 
         $newSettings['ex_cats'] = (array) $newSettings['ex_cats'];
-        array_walk( $newSettings['ex_cats'], 'strval' );
+		$newSettings['ex_cats'] = array_map( 'intval', $newSettings['ex_cats'] );
+
+		$newSettings['in_cats'] = (array) $newSettings['in_cats'];
+		$newSettings['in_cats'] = array_map( 'intval', $newSettings['in_cats'] );
 
         $newSettings['ex_tags'] = (array) $newSettings['ex_tags'];
-        array_walk( $newSettings['ex_tags'], 'strval' );
+		$newSettings['ex_tags'] = array_map( 'intval', $newSettings['ex_tags'] );
 
         $newSettings['map_id'] = (int) $newSettings['map_id'];
         if ( $newSettings['map_id'] < 0 ) {
@@ -495,6 +509,15 @@ class Options extends \Pan\MenuPages\Options {
                                 'error' );
             $errors = true;
             unset( $newSettings['map_mpn'] );
+        }
+        $newSettings['map_ean'] = (int) $newSettings['map_ean'];
+        if ( $newSettings['map_ean'] < 0 ) {
+            add_settings_error( $this->optionsBaseName,
+                                'settings_error',
+                                'Invalid <em>EAN</em> option value',
+                                'error' );
+            $errors = true;
+            unset( $newSettings['map_ean'] );
         }
 
         $newSettings['map_size'] = (array) $newSettings['map_size'];
@@ -770,6 +793,20 @@ class Options extends \Pan\MenuPages\Options {
                 );
             }
 
+			if ( $categories ) {
+				echo $this->getTwig()->loadAndRender(
+					'select',
+					[
+						'id'       => 'in_cats',
+						'name'     => $this->getOptionInputName( 'in_cats' ),
+						'label'    => 'Include products from certain categories (a product will be included in the XML iff has any of these categories)',
+						'options'  => $categories,
+						'selected' => $this->get( 'in_cats' ),
+						'multiple' => true,
+					]
+				);
+			}
+
             if ( $tags ) {
                 echo $this->getTwig()->loadAndRender(
                     'select',
@@ -855,6 +892,22 @@ class Options extends \Pan\MenuPages\Options {
                     'label'    => 'Product Manufacturer SKU',
                     'options'  => $options,
                     'selected' => $this->get( 'map_mpn' ),
+                ]
+            );
+
+            $options = ['0' => 'Don\'t have EANs'];
+            foreach ( $attrTaxonomies as $taxonomies ) {
+	            $options[ $taxonomies->attribute_id ] = $taxonomies->attribute_label;
+            }
+
+            echo $this->getTwig()->loadAndRender(
+                'select',
+                [
+                    'id'       => 'map_ean',
+                    'name'     => $this->getOptionInputName( 'map_ean' ),
+                    'label'    => 'EAN Number',
+                    'options'  => $options,
+                    'selected' => $this->get( 'map_ean' ),
                 ]
             );
 
@@ -1121,7 +1174,8 @@ class Options extends \Pan\MenuPages\Options {
             return;
         }
 
-        if ( $_POST[ self::PRODUCT_AVAIL_META_KEY ] == self::PRODUCT_AVAIL_USE_GLOBAL ) {
+
+		if ( isset( $_POST[ self::PRODUCT_AVAIL_META_KEY ] ) && $_POST[ self::PRODUCT_AVAIL_META_KEY ] == self::PRODUCT_AVAIL_USE_GLOBAL ) {
             delete_post_meta( $post_id, self::PRODUCT_AVAIL_META_KEY );
 
             return;

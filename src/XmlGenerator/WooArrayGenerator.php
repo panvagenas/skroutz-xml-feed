@@ -62,23 +62,45 @@ class WooArrayGenerator {
     }
 
     protected function getProductIds( $limit = 0, $offset = 0 ) {
-        global $wpdb;
+		$args = [
+			'post_type'      => 'product',
+			'post_status'    => [ 'publish' ],
+			'posts_per_page' => $limit ? $limit : - 1,
+			'fields'         => 'ids',
+		];
 
-        /** @noinspection SqlResolve */
-        $sql
-            = "SELECT ID
-                FROM {$wpdb->posts}
-                WHERE post_type = 'product' AND post_status = 'publish'
-                ORDER BY ID DESC";
-
-        if ( $limit ) {
-            $sql .= ' LIMIT ' . absint( $limit );
-        }
         if ( $offset ) {
-            $sql .= ' OFFSET ' . absint( $offset );
+			$args['offset'] = $offset;
         }
 
-        return (array) $wpdb->get_col( $sql );
+		if ( $this->options->getExclCategories() ) {
+			if ( ! isset( $args['tax_query'] ) ) {
+				$args['tax_query'] = [];
+			}
+			$args['tax_query'][] = [
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $this->options->getExclCategories(),
+				'operator' => 'NOT IN',
+			];
+		}
+
+		if ( $this->options->getInclCategories() ) {
+			if ( ! isset( $args['tax_query'] ) ) {
+				$args['tax_query'] = [];
+			}
+			$args['tax_query'][] = [
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $this->options->getInclCategories(),
+				'operator' => 'IN',
+			];
+		}
+
+		$q   = new \WP_Query( $args );
+		$res = $q->get_posts();
+
+		return $res;
     }
 
     public function getArray( $limit = 0, $offset = 0 ) {
@@ -87,7 +109,13 @@ class WooArrayGenerator {
         $memLimit = $mem - ( 10 * 1024 * 1024 );
 
         $exCategories = $this->options->getExclCategories();
+		$exCategories = array_map( 'intval', $exCategories );
+
         $exTags       = $this->options->getExclTags();
+		$exTags = array_map( 'intval', $exTags );
+
+		$inclCategories = $this->options->getInclCategories();
+		$inclCategories = array_map( 'intval', $inclCategories );
 
         $return = [];
 
@@ -106,15 +134,16 @@ class WooArrayGenerator {
 
             $genProduct = new Product( $product );
 
-            if ( $exCategories ) {
+			if ( $exCategories || $inclCategories ) {
                 $pCats = get_the_terms( $product->get_id(), 'product_cat' );
-                if ( $pCats ) {
                     $pCats = wp_list_pluck( $pCats, 'term_id' );
-                    foreach ( $pCats as $pCat ) {
-                        if ( in_array( $pCat, $exCategories ) ) {
-                            continue 2;
+
+				if ( $exCategories && array_intersect( $pCats, $exCategories ) ) {
+					continue;
                         }
-                    }
+
+				if ( $inclCategories && ! array_intersect( $pCats, $inclCategories ) ) {
+					continue;
                 }
             }
 
@@ -137,7 +166,7 @@ class WooArrayGenerator {
             if ( ! $product->is_purchasable() ) {
                 $reason[] = 'product is not purchasable';
             }
-            if ( ! $product->is_visible() ) {
+			if ( ! $product->is_visible() && ! ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $product->is_in_stock() ) ) {
                 $reason[] = 'product is not visible';
             }
 
@@ -258,8 +287,15 @@ class WooArrayGenerator {
             }
         }
 
-        if ( $product->hasWeight() ) {
-            $out['weight'] = $product->getWeight();
+		if ( $product->hasWeight() && $weight = $product->getWeight() ) {
+			$out['weight'] = $weight;
+		}
+
+        if($this->options->getMapEan() != 0){
+        	$ean = $product->getAttrValue( $this->options->getMapEan());
+        	if($ean){
+		        $out['ean'] = $ean;
+	        }
         }
 
         return call_user_func( $this->prodArrayValidator, $out );

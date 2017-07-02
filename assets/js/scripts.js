@@ -1,7 +1,7 @@
 jQuery( document ).ready(
     function ( $ ) {
-        $( "#general_options" ).find( "select[multiple]" ).select2();
-        $( "#map_options" ).find( "select[multiple]" ).select2();
+        $( "#general_options" ).find( "select[multiple]" ).select2({allowClear: true, placeholder: "Search"});
+        $( "#map_options" ).find( "select[multiple]" ).select2({allowClear: true, placeholder: "Search"});
 
         function updateLogMarkUp( newMarkUp ) {
             var $logTab = $( '#log-container' );

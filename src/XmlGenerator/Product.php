@@ -165,7 +165,16 @@ class Product {
      * @since  170126
      */
     public function getPrice( $withTax = true ) {
-        return $withTax ? wc_get_price_including_tax($this->product) : wc_get_price_excluding_tax($this->product);
+        if ( $salePrice = $this->product->get_sale_price() ) {
+            return $salePrice;
+        }
+
+        $price = $withTax ? wc_get_price_including_tax($this->product) : wc_get_price_excluding_tax($this->product);
+        if(strpos($price, '-') !== false){
+        	$parts = explode('-', $price);
+        	$price = $parts[0];
+        }
+        return $price;
     }
 
     public function getImageLink( $size = 'full' ) {
@@ -203,7 +212,7 @@ class Product {
      * @since  170126
      */
     public function getAvailability() {
-        $stockStatusInStock = $this->product->is_in_stock();
+        $stockStatusInStock = $this->product->get_stock_status() === 'instock';
         $manageStock        = $this->product->managing_stock();
         $backOrdersAllowed  = $this->product->backorders_allowed();
         $hasQuantity        = $this->product->get_stock_quantity() > 0;
