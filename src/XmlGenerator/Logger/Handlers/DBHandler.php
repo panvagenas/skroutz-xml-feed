@@ -56,6 +56,9 @@ class DBHandler extends AbstractProcessingHandler {
             'message' => $record['formatted'],
             'time'    => $datetime->format( 'U' ),
         );
+	}
+
+	public function __destruct() {
         update_option( $this->logName, $this->logs );
     }
 
