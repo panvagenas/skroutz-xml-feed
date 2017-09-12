@@ -134,16 +134,18 @@ class WooArrayGenerator {
 
             $genProduct = new Product( $product );
 
-			if ( $exCategories || $inclCategories ) {
+            if ( $exCategories || $inclCategories ) {
                 $pCats = get_the_terms( $product->get_id(), 'product_cat' );
+                if ( $pCats ) {
                     $pCats = wp_list_pluck( $pCats, 'term_id' );
 
-				if ( $exCategories && array_intersect( $pCats, $exCategories ) ) {
-					continue;
-                        }
+                    if ( $exCategories && array_intersect( $pCats, $exCategories ) ) {
+                        continue;
+                    }
 
-				if ( $inclCategories && ! array_intersect( $pCats, $inclCategories ) ) {
-					continue;
+                    if ( $inclCategories && ! array_intersect( $pCats, $inclCategories ) ) {
+                        continue;
+                    }
                 }
             }
 
