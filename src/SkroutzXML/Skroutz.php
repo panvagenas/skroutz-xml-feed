@@ -236,6 +236,11 @@ class Skroutz {
         exit( 0 );
     }
 
+	/**
+	 * @return Logger
+	 * @author Panagiotis Vagenas <pan.vagenas@gmail.com>
+	 * @since TODO ${VERSION}
+	 */
     public function getLogger() {
         return $this->logger;
     }
